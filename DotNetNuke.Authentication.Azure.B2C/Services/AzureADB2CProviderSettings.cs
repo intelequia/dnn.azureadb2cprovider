@@ -118,7 +118,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 RoleSyncEnabled = settings.RoleSyncEnabled,
                 ProfileSyncEnabled = settings.ProfileSyncEnabled,
                 JwtAuthEnabled = settings.JwtAuthEnabled,
-                APIResource = settings.ApiResource + (!settings.ApiResource.EndsWith("/") ? "/" : ""),
+                APIResource = settings.ApiResource + (!string.IsNullOrEmpty(settings.ApiResource.Trim()) && !settings.ApiResource.EndsWith("/") ? "/" : ""),
                 Scopes = settings.Scopes
             };
 

@@ -152,15 +152,14 @@ class SyncSettings extends Component {
                     <GridSystem  numberOfColumns={2}>
                         <GridCell columnSize={90}>
                             <SingleLineInputWithError
-                                    withLabel={true}
-                                    label={resx.get("lblAppIdUri")}
-                                    enabled={true}
-                                    error={this.state.error.apiResource}
-                                    errorMessage=""
-                                    tooltipMessage={resx.get("lblAppIdUri.Help")}
-                                    value={this.props.apiResource}
-                                    onChange={this.onSettingChange.bind(this, "apiResource")}
-                                />
+                                withLabel={true}
+                                label={resx.get("lblAppIdUri")}
+                                enabled={true}
+                                error={this.state.error.apiResource}
+                                errorMessage=""
+                                tooltipMessage={resx.get("lblAppIdUri.Help")}
+                                value={this.props.apiResource}
+                                onChange={this.onSettingChange.bind(this, "apiResource")} />
                         </GridCell>
                         <GridCell columnSize={100}>
                             <SingleLineInputWithError
