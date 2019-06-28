@@ -1,0 +1,186 @@
+<dotnetnuke type="Package" version="5.0">
+  <packages>
+    <package name="AzureADB2CProvider" type="Auth_System" version="01.00.00">
+      <friendlyName>DNN Azure Active Directory B2C Provider</friendlyName>
+      <description>
+        The DNN Azure Active Directory B2C Provider is an Authentication provider for DNN Platform that uses Azure Active Directory B2C OAuth2 authentication to authenticate users.
+      </description>
+      <iconFile>~/DesktopModules/AuthenticationServices/AzureB2C/Images/azure.png</iconFile>
+      <owner>
+        <name>Intelequia</name>
+        <organization>Intelequia Software Solutions</organization>
+        <url>http://intelequia.com</url>
+        <email>info@intelequia.com</email>
+      </owner>
+      <license src="AzureADB2CLicense.txt" />
+      <releaseNotes src="AzureADB2CReleaseNotes.txt"/>
+      <azureCompatible>true</azureCompatible>
+      <dependencies>
+        <dependency type="CoreVersion">09.03.00</dependency>
+        <dependency type="ManagedPackage" version="01.00.00">Dnn.PersonaBar.UI</dependency>
+      </dependencies>
+
+      <components>
+        <component type="AuthenticationSystem">
+          <authenticationService>
+            <type>AzureB2C</type>
+            <settingsControlSrc>DesktopModules/AuthenticationServices/AzureB2C/Settings.ascx</settingsControlSrc>
+            <loginControlSrc>DesktopModules/AuthenticationServices/AzureB2C/Login.ascx</loginControlSrc>
+            <logoffControlSrc>DesktopModules/AuthenticationServices/AzureB2C/Logoff.ascx</logoffControlSrc>
+          </authenticationService>
+        </component>
+        <component type="Assembly">
+          <assemblies>
+            <assembly>
+              <path>bin</path>
+              <name>DotNetNuke.Authentication.Azure.B2C.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>System.IdentityModel.Tokens.Jwt.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Microsoft.IdentityModel.Clients.ActiveDirectory.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Microsoft.IdentityModel.Protocols.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Microsoft.IdentityModel.Protocols.OpenIdConnect.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Microsoft.IdentityModel.Tokens.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Microsoft.IdentityModel.Logging.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Microsoft.IdentityModel.JsonWebTokens.dll</name>
+            </assembly>
+          </assemblies>
+        </component>
+        <component type="ResourceFile">
+          <resourceFiles>
+            <basePath>DesktopModules/AuthenticationServices/AzureB2C</basePath>
+            <resourceFile>
+              <name>Resources.zip</name>
+            </resourceFile>
+          </resourceFiles>
+        </component>
+        <component type="ResourceFile">
+          <resourceFiles>
+            <basePath>DesktopModules/admin/Dnn.PersonaBar/Modules/Dnn.AzureADB2C</basePath>
+            <resourceFile>
+              <name>PersonaBarResources.zip</name>
+            </resourceFile>
+          </resourceFiles>
+        </component>
+
+        <component type="PersonaBarMenu">
+          <menu>
+            <identifier>Dnn.AzureADB2C</identifier>
+            <moduleName>AzureADB2C</moduleName>
+            <controller>DotNetNuke.Authentication.Azure.B2C.Components.MenuController, DotNetNuke.Authentication.Azure.B2C</controller>
+            <resourceKey>nav_AzureADB2C</resourceKey>
+            <path>AzureADB2C</path>
+            <parent>Settings</parent>
+            <mobileSupport>true</mobileSupport>
+            <order>10</order>
+          </menu>
+        </component>
+
+        <!-- Database scripts -->
+        <component type="Script">
+          <scripts>
+            <basePath>DesktopModules\AuthenticationServices\AzureB2C</basePath>
+            <script type="Install">
+              <path>Providers\DataProviders\SqlDataProvider</path>
+              <name>01.00.00.SqlDataProvider</name>
+              <version>01.00.00</version>
+            </script>
+
+            <script type="UnInstall" >
+              <path>Providers\DataProviders\SqlDataProvider</path>
+              <name>uninstall.SqlDataProvider</name>
+              <version>01.00.00</version>
+            </script>
+          </scripts>
+        </component>
+         
+        <component type="Module">
+          <desktopModule>
+            <moduleName>AzureAD.B2C.UserProfile</moduleName>
+            <foldername>AzureAD.B2C.UserProfile</foldername>
+            <businessControllerClass>DotNetNuke.Authentication.Azure.B2C.Components.FeatureController</businessControllerClass>
+            <supportedFeatures>
+              <supportedFeature type="Upgradeable" />
+            </supportedFeatures>
+            <moduleDefinitions>
+              <moduleDefinition>
+                <friendlyName>AzureAD.B2C.UserProfile</friendlyName>
+                <defaultCacheTime>0</defaultCacheTime>
+                <moduleControls>
+                  <moduleControl>
+                    <controlKey />
+                    <controlSrc>DesktopModules/AuthenticationServices/AzureB2C/UserProfile.ascx</controlSrc>
+                    <supportsPartialRendering>False</supportsPartialRendering>
+                    <controlTitle />
+                    <controlType>View</controlType>
+                    <iconFile />
+                    <helpUrl />
+                    <viewOrder>0</viewOrder>
+                  </moduleControl>
+                </moduleControls>
+              </moduleDefinition>
+            </moduleDefinitions>
+          </desktopModule>
+        </component>
+
+        <component type="Config">
+          <config>
+            <configFile>web.config</configFile>
+            <install>
+              <configuration>
+                <nodes>
+                  <node path="/configuration/system.webServer" action="update" targetpath="/configuration/system.webServer/security" collision="ignore">
+                    <security>
+                      <requestFiltering>
+                        <requestLimits maxQueryString="32768"/>
+                      </requestFiltering>
+                    </security>
+                  </node>
+                  <node path="/configuration/system.webServer/security/requestFiltering" action="remove" />
+                  <node path="/configuration/system.webServer/security" action="add" key="requestFiltering" collision="overwrite">
+                    <requestFiltering></requestFiltering>
+                  </node>
+                  <node path="/configuration/system.webServer/security/requestFiltering" action="add" key="requestLimits" collision="overwrite">
+                    <requestLimits maxQueryString="32768"/>
+                  </node>
+                  <node path="/configuration/dotnetnuke/authServices/messageHandlers" action="update" key="name" collision="overwrite">
+                    <add name="B2CAuth" type="DotNetNuke.Authentication.Azure.B2C.Auth.B2CAuthMessageHandler, DotNetNuke.Authentication.Azure.B2C"
+                         enabled="true" defaultInclude="false" forceSSL="true" />
+                  </node>
+                </nodes>
+              </configuration>
+            </install>
+            <uninstall>
+              <configuration>
+                <nodes>
+                  <node path="/configuration/system.webServer/security/requestFiltering/requestLimits[@maxQueryString='32768']" action="remove" />
+                  <node path="/configuration/dotnetnuke/authServices/messageHandlers/add[@name='B2CAuth']" action="remove" />
+                </nodes>
+              </configuration>
+            </uninstall>
+          </config>
+        </component>
+        
+      </components>
+    </package>
+  </packages>
+</dotnetnuke>

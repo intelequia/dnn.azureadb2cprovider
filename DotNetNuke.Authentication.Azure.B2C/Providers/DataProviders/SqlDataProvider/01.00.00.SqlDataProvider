@@ -1,0 +1,30 @@
+﻿IF NOT EXISTS (SELECT * FROM {databaseOwner}[{objectQualifier}Schedule] WHERE TypeFullName = 'DotNetNuke.Authentication.Azure.B2C.ScheduledTasks.SyncSchedule, DotNetNuke.Authentication.Azure.B2C')
+BEGIN
+	INSERT INTO {databaseOwner}[{objectQualifier}Schedule]
+           ([TypeFullName]
+           ,[TimeLapse]
+           ,[TimeLapseMeasurement]
+           ,[RetryTimeLapse]
+           ,[RetryTimeLapseMeasurement]
+           ,[RetainHistoryNum]
+           ,[AttachToEvent]
+           ,[CatchUpEnabled]
+           ,[Enabled]
+           ,[ObjectDependencies]
+           ,[Servers]
+           ,[CreatedByUserID]
+           ,[CreatedOnDate]
+           ,[LastModifiedByUserID]
+           ,[LastModifiedOnDate]
+           ,[FriendlyName])
+     VALUES
+           ('DotNetNuke.Authentication.Azure.B2C.ScheduledTasks.SyncSchedule, DotNetNuke.Authentication.Azure.B2C',
+		   3, 'h',
+		   30, 'm',
+		   10,
+		   '', 'false', 'true',
+		   '', NULL,
+		   NULL, NULL,
+		   NULL, NULL,
+		   'Azure AD B2C Sync')
+END

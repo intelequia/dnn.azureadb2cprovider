@@ -1,0 +1,100 @@
+.items-table {
+    width: 100%;
+    margin-top: 10px;
+}
+
+    .items-table th {
+        border: 1px solid #333;
+        padding: 10px;
+        background-color: #ddd;
+    }
+
+    .items-table td {
+        padding: 5px;
+    }
+
+.dnnFormItem label,
+.dnnFormItem .dnnFormLabel,
+.dnnFormItem .dnnTooltip {
+    display: block;
+    width: 30%;
+    text-align: right;
+    margin-right: 16px;
+    font-weight: bold;
+    float: left;
+    margin-top: 3px;
+}
+
+    .dnnFormItem .dnnTooltip label {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+.dnnForm .dnnFormSecondItem label {
+    float: none
+}
+
+.dnnFormItem span.inline label {
+    display: inline;
+    width: auto;
+}
+
+.dnnFormItem input[type="text"],
+.dnnFormItem .dnnFormInput,
+.dnnFormItem textarea {
+    float: left;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    padding: 5px;
+    background: #fffff5;
+    -moz-box-shadow: inset 0 0 3px 3px #fffbe1;
+    -webkit-box-shadow: inset 0 0 3px 3px #fffbe1;
+    box-shadow: inset 0 0 3px 3px #fffbe1;
+    border-color: #bcb691;
+    border-width: 1px;
+    margin: 0;
+    width: auto;
+    font-family: Helvetica, Arial, Verdana, sans-serif;
+}
+
+.dnnFormItem select {
+    width: auto;
+    padding: 0;
+}
+
+.dnnFormItem input[type="text"],
+.dnnFormItem textarea {
+    min-width: 35%
+}
+
+.dnnFormItem textarea {
+    min-height: 80px
+}
+
+.dnnForm input.dnnFormRequired,
+.dnnForm textarea.dnnFormRequired,
+.dnnForm select.dnnFormRequired {
+    border-left: 5px #F00 solid
+}
+
+.dnnFormRadioButtons {
+    float: left;
+    width: auto;
+    display: block;
+}
+
+    .dnnFormRadioButtons input[type=radio] {
+        clear: both
+    }
+
+    .dnnFormRadioButtons label {
+        font-weight: normal;
+        margin: 0 10px 0 4px;
+        width: auto;
+        text-align: left;
+        padding-right: 0;
+    }
+.dnnFormError {
+    margin-top: 10px;
+}

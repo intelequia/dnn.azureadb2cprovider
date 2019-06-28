@@ -1,0 +1,64 @@
+﻿@inherits Dnn.Modules.B2CTasksSPA_WebAPI_Client.Components.DnnB2CWebViewPage
+
+@using DotNetNuke.Web.Client.ClientResourceManagement
+@using DotNetNuke.Framework.JavaScriptLibraries
+@{
+    JavaScript.RequestRegistration("Knockout");
+    JavaScript.RequestRegistration("JQuery");
+    ClientResourceManager.RegisterStyleSheet(Dnn.DnnPage, "~/DesktopModules/MVC/SPA_WebAPI_Client/module.css");
+    ClientResourceManager.RegisterScript(Dnn.DnnPage, "~/DesktopModules/MVC/SPA_WebAPI_Client/scripts/itemView.js", 101);
+}
+
+@using System.Text.RegularExpressions
+@using DotNetNuke.Web.Mvc.Helpers
+
+<h1>To-Do List</h1>
+<p>
+    This sample module shows how to interact with an external WebAPI by using Azure AD B2C authorization. Before
+    running this example, you need to setup the Tasks WebAPI example by following the instructions available at
+    <a hhref="https://github.com/Azure-Samples/active-directory-b2c-dotnet-webapp-and-webapi">https://github.com/Azure-Samples/active-directory-b2c-dotnet-webapp-and-webapi</a>.
+    The module expects the WebAPI project available on https://localhost:44332/
+</p>
+<div id="Todo-@Dnn.ModuleContext.ModuleId">
+    <div id="NewItem-@Dnn.ModuleContext.ModuleId" class="dnnForm">
+        <fieldset>
+            <div class="dnnFormItem">
+                <input type="text" id="txtNewItem-@Dnn.ModuleContext.ModuleId" data-bind="value: newItemValue" />
+                <a class="dnnPrimaryAction" data-bind="click: addItem">@Dnn.LocalizeString("AddItem")</a>
+            </div>
+        </fieldset>
+    </div>
+
+    <div id="Items-@Dnn.ModuleContext.ModuleId" class="dnnForm">
+        <table class="items-table">
+            <tr>
+                <th colspan="2">Items:</th>
+            </tr>
+            <!-- ko foreach: itemList -->
+            <tr>
+                <td>
+                    <a class="dnnSecondaryAction" data-bind="click: $parent.deleteItem">@Dnn.LocalizeString("DeleteItem")</a>
+                    <span data-bind="text: name"></span>
+                </td>
+            </tr>
+            <!-- /ko -->
+        </table>
+        <div data-bind="visible: errormsg() !== ''">
+            <span class="dnnFormMessage dnnFormError" data-bind="text: errormsg;"></span>
+        </div>
+    </div>
+</div>
+
+
+<script language="javascript" type="text/javascript">
+    jQuery(function ($) {
+        var moduleId = parseInt("@Dnn.ModuleContext.ModuleId");
+        // Using WebAPI Task demo from https://github.com/Azure-Samples/active-directory-b2c-dotnet-webapp-and-webapi
+        var apiUrl = "https://localhost:44332/"
+        var localizedSettings = {};
+        var token = "@AuthToken";
+        var viewmodel = new SPA_WebAPI_Client.itemListViewModel(moduleId, localizedSettings, apiUrl, token);
+        viewmodel.init();
+        ko.applyBindings(viewmodel, $("#Todo-" + moduleId)[0]);
+    });
+</script>

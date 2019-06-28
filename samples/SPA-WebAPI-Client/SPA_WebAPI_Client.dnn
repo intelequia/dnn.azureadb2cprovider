@@ -1,0 +1,84 @@
+<dotnetnuke type="Package" version="5.0">
+  <packages>
+    <package name="SPA_WebAPI_Client" type="Module" version="00.00.01">
+      <friendlyName>SPA_WebAPI_Client</friendlyName>
+      <description>SPA_WebAPI_Client</description>
+      <iconFile>~/Icons/Sigma/Software_32X32_Standard.png</iconFile>
+      <owner>
+        <name>Intelequia</name>
+        <organization>Intelequia</organization>
+        <url>https://intelequia.com</url>
+        <email>support@intelequia.com</email>
+      </owner>
+      <license src="License.txt"></license>
+      <releaseNotes src="ReleaseNotes.txt"></releaseNotes>
+      <dependencies>
+        <dependency type="CoreVersion">09.03.02</dependency>
+      </dependencies>
+      <components>
+        <component type="ResourceFile">
+          <resourceFiles>
+            <basePath>DesktopModules/MVC/SPA_WebAPI_Client</basePath>
+            <resourceFile>
+              <name>Resources.zip</name>
+            </resourceFile>
+          </resourceFiles>
+        </component>
+        <component type="Module">
+          <desktopModule>
+            <moduleName>SPA_WebAPI_Client</moduleName>
+            <foldername>SPA_WebAPI_Client</foldername>
+            <businessControllerClass></businessControllerClass>
+            <supportedFeatures />
+            <moduleDefinitions>
+              <moduleDefinition>
+                <friendlyName>SPA_WebAPI_Client</friendlyName>
+                <defaultCacheTime>0</defaultCacheTime>
+                <moduleControls>
+                  <moduleControl>
+                    <controlKey />
+                    <controlSrc>SPA_WebAPI_Client/Item/Index.mvc</controlSrc>
+                    <supportsPartialRendering>False</supportsPartialRendering>
+                    <controlTitle />
+                    <controlType>View</controlType>
+                    <iconFile />
+                    <helpUrl />
+                    <viewOrder>0</viewOrder>
+                  </moduleControl>
+                </moduleControls>
+              </moduleDefinition>
+            </moduleDefinitions>
+          </desktopModule>
+        </component>
+        <component type="Assembly">
+          <assemblies>
+            <assembly>
+              <name>SPA-WebAPI-Client.dll</name>
+              <path>bin</path>
+            </assembly>
+            <assembly>
+              <name>System.Web.Mvc.dll</name>
+              <path>bin</path>
+            </assembly>
+            <assembly>
+              <name>System.Web.Razor.dll</name>
+              <path>bin</path>
+            </assembly>
+            <assembly>
+              <name>System.Web.WebPages.Deployment.dll</name>
+              <path>bin</path>
+            </assembly>
+            <assembly>
+              <name>System.Web.WebPages.dll</name>
+              <path>bin</path>
+            </assembly>
+            <assembly>
+              <name>System.Web.WebPages.Razor.dll</name>
+              <path>bin</path>
+            </assembly>
+          </assemblies>
+        </component>
+      </components>
+    </package>
+  </packages>
+</dotnetnuke>

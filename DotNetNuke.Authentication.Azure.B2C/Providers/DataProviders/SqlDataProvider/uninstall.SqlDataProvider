@@ -1,0 +1,19 @@
+﻿DELETE {databaseOwner}[{objectQualifier}PortalSettings]
+ WHERE SettingName IN
+ (
+     'AzureB2C_APIKey'
+   , 'AzureB2C_APISecret'
+   , 'AzureB2C_AutoRedirect'
+   , 'AzureB2C_Enabled'
+   , 'AzureB2C_TenantName'
+   , 'AzureB2C_TenantId'
+   , 'AzureB2C_SignUpPolicy'
+   , 'AzureB2C_ProfilePolicy'
+   , 'AzureB2C_PasswordResetPolicy'
+ )
+GO
+
+DELETE FROM {databaseOwner}[{objectQualifier}Schedule] 
+WHERE TypeFullName = 'DotNetNuke.Authentication.Azure.B2C.ScheduledTasks.SyncSchedule, DotNetNuke.Authentication.Azure.B2C')
+GO
+
