@@ -37,7 +37,7 @@ This provider can also retrieve all personal information stored in the user attr
 * When a user logins on Azure AD B2C, the B2C profile and roles are synchronized with DNN profile and DNN roles. If a role doesn't exist, is created in the process
 * Supports User profile picture synchronization as part of the profile synchronization
 * Supports JWT authorization. If enabled, developers can get a JWT auth token directly from Azure B2C login using the "Resource Owner" policy, and then use that token to call any DNN WebAPI Controller with the Auth scheme "JWT".
-
+* Supports for 3rd party WebAPI integration through API Resource and scopes implementation
 
 <a name="installation-and-configuration-guide"></a>
 ## Installation and configuration guide
