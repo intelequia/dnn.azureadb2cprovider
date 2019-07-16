@@ -67,7 +67,7 @@ To do that, on Azure Portal, go to your B2C Directory then click User flows (pol
 To support the role and profile synchronization by internally using the Microsoft Graph API, a service principal is needed to call the API. To setup the service principal:
 
 1. Go to https://portal.azure.com to setup the required applications on your Azure Active Directory. You need to use the user credentials of a user with at least "Service Admin" role. Note that this application is different from the one created previously on the B2C section, is a regular application on the Azure AD, not a B2C application.
-2. In the left-hand navigation pane, click the Azure Active Directory service, click **App registrations**, and click **New application registration**.
+2. In the left-hand navigation pane, click the Azure Active Directory service, click **App registrations (Legacy)**, and click **New application registration**.
 3. When the **Create** page appears, enter your application's registration information:
     * **Name**: Enter a meaningful application name. This can be any name you want and is simply how you will identify the application in your Azure Active Directory (i.e. "My DNN MS Graph Application").
     * **Application type**: Select "Web app / API" (notice that Web Applications and Web API’s are considered the same type of application as far as Azure AD is concerned)
