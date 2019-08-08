@@ -1,5 +1,5 @@
 # DNN Azure Active Directory B2C provider
-[![Latest release](docs/images/BadgeRelease.svg)](https://github.com/intelequia/dnn.azureadb2cprovider/releases)[![Build Status](https://intelequia.visualstudio.com/DNN%20Azure%20AD%20B2C/_apis/build/status/DNN%20Azure%20AD%20B2C-%20CI?branchName=master)](https://intelequia.visualstudio.com/DNN%20Azure%20AD%20B2C/_build/latest?definitionId=27&branchName=master)
+[![Latest release](docs/images/BadgeRelease.svg)](https://github.com/intelequia/dnn.azureadb2cprovider/releases) [![Build Status](https://intelequia.visualstudio.com/DNN%20Azure%20AD%20B2C/_apis/build/status/DNN%20Azure%20AD%20B2C-%20CI?branchName=master)](https://intelequia.visualstudio.com/DNN%20Azure%20AD%20B2C/_build/latest?definitionId=27&branchName=master)
 
 ## Contents
 - [Overview](#overview)
