@@ -23,6 +23,7 @@
       <InstallInclude Include="**\images\*.png" Exclude="**\admin\personaBar\**" />
       <InstallInclude Include="**\App_LocalResources\*.resx" Exclude="**\admin\personaBar\**" />
       <InstallInclude Include="**\DnnProfileMappings.config" Exclude="**\admin\personaBar\**" />
+      <InstallInclude Include="**\DnnRoleMappings.config" Exclude="**\admin\personaBar\**" />
     </ItemGroup>
 
     <ItemGroup>
