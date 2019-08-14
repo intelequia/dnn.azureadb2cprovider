@@ -10,9 +10,26 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
 {
     public class SyncSchedule : SchedulerClient
     {
+        private const string RoleMappingsFilePath = "~/DesktopModules/AuthenticationServices/AzureB2C/DnnRoleMappings.config";
+
         public SyncSchedule(ScheduleHistoryItem oItem) : base()
         {
             ScheduleHistoryItem = oItem;
+        }
+
+        private RoleMappings _customRoleMappings;
+        public RoleMappings CustomRoleMappings
+        {
+            get
+            {
+                if (_customRoleMappings == null)
+                {
+                    
+                    _customRoleMappings = RoleMappings.GetRoleMappings(System.Web.Hosting.HostingEnvironment.MapPath(RoleMappingsFilePath));
+                }
+
+                return _customRoleMappings;
+            }
         }
 
         public override void DoWork()
@@ -50,51 +67,57 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
             }
         }
 
+        /// <summary>
+        /// For all dnn role to b2c group mappings configured in DnnRoleMappings.config, and that exist in AzureB2C tenant, insure that roles exist on dnn.
+        /// </summary>
+        /// <param name="portalId">PortalID of the dnn portal where roles are created.</param>
+        /// <param name="settings">Configuration settings for module</param>
+        /// <returns>Logging message(s) of job execution.</returns>
         internal string SyncRoles(int portalId, AzureConfig settings)
         {
             try
             {
-                if (string.IsNullOrEmpty(settings.AADApplicationId) || string.IsNullOrEmpty(settings.AADApplicationKey))
+                if (CustomRoleMappings == null || CustomRoleMappings.RoleMapping == null || CustomRoleMappings.RoleMapping.Length == 0)
                 {
-                    throw new Exception($"AAD application ID or key are not valid on portal {portalId}");
+                    return "No role mappings configured.  See DnnRoleMappings.config in module root folder.";
                 }
-
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                // Add roles from AAD B2C
-                var aadGroups = graphClient.GetAllGroups("");
-                if (aadGroups != null && aadGroups.Values != null)
+                else
                 {
-                    foreach (var aadGroup in aadGroups.Values)
+                    if (string.IsNullOrEmpty(settings.AADApplicationId) || string.IsNullOrEmpty(settings.AADApplicationKey))
                     {
-                        var dnnRole = Security.Roles.RoleController.Instance.GetRoleByName(portalId, $"AzureB2C-{aadGroup.DisplayName}");
-                        if (dnnRole == null)
+                        throw new Exception($"AAD application ID or key are not valid on portal {portalId}");
+                    }
+
+                    var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+
+
+                    // Add roles from AAD B2C
+                    var aadGroups = graphClient.GetAllGroups("");
+                    if (aadGroups != null && aadGroups.Values != null)
+                    {
+                        foreach (var mapGroup in CustomRoleMappings.RoleMapping)
                         {
-                            // Create role
-                            var roleId = Security.Roles.RoleController.Instance.AddRole(new Security.Roles.RoleInfo
+                            var dnnRole = Security.Roles.RoleController.Instance.GetRoleByName(portalId, mapGroup.DnnRoleName);
+                            var aadGroup = aadGroups.Values.FirstOrDefault(s => s.DisplayName == mapGroup.B2cRoleName);
+
+                            if (dnnRole == null && aadGroup != null)
                             {
-                                RoleName = $"AzureB2C-{aadGroup.DisplayName}",
-                                Description = aadGroup.Description,
-                                PortalID = portalId,
-                                Status = Security.Roles.RoleStatus.Approved,
-                                RoleGroupID = -1,
-                                AutoAssignment = false,
-                                IsPublic = false
-                            });
+                                // Create role
+                                var roleId = Security.Roles.RoleController.Instance.AddRole(new Security.Roles.RoleInfo
+                                {
+                                    RoleName = mapGroup.B2cRoleName,
+                                    Description = aadGroup.Description,
+                                    PortalID = portalId,
+                                    Status = Security.Roles.RoleStatus.Approved,
+                                    RoleGroupID = -1,
+                                    AutoAssignment = false,
+                                    IsPublic = false
+                                });
+                            }
                         }
                     }
                 }
 
-                // Remove roles no longer exists on AAD B2C
-                var dnnRoles = Security.Roles.RoleController.Instance.GetRoles(portalId, x => x.RoleName.StartsWith($"AzureB2C-"));
-                foreach (var dnnRole in dnnRoles)
-                {
-                    if (aadGroups == null
-                        || aadGroups.Values == null
-                        || aadGroups.Values.FirstOrDefault(x => x.DisplayName == dnnRole.RoleName.Substring($"AzureB2C-".Length)) == null)
-                    {
-                        Security.Roles.RoleController.Instance.DeleteRole(dnnRole);
-                    }
-                }
                 return $"Successfully synchronized portal {portalId}";
             }
             catch (Exception e)

@@ -62,6 +62,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         private const string AuthorizationEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/authorize";
         private const string GraphEndpointPattern = "https://graph.windows.net/{0}";
         private const string ProfileMappingsFilePath = "~/DesktopModules/AuthenticationServices/AzureB2C/DnnProfileMappings.config";
+        private const string RoleMappingsFilePath = "~/DesktopModules/AuthenticationServices/AzureB2C/DnnRoleMappings.config";
 
         private static readonly ILog Logger = LoggerSource.Instance.GetLogger(typeof(AzureClient));
         private GraphClient _graphClient;
@@ -89,14 +90,30 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         private readonly AzureConfig Settings;
 
         private ProfileMappings _customClaimsMappings;
-        public ProfileMappings CustomClaimsMappings {
-            get {
+        public ProfileMappings CustomClaimsMappings
+        {
+            get
+            {
                 if (_customClaimsMappings == null)
                 {
                     _customClaimsMappings = ProfileMappings.GetProfileMappings(HttpContext.Current.Server.MapPath(ProfileMappingsFilePath));
                 }
 
                 return _customClaimsMappings;
+            }
+        }
+
+        private RoleMappings _customRoleMappings;
+        public RoleMappings CustomRoleMappings
+        {
+            get
+            {
+                if (_customRoleMappings == null)
+                {
+                    _customRoleMappings = RoleMappings.GetRoleMappings(HttpContext.Current.Server.MapPath(RoleMappingsFilePath));
+                }
+
+                return _customRoleMappings;
             }
         }
 
@@ -121,22 +138,23 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public Uri LogoutEndpoint { get; }
 
 
-        public AzureClient(int portalId, AuthMode mode) 
+        public AzureClient(int portalId, AuthMode mode)
             : base(portalId, mode, "AzureB2C")
         {
             Settings = new AzureConfig("AzureB2C", portalId);
-            
+
             TokenMethod = HttpMethod.POST;
-            
+
             if (!string.IsNullOrEmpty(Settings.TenantName) && !string.IsNullOrEmpty(Settings.TenantId))
             {
-                TokenEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.TokenEndpointPattern", TokenEndpointPattern), Settings.TenantName, Settings.TenantId));  
+                TokenEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.TokenEndpointPattern", TokenEndpointPattern), Settings.TenantName, Settings.TenantId));
                 LogoutEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.LogoutEndpointPattern", LogoutEndpointPattern), Settings.TenantName, Settings.TenantId, Settings.SignUpPolicy, UrlEncode(HttpContext.Current.Request.Url.ToString())));
                 AuthorizationEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.AuthorizationEndpointPattern", AuthorizationEndpointPattern), Settings.TenantName, Settings.TenantId));
                 MeGraphEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.GraphEndpointPattern", GraphEndpointPattern), Settings.TenantId));
             }
 
-            if (string.IsNullOrEmpty(Settings.APIResource) && string.IsNullOrEmpty(Settings.Scopes)) {
+            if (string.IsNullOrEmpty(Settings.APIResource) && string.IsNullOrEmpty(Settings.Scopes))
+            {
                 Scope = Settings.APIKey;
                 APIResource = Settings.APIKey;
             }
@@ -144,7 +162,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 Scope = string.Join(" ", Settings.Scopes
                     .Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => $"{Settings.APIResource}{x.Trim()}")); 
+                    .Select(x => $"{Settings.APIResource}{x.Trim()}"));
                 APIResource = Settings.APIResource;
             }
             APIKey = Settings.APIKey;
@@ -175,7 +193,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             var jsonSerializer = new JavaScriptSerializer();
             var tokenDictionary = jsonSerializer.DeserializeObject(responseText) as Dictionary<string, object>;
             var token = Convert.ToString(tokenDictionary["access_token"]);
-            JwtIdToken = new JwtSecurityToken(Convert.ToString(tokenDictionary["access_token"]));                        
+            JwtIdToken = new JwtSecurityToken(Convert.ToString(tokenDictionary["access_token"]));
             return token;
         }
 
@@ -228,7 +246,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
             foreach (var claim in claims)
             {
-                switch (claim.Type) {
+                switch (claim.Type)
+                {
                     case "emails":
                         properties.Set("Email", claim.Value);
                         break;
@@ -288,7 +307,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 return;
             }
-            if (pToken != null) {
+            if (pToken != null)
+            {
                 JwtIdToken = pToken;
             }
             var user = GetCurrentUserInternal(pToken);
@@ -298,7 +318,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             userInfo.FirstName = user.FirstName;
             userInfo.LastName = user.LastName;
             userInfo.DisplayName = user.DisplayName;
-          
+
             if (Settings.ProfileSyncEnabled)
             {
                 var properties = new NameValueCollection();
@@ -332,12 +352,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         }
 
         public void NavigateUserProfile(Uri redirectAfterEditUri = null)
-        {            
+        {
             var parameters = new List<QueryParameter>
                 {
                     new QueryParameter("scope", Scope),
                     new QueryParameter("client_id", APIKey),
-                    new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/UserProfile")), 
+                    new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/UserProfile")),
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode($"{Service}-{redirectAfterEditUri}")),
                     new QueryParameter("response_type", "code"),
                     new QueryParameter("response_mode", "query"),
@@ -381,8 +401,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 return AuthorisationResult.Denied;
             }
 
-            if (!string.IsNullOrEmpty(HttpContext.Current.Request.UrlReferrer?.Query)
-                && HttpContext.Current.Request.UrlReferrer.Query.IndexOf("p=" + PasswordResetPolicyName + "&") > -1)
+            if (HttpContext.Current.Request.UrlReferrer.Query.IndexOf("p=" + PasswordResetPolicyName + "&") > -1)
             {
                 Policy = PolicyEnum.PasswordResetPolicy;
             }
@@ -432,7 +451,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         private void UpdateUserRoles(string aadUserId, UserInfo userInfo)
         {
-            if (!Settings.RoleSyncEnabled)
+            //Skip if RoleSync is not enabled, or if no role mappings are defined.
+            if (!Settings.RoleSyncEnabled || CustomRoleMappings == null || CustomRoleMappings.RoleMapping == null || CustomRoleMappings.RoleMapping.Length == 0)
             {
                 return;
             }
@@ -443,52 +463,94 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
                 if (aadGroups != null && aadGroups.Values != null)
                 {
-                    // In DNN, remove user from roles where the user doesn't belong to in AAD (we'll take care only AAD B2C roles; the ones that starts with "AzureB2C-")
-                    foreach (var dnnUserRole in userInfo.Roles.Where(r => r.StartsWith($"{Service}-")))
+
+                    //Dictionary<string, RoleMappingsRoleMapping> dnnRoleMap = CustomRoleMappings.RoleMapping.ToDictionary(s => s.DnnRoleName);
+                    //Dictionary<string, RoleMappingsRoleMapping> b2cRoleMap = CustomRoleMappings.RoleMapping.ToDictionary(s => s.B2cRoleName);
+
+                    //Iterate all mapped roles/groups
+                    foreach (var mappedRole in CustomRoleMappings.RoleMapping)
                     {
-                        if (aadGroups.Values.FirstOrDefault(aadGroup => $"{Service}-{aadGroup.DisplayName}" == dnnUserRole) == null)
+                        var aadCurrentGroup = aadGroups.Values.FirstOrDefault(s => s.DisplayName == mappedRole.B2cRoleName);
+
+                        //If user does not have group in b2c, remove it fron DNN.
+                        if (aadCurrentGroup == null && userInfo.Roles.Contains(mappedRole.DnnRoleName))
                         {
-                            var role = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, dnnUserRole);
+
+                            var role = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, mappedRole.DnnRoleName);
                             Security.Roles.RoleController.DeleteUserRole(userInfo, role, PortalSettings.Current, false);
                         }
+                        //If user has b2c group but not dnn, add it.
+                        else if (userInfo.Roles.Contains(mappedRole.DnnRoleName) == false)
+                        {
+                            var dnnRole = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, mappedRole.DnnRoleName);
+
+                            if (dnnRole == null)
+                            {
+                                var dnnRoleId = Security.Roles.RoleController.Instance.AddRole(new Security.Roles.RoleInfo
+                                {
+                                    RoleName = mappedRole.DnnRoleName,
+                                    Description = aadGroups.Values.First(s => s.DisplayName == mappedRole.B2cRoleName).Description,
+                                    PortalID = PortalSettings.Current.PortalId,
+                                    Status = Security.Roles.RoleStatus.Approved,
+                                    RoleGroupID = -1,
+                                    AutoAssignment = false,
+                                    IsPublic = false,
+                                });
+
+                                dnnRole = Security.Roles.RoleController.Instance.GetRoleById(PortalSettings.Current.PortalId, dnnRoleId);
+                            }
+                            Security.Roles.RoleController.Instance.AddUserRole(
+                                PortalSettings.Current.PortalId,
+                                userInfo.UserID,
+                                dnnRole.RoleID,
+                                Security.Roles.RoleStatus.Approved,
+                                false,
+                                aadCurrentGroup.CreatedDateTime.HasValue ? aadCurrentGroup.CreatedDateTime.Value.DateTime.ToLocalTime() : DateTime.Today,   //NOTE: CreatedDateTime is always UTC, so convert to local time zone to prevent future dated role membership.
+                                DateTime.MaxValue);
+                        }
+
                     }
 
-                    foreach (var group in aadGroups.Values)
-                    {
-                        var dnnRole = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, $"{Service}-{group.DisplayName}");
-                        if (dnnRole == null)
-                        {
-                            // Create role
-                            var roleId = Security.Roles.RoleController.Instance.AddRole(new Security.Roles.RoleInfo
-                            {
-                                RoleName = $"{Service}-{group.DisplayName}",
-                                Description = group.Description,
-                                PortalID = PortalSettings.Current.PortalId,
-                                Status = Security.Roles.RoleStatus.Approved,
-                                RoleGroupID = -1,
-                                AutoAssignment = false,
-                                IsPublic = false
-                            });
-                            dnnRole = Security.Roles.RoleController.Instance.GetRoleById(PortalSettings.Current.PortalId, roleId);
-                            // Add user to Role
-                            Security.Roles.RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId,
-                                                                               userInfo.UserID,
-                                                                               roleId,
-                                                                               Security.Roles.RoleStatus.Approved,
-                                                                               false,
-                                                                               group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DotNetNuke.Common.Utilities.Null.NullDate,
-                                                                               DotNetNuke.Common.Utilities.Null.NullDate);
-                        }
-                        else
-                        {
-                            // If user doesn't belong to that DNN role, let's add it
-                            if (!userInfo.Roles.Contains($"{Service}-{group.DisplayName}"))
-                            {
-                                Security.Roles.RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId, userInfo.UserID, dnnRole.RoleID, Security.Roles.RoleStatus.Approved, false, group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DateTime.Today, DateTime.MaxValue);
-                            }
-                        }
-                    }
                 }
+
+                ////Check if there are any mapped roles that user has in DNN, that aren't in their B2C groups, and should be removed from DNN user roles.
+                //foreach (var dnnCurrentMappedRole in userInfo.Roles.Where(r => dnnRoleMap.Keys.Contains(r)))
+                //{
+                //    if (aadGroups.Values.FirstOrDefault(g => g.DisplayName == dnnRoleMap[dnnCurrentMappedRole].B2cRoleName) == null)
+                //    {
+                //        var role = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, dnnCurrentMappedRole);
+                //        Security.Roles.RoleController.DeleteUserRole(userInfo, role, PortalSettings.Current, false);
+                //    }
+
+                //}
+
+                ////Check for any mapped roles that user does not have in DNN, that are in B2C groups, and should be added to DNN user roles.
+                //foreach (var b2cCurrentMappedGroup in aadGroups.Values.Where(r => b2cRoleMap.Keys.Contains(r.DisplayName)))
+                //{
+                //    if (userInfo.Roles.Contains(b2cRoleMap[b2cCurrentMappedGroup.DisplayName].DnnRoleName) == false)
+                //    {
+                //        var dnnRole = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, b2cRoleMap[b2cCurrentMappedGroup.DisplayName].DnnRoleName);
+
+                //        if (dnnRole == null)
+                //        {
+                //            var dnnRoleId = Security.Roles.RoleController.Instance.AddRole(new Security.Roles.RoleInfo
+                //            {
+                //                RoleName = b2cRoleMap[b2cCurrentMappedGroup.DisplayName].DnnRoleName,
+                //                Description = b2cCurrentMappedGroup.Description,
+                //                PortalID = PortalSettings.Current.PortalId,
+                //                Status = Security.Roles.RoleStatus.Approved,
+                //                RoleGroupID = -1,
+                //                AutoAssignment = false,
+                //                IsPublic = false
+                //            });
+
+                //            dnnRole = Security.Roles.RoleController.Instance.GetRoleById(PortalSettings.Current.PortalId, dnnRoleId);
+                //        }
+
+                //        Security.Roles.RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId, userInfo.UserID, dnnRole.RoleID, Security.Roles.RoleStatus.Approved, false, b2cCurrentMappedGroup.CreatedDateTime.HasValue ? b2cCurrentMappedGroup.CreatedDateTime.Value.DateTime.ToLocalTime() : DateTime.Today, DateTime.MaxValue);
+                //    }
+                //}
+
             }
             catch (Exception e)
             {
@@ -505,11 +567,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     var profilePictureMetadata = GraphClient.GetUserProfilePictureMetadata(aadUserId);
                     if (profilePictureMetadata != null && !string.IsNullOrEmpty(profilePictureMetadata.ODataMediaContentType))
                     {
-                        var pictureBytes = GraphClient.GetUserProfilePicture(aadUserId);                        
+                        var pictureBytes = GraphClient.GetUserProfilePicture(aadUserId);
                         var userFolder = FolderManager.Instance.GetUserFolder(userInfo);
                         var stream = new MemoryStream(pictureBytes);
-                        var profilePictureInfo = FileManager.Instance.AddFile(userFolder, 
-                            $"{aadUserId}.{GetExtensionFromMediaContentType(profilePictureMetadata.ODataMediaContentType)}", 
+                        var profilePictureInfo = FileManager.Instance.AddFile(userFolder,
+                            $"{aadUserId}.{GetExtensionFromMediaContentType(profilePictureMetadata.ODataMediaContentType)}",
                             stream, true);
 
                         userInfo.Profile.Photo = profilePictureInfo.FileId.ToString();

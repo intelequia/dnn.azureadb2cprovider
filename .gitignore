@@ -212,3 +212,5 @@ FakesAssemblies/
 /samples/SPA-WebAPI-Client/install
 /samples/SPA-WebAPI-Client/packages
 /DotNetNuke.Authentication.Azure.B2C/AzureADB2C.Web/package-lock.json
+/.vs/slnx.sqlite-journal
+/.vs/slnx.sqlite
