@@ -22,6 +22,7 @@
 #endregion
 
 using DotNetNuke.Common.Utilities;
+using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.UI.WebControls;
@@ -36,23 +37,34 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         { }
         protected internal AzureConfig(string service, int portalId) : base(service, portalId)
         {
-            APIKey = PortalController.GetPortalSetting(Service + "_ApiKey", portalId, "");
-            APISecret = PortalController.GetPortalSetting(Service + "_ApiSecret", portalId, "");
-            TenantName = PortalController.GetPortalSetting(Service + "_TenantName", portalId, "");
-            TenantId = PortalController.GetPortalSetting(Service + "_TenantId", portalId, "");
-            SignUpPolicy = PortalController.GetPortalSetting(Service + "_SignUpPolicy", portalId, "");
-            ProfilePolicy = PortalController.GetPortalSetting(Service + "_ProfilePolicy", portalId, "");
-            PasswordResetPolicy = PortalController.GetPortalSetting(Service + "_PasswordResetPolicy", portalId, "");
-            AutoRedirect = bool.Parse(PortalController.GetPortalSetting(Service + "_AutoRedirect", portalId, "false"));
-            Enabled = bool.Parse(PortalController.GetPortalSetting(Service + "_Enabled", portalId, "false"));
-            AADApplicationId = PortalController.GetPortalSetting(Service + "_AADApplicationId", portalId, "");
-            AADApplicationKey = PortalController.GetPortalSetting(Service + "_AADApplicationKey", portalId, "");
-            JwtAudiences = PortalController.GetPortalSetting(Service + "_JwtAudiences", portalId, "");
-            RoleSyncEnabled = bool.Parse(PortalController.GetPortalSetting(Service + "_RoleSyncEnabled", portalId, "false"));
-            ProfileSyncEnabled = bool.Parse(PortalController.GetPortalSetting(Service + "_ProfileSyncEnabled", portalId, "false"));
-            JwtAuthEnabled = bool.Parse(PortalController.GetPortalSetting(Service + "_JwtAuthEnabled", portalId, "false"));
-            APIResource = PortalController.GetPortalSetting(Service + "_APIResource", portalId, "");
-            Scopes = PortalController.GetPortalSetting(Service + "_Scopes", portalId, "");
+            // Gets the settings scope (global or per portal)
+            UseGlobalSettings = bool.Parse(HostController.Instance.GetString(Service + "_UseGlobalSettings", "false"));
+
+            // Loads the scoped settings
+            APIKey = GetScopedSetting(Service + "_ApiKey", portalId, "");
+            APISecret = GetScopedSetting(Service + "_ApiSecret", portalId, "");
+            TenantName = GetScopedSetting(Service + "_TenantName", portalId, "");
+            TenantId = GetScopedSetting(Service + "_TenantId", portalId, "");
+            SignUpPolicy = GetScopedSetting(Service + "_SignUpPolicy", portalId, "");
+            ProfilePolicy = GetScopedSetting(Service + "_ProfilePolicy", portalId, "");
+            PasswordResetPolicy = GetScopedSetting(Service + "_PasswordResetPolicy", portalId, "");
+            AutoRedirect = bool.Parse(GetScopedSetting(Service + "_AutoRedirect", portalId, "false"));
+            Enabled = bool.Parse(GetScopedSetting(Service + "_Enabled", portalId, "false"));
+            AADApplicationId = GetScopedSetting(Service + "_AADApplicationId", portalId, "");
+            AADApplicationKey = GetScopedSetting(Service + "_AADApplicationKey", portalId, "");
+            JwtAudiences = GetScopedSetting(Service + "_JwtAudiences", portalId, "");
+            RoleSyncEnabled = bool.Parse(GetScopedSetting(Service + "_RoleSyncEnabled", portalId, "false"));
+            ProfileSyncEnabled = bool.Parse(GetScopedSetting(Service + "_ProfileSyncEnabled", portalId, "false"));
+            JwtAuthEnabled = bool.Parse(GetScopedSetting(Service + "_JwtAuthEnabled", portalId, "false"));
+            APIResource = GetScopedSetting(Service + "_APIResource", portalId, "");
+            Scopes = GetScopedSetting(Service + "_Scopes", portalId, "");
+        }
+
+        internal string GetScopedSetting(string key, int portalId, string defaultValue)
+        {
+            if (UseGlobalSettings)
+                return HostController.Instance.GetString(key, defaultValue);
+            return PortalController.GetPortalSetting(key, portalId, defaultValue);
         }
 
         [SortOrder(1)]
@@ -85,6 +97,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public string APIResource { get; set; }
         [SortOrder(13)]
         public string Scopes { get; set; }
+        [SortOrder(14)]
+        public bool UseGlobalSettings { get; set; }
 
 
 
@@ -107,25 +121,36 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         public static void UpdateConfig(AzureConfig config)
         {
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_ApiKey", config.APIKey, true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_ApiSecret", config.APISecret, true, Null.NullString, false); // BUG: DNN 9.3.2 not storing IsSecure column on DB (see UpdatePortalSetting stored procedure) https://github.com/dnnsoftware/Dnn.Platform/issues/2874
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_TenantName", config.TenantName, true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_TenantId", config.TenantId, true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_AutoRedirect", config.AutoRedirect.ToString(), true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_Enabled", config.Enabled.ToString(), true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_SignUpPolicy", config.SignUpPolicy, true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_ProfilePolicy", config.ProfilePolicy, true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_PasswordResetPolicy", config.PasswordResetPolicy, true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_AADApplicationId", config.AADApplicationId, true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_AADApplicationKey", config.AADApplicationKey, true, Null.NullString, false);  // BUG: DNN 9.3.2 not storing IsSecure column on DB (see UpdatePortalSetting stored procedure) https://github.com/dnnsoftware/Dnn.Platform/issues/2874
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_JwtAudiences", config.JwtAudiences, true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_RoleSyncEnabled", config.RoleSyncEnabled.ToString(), true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_ProfileSyncEnabled", config.ProfileSyncEnabled.ToString(), true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_JwtAuthEnabled", config.JwtAuthEnabled.ToString(), true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_APIResource", config.APIResource, true, Null.NullString, false);
-            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_Scopes", config.Scopes, true, Null.NullString, false);
+            HostController.Instance.Update(config.Service + "_UseGlobalSettings", config.UseGlobalSettings.ToString(),
+                true);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ApiKey", config.APIKey);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ApiSecret", config.APISecret); 
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_TenantName", config.TenantName);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_TenantId", config.TenantId);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AutoRedirect", config.AutoRedirect.ToString());
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_Enabled", config.Enabled.ToString());
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_SignUpPolicy", config.SignUpPolicy);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ProfilePolicy", config.ProfilePolicy);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_PasswordResetPolicy", config.PasswordResetPolicy);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AADApplicationId", config.AADApplicationId);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AADApplicationKey",config.AADApplicationKey);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_JwtAudiences", config.JwtAudiences);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_RoleSyncEnabled", config.RoleSyncEnabled.ToString());
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ProfileSyncEnabled", config.ProfileSyncEnabled.ToString());
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_JwtAuthEnabled", config.JwtAuthEnabled.ToString());
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_APIResource", config.APIResource);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_Scopes", config.Scopes);
 
             UpdateConfig((OAuthConfigBase)config);
         }
+
+        internal static void UpdateScopedSetting(bool useGlobalSettings, int portalId, string key, string value)
+        {
+            if (useGlobalSettings)
+                HostController.Instance.Update(key, value, true);
+            else
+                PortalController.UpdatePortalSetting(portalId, key, value, true); // BUG: DNN 9.3.2 not storing IsSecure column on DB (see UpdatePortalSetting stored procedure) https://github.com/dnnsoftware/Dnn.Platform/issues/2874
+        }
+
     }
 }

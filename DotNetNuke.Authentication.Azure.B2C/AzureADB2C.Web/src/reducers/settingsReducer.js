@@ -7,6 +7,7 @@ export default function settings(state = {
         case ActionTypes.RETRIEVED_SETTINGS:
             return { ...state,
                 enabled: action.data.enabled,
+                useGlobalSettings: action.data.useGlobalSettings,
                 autoRedirect: action.data.autoRedirect,
                 apiKey: action.data.apiKey,
                 apiSecret: action.data.apiSecret,
@@ -28,6 +29,7 @@ export default function settings(state = {
         case ActionTypes.SETTINGS_CLIENT_MODIFIED:
             return { ...state,
                 enabled: action.data.enabled,
+                useGlobalSettings: action.data.useGlobalSettings,
                 autoRedirect: action.data.autoRedirect,
                 apiKey: action.data.apiKey,
                 apiSecret: action.data.apiSecret,

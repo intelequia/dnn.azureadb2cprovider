@@ -44,6 +44,7 @@ class GeneralSettings extends Component {
 
         props.dispatch(SettingsActions.settingsClientModified({
             enabled: (key === "AADB2CProviderEnabled") ? !props.enabled : props.enabled,
+            useGlobalSettings: (key == "UseGlobalSettings") ? !props.useGlobalSettings : props.useGlobalSettings,
             autoRedirect: (key === "AutoRedirect") ? !props.autoRedirect : props.autoRedirect,
             apiKey: (key === "AppId") ? event.target.value : props.apiKey,
             apiSecret: (key === "AppSecret") ? event.target.value : props.apiSecret,
@@ -65,6 +66,7 @@ class GeneralSettings extends Component {
 
         props.dispatch(SettingsActions.updateGeneralSettings({
             enabled: props.enabled,
+            useGlobalSettings: props.useGlobalSettings,
             autoRedirect: props.autoRedirect,
             apiKey: props.apiKey,
             apiSecret: props.apiSecret,
@@ -88,6 +90,12 @@ class GeneralSettings extends Component {
             <div className="dnn-azuread-b2c-generalSettings">
                 <GridCell columnSize={50}>
                     <p className="panel-description">{resx.get("lblTabDescription")}</p>
+                    <Switch label={resx.get("lblUseGlobalSettings")}
+                        onText=""
+                        offText=""
+                        value={this.props.useGlobalSettings}
+                        tooltipMessage={resx.get("lblUseGlobalSettings.Help")}
+                        onChange={this.onSettingChange.bind(this, "UseGlobalSettings")} />
                     <Switch label={resx.get("lblEnabled")}
                         onText=""
                         offText=""
@@ -211,6 +219,7 @@ class GeneralSettings extends Component {
 GeneralSettings.propTypes = {
     dispatch: PropTypes.func.isRequired,
     enabled: PropTypes.bool,
+    useGlobalSettings: PropTypes.bool,
     autoRedirect: PropTypes.bool,
     apiKey: PropTypes.string,
     apiSecret: PropTypes.string,
@@ -225,6 +234,7 @@ GeneralSettings.propTypes = {
 function mapStateToProps(state) {
     return {
         enabled: state.settings.enabled,
+        useGlobalSettings: state.settings.useGlobalSettings,
         autoRedirect: state.settings.autoRedirect,
         apiKey: state.settings.apiKey,
         apiSecret: state.settings.apiSecret,

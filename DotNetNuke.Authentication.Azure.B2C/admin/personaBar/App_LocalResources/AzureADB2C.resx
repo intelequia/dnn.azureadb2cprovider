@@ -306,4 +306,10 @@
   <data name="lblScopes.Text" xml:space="preserve">
     <value>Scopes</value>
   </data>
+  <data name="lblUseGlobalSettings.Help" xml:space="preserve">
+    <value>If enabled, all the settings are applied to all portals on this deployment. Only Super Users can edit this setting</value>
+  </data>
+  <data name="lblUseGlobalSettings.Text" xml:space="preserve">
+    <value>Use Global Settings</value>
+  </data>
 </root>

@@ -20,6 +20,7 @@ const settingsActions = {
                     type: ActionTypes.RETRIEVED_SETTINGS,
                     data: {
                         enabled: data.enabled,
+                        useGlobalSettings: data.useGlobalSettings,
                         autoRedirect: data.autoRedirect,
                         apiKey: data.apiKey,
                         apiSecret: data.apiSecret,
@@ -89,6 +90,7 @@ const settingsActions = {
                 type: ActionTypes.SETTINGS_CLIENT_MODIFIED,
                 data: {
                     enabled: settings.enabled,
+                    useGlobalSettings: settings.useGlobalSettings,
                     autoRedirect: settings.autoRedirect,
                     apiKey: settings.apiKey,
                     apiSecret: settings.apiSecret,

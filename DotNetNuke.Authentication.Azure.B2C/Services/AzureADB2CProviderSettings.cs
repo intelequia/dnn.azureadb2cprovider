@@ -41,6 +41,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public bool AutoRedirect { get; set; }
         [DataMember(Name = "enabled")]
         public bool Enabled { get; set; }
+        [DataMember(Name = "useGlobalSettings")]
+        public bool UseGlobalSettings { get; set; }
         [DataMember(Name = "signUpPolicy")]
         public string SignUpPolicy { get; set; }
         [DataMember(Name = "profilePolicy")]
@@ -81,6 +83,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 AadAppClientId = config.AADApplicationId,
                 AadAppSecret = config.AADApplicationKey,
                 Enabled = config.Enabled,
+                UseGlobalSettings = config.UseGlobalSettings,
                 JwtAudiences = config.JwtAudiences,
                 RoleSyncEnabled = config.RoleSyncEnabled,
                 ProfileSyncEnabled = config.ProfileSyncEnabled,
@@ -103,6 +106,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 ProfilePolicy = settings.ProfilePolicy,
                 PasswordResetPolicy = settings.PasswordResetPolicy,
                 Enabled = settings.Enabled,
+                UseGlobalSettings = settings.UseGlobalSettings
             };
 
             AzureConfig.UpdateConfig(config);

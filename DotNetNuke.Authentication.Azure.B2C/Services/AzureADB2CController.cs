@@ -28,6 +28,7 @@ using System.Net.Http;
 using System.Web.Http;
 using Dnn.PersonaBar.Library;
 using Dnn.PersonaBar.Library.Attributes;
+using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Definitions;
@@ -35,9 +36,10 @@ using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Tabs;
 using DotNetNuke.Instrumentation;
 using DotNetNuke.Security.Permissions;
-using DotNetNuke.Security.Roles;
+using DotNetNuke.Services.Exceptions;
 using DotNetNuke.Services.Upgrade;
 using DotNetNuke.Web.Api;
+using DotNetNuke.Web.UI;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Services
 {
@@ -78,6 +80,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                if (!UserInfo.IsSuperUser)
+                {
+                    var config = new AzureConfig("AzureB2C", PortalId);
+                    if (config.UseGlobalSettings || config.UseGlobalSettings != settings.UseGlobalSettings)
+                        return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
+                }
+
                 AzureADB2CProviderSettings.SaveGeneralSettings("AzureB2C", PortalId, settings);
                 AddUserProfilePage(PortalId, settings.Enabled && !string.IsNullOrEmpty(settings.ProfilePolicy));
                 return Request.CreateResponse(HttpStatusCode.OK);
@@ -101,6 +110,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                if (!UserInfo.IsSuperUser)
+                {
+                    var config = new AzureConfig("AzureB2C", PortalId);
+                    if (config.UseGlobalSettings || config.UseGlobalSettings != settings.UseGlobalSettings)
+                        return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
+                }
                 AzureADB2CProviderSettings.SaveAdvancedSettings("AzureB2C", PortalId, settings);
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
