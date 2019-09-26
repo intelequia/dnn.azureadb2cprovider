@@ -1,5 +1,5 @@
 # DNN Azure Active Directory B2C provider
-### Latest release [![Latest release](docs/images/BadgeRelease.svg)](https://github.com/intelequia/dnn.azureadb2cprovider/releases)
+[![Latest release](docs/images/BadgeRelease.svg)](https://github.com/intelequia/dnn.azureadb2cprovider/releases) [![Build Status](https://intelequia.visualstudio.com/DNN%20Azure%20AD%20B2C/_apis/build/status/DNN%20Azure%20AD%20B2C-%20CI?branchName=master)](https://intelequia.visualstudio.com/DNN%20Azure%20AD%20B2C/_build/latest?definitionId=27&branchName=master)
 
 ## Contents
 - [Overview](#overview)
@@ -37,7 +37,7 @@ This provider can also retrieve all personal information stored in the user attr
 * When a user logins on Azure AD B2C, the B2C profile and roles are synchronized with DNN profile and DNN roles. If a role doesn't exist, is created in the process
 * Supports User profile picture synchronization as part of the profile synchronization
 * Supports JWT authorization. If enabled, developers can get a JWT auth token directly from Azure B2C login using the "Resource Owner" policy, and then use that token to call any DNN WebAPI Controller with the Auth scheme "JWT".
-
+* Supports for 3rd party WebAPI integration through API Resource and scopes implementation
 
 <a name="installation-and-configuration-guide"></a>
 ## Installation and configuration guide
@@ -67,14 +67,14 @@ To do that, on Azure Portal, go to your B2C Directory then click User flows (pol
 To support the role and profile synchronization by internally using the Microsoft Graph API, a service principal is needed to call the API. To setup the service principal:
 
 1. Go to https://portal.azure.com to setup the required applications on your Azure Active Directory. You need to use the user credentials of a user with at least "Service Admin" role. Note that this application is different from the one created previously on the B2C section, is a regular application on the Azure AD, not a B2C application.
-2. In the left-hand navigation pane, click the Azure Active Directory service, click **App registrations**, and click **New application registration**.
+2. In the left-hand navigation pane, click the Azure Active Directory service, click **App registrations (Legacy)**, and click **New application registration**.
 3. When the **Create** page appears, enter your application's registration information:
     * **Name**: Enter a meaningful application name. This can be any name you want and is simply how you will identify the application in your Azure Active Directory (i.e. "My DNN MS Graph Application").
     * **Application type**: Select "Web app / API" (notice that Web Applications and Web API’s are considered the same type of application as far as Azure AD is concerned)
     * **Sign-On URL**: This is the URL where user can sign in and use your app. In a typical DNN site, this should be something like "http://mysite.com/Login". You can change this URL later.
 4. <a name="applicationid"></a> When finished, click **Create**. Azure AD assigns a unique **Application ID** to your application, and you're taken to your application's main registration page.
 5. Click on the name of the app we've just created and then on "All settings" > "Required permissions" > "Windows Azure Active Directory". Ensure that the app has, at least, **Sign in and read user profile** checked, in the **Delegated permissions** section.
-6. Click on the **Grant permissions** button-
+6. Click on the **Grant permissions** button and then click on "Yes" to grant the permissions in all the accounts in the current directory.
 7. <a name="getaadkey"></a> Now on the **Settings** page, under the **keys** section, create a new key with the desired expiration. Click on Save and then copy the key to a secure location. `IMPORTANT: you won't be able to copy this key later, so copy it now or generate a new one when needed.`
 
 <a name="provider-configuration"></a>
@@ -130,7 +130,7 @@ For advanced scenarios, check the advanced settings:
 Under the "samples" directory, you will find some samples that will show some integration scenarios, like integration mobile apps with DNN by using Azure AD B2C JWT auth tokens:
 * [samples/hello](samples/Hello): a simple console App, that allows you to login with a username and password into Azure AD B2C, and then call a DNN WebAPI controller
 * [samples/active-directory-b2c-dotnet-webapp-and-webapi](samples/active-directory-b2c-dotnet-webapp-and-webapi): slight modified version of the sample available on the Microsoft Azure B2C repo samples, with a webapp and a webapi consuming Azure AD B2C. Modification to setup CORS, to allow the DNN module example work with the webapi.
-* [samples/SPA-WebAPI-Client](samples/SPA-WebAPI-Client): a To-do list DNN module example, that calls an external WebAPI by using B2C JWT tokens. This sample uses
+* [samples/SPA-WebAPI-Client](samples/SPA-WebAPI-Client): a To-do list DNN module example, that calls an external WebAPI by using B2C JWT tokens. 
 
 For more samples, check:
 * [Microsoft Azure AD B2C samples](https://docs.microsoft.com/en-us/azure/active-directory-b2c/code-samples): check different samples from Microsoft, including Mobile and Desktop apps, WebAPI, Web apps, and single page applications.

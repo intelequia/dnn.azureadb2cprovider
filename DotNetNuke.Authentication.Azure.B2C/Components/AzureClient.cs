@@ -381,7 +381,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 return AuthorisationResult.Denied;
             }
 
-            if (HttpContext.Current.Request.UrlReferrer.Query.IndexOf("p=" + PasswordResetPolicyName + "&") > -1)
+            if (!string.IsNullOrEmpty(HttpContext.Current.Request.UrlReferrer?.Query)
+                && HttpContext.Current.Request.UrlReferrer.Query.IndexOf("p=" + PasswordResetPolicyName + "&") > -1)
             {
                 Policy = PolicyEnum.PasswordResetPolicy;
             }
