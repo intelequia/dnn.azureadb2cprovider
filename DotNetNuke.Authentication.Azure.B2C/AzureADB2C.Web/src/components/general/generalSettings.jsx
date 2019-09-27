@@ -44,10 +44,11 @@ class GeneralSettings extends Component {
 
         props.dispatch(SettingsActions.settingsClientModified({
             enabled: (key === "AADB2CProviderEnabled") ? !props.enabled : props.enabled,
-            useGlobalSettings: (key == "UseGlobalSettings") ? !props.useGlobalSettings : props.useGlobalSettings,
+            useGlobalSettings: (key === "UseGlobalSettings") ? !props.useGlobalSettings : props.useGlobalSettings,
             autoRedirect: (key === "AutoRedirect") ? !props.autoRedirect : props.autoRedirect,
             apiKey: (key === "AppId") ? event.target.value : props.apiKey,
             apiSecret: (key === "AppSecret") ? event.target.value : props.apiSecret,
+            redirectUri: (key === "RedirectUri") ? event.target.value: props.redirectUri,
             tenantName: (key === "TenantName") ? event.target.value : props.tenantName,
             tenantId: (key === "TenantId") ? event.target.value : props.tenantId,
             signUpPolicy: (key === "SignUpPolicy") ? event.target.value : props.signUpPolicy,
@@ -70,6 +71,7 @@ class GeneralSettings extends Component {
             autoRedirect: props.autoRedirect,
             apiKey: props.apiKey,
             apiSecret: props.apiSecret,
+            redirectUri: props.redirectUri,
             tenantName: props.tenantName,
             tenantId: props.tenantId,
             signUpPolicy: props.signUpPolicy,
@@ -90,12 +92,6 @@ class GeneralSettings extends Component {
             <div className="dnn-azuread-b2c-generalSettings">
                 <GridCell columnSize={50}>
                     <p className="panel-description">{resx.get("lblTabDescription")}</p>
-                    <Switch label={resx.get("lblUseGlobalSettings")}
-                        onText=""
-                        offText=""
-                        value={this.props.useGlobalSettings}
-                        tooltipMessage={resx.get("lblUseGlobalSettings.Help")}
-                        onChange={this.onSettingChange.bind(this, "UseGlobalSettings")} />
                     <Switch label={resx.get("lblEnabled")}
                         onText=""
                         offText=""
@@ -111,6 +107,12 @@ class GeneralSettings extends Component {
                 </GridCell>
                 <GridCell columnSize={50}>
                     <div className="logo"></div>
+                    <Switch label={resx.get("lblUseGlobalSettings")}
+                        onText=""
+                        offText=""
+                        value={this.props.useGlobalSettings}
+                        tooltipMessage={resx.get("lblUseGlobalSettings.Help")}
+                        onChange={this.onSettingChange.bind(this, "UseGlobalSettings")} />
                 </GridCell>
                 <GridSystem className="with-right-border top-half">
                     <GridCell columnSize={90}>
@@ -158,6 +160,16 @@ class GeneralSettings extends Component {
                             autoComplete="off"
                             onChange={this.onSettingChange.bind(this, "AppSecret")}
                         />
+                        <SingleLineInputWithError
+                            withLabel={true}
+                            label={resx.get("lblRedirectUri")}
+                            enabled={true}
+                            tooltipMessage={resx.get("lblRedirectUri.Help")}
+                            errorMessage=""
+                            value={this.props.redirectUri}
+                            onChange={this.onSettingChange.bind(this, "RedirectUri")}
+                        />
+
                     </GridCell>
                     <GridCell columnSize={100}>
                         <h1>{resx.get("lblPolicies")}</h1>
@@ -223,6 +235,7 @@ GeneralSettings.propTypes = {
     autoRedirect: PropTypes.bool,
     apiKey: PropTypes.string,
     apiSecret: PropTypes.string,
+    redirectUri: PropTypes.string,
     tenantName: PropTypes.string,
     tenantId: PropTypes.string,
     signUpPolicy: PropTypes.string,
@@ -238,6 +251,7 @@ function mapStateToProps(state) {
         autoRedirect: state.settings.autoRedirect,
         apiKey: state.settings.apiKey,
         apiSecret: state.settings.apiSecret,
+        redirectUri: state.settings.redirectUri,
         tenantName: state.settings.tenantName,
         tenantId: state.settings.tenantId,
         signUpPolicy: state.settings.signUpPolicy,

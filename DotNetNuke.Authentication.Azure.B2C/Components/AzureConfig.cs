@@ -43,6 +43,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             // Loads the scoped settings
             APIKey = GetScopedSetting(Service + "_ApiKey", portalId, "");
             APISecret = GetScopedSetting(Service + "_ApiSecret", portalId, "");
+            RedirectUri = GetScopedSetting(Service + "_RedirectUri", portalId, "");
             TenantName = GetScopedSetting(Service + "_TenantName", portalId, "");
             TenantId = GetScopedSetting(Service + "_TenantId", portalId, "");
             SignUpPolicy = GetScopedSetting(Service + "_SignUpPolicy", portalId, "");
@@ -99,6 +100,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public string Scopes { get; set; }
         [SortOrder(14)]
         public bool UseGlobalSettings { get; set; }
+        [SortOrder(15)]
+        public string RedirectUri { get; set; }
+
 
 
 
@@ -124,7 +128,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             HostController.Instance.Update(config.Service + "_UseGlobalSettings", config.UseGlobalSettings.ToString(),
                 true);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ApiKey", config.APIKey);
-            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ApiSecret", config.APISecret); 
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ApiSecret", config.APISecret);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_RedirectUri", config.RedirectUri);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_TenantName", config.TenantName);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_TenantId", config.TenantId);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AutoRedirect", config.AutoRedirect.ToString());

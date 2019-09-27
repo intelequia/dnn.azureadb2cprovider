@@ -312,4 +312,10 @@
   <data name="lblUseGlobalSettings.Text" xml:space="preserve">
     <value>Use Global Settings</value>
   </data>
+  <data name="lblRedirectUri.Help" xml:space="preserve">
+    <value>If specified, the redirect uri after a successful login. By default (blank), the user will be redirected to the page originating the login redirection.</value>
+  </data>
+  <data name="lblRedirectUri.Text" xml:space="preserve">
+    <value>Redirect Uri</value>
+  </data>
 </root>

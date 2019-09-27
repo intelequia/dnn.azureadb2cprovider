@@ -83,9 +83,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         }
 
 
-        private string SignUpPolicyName => PortalController.GetPortalSetting($"{Service}_SignUpPolicy", PortalSettings.Current.PortalId, "");
-        private string PasswordResetPolicyName => PortalController.GetPortalSetting($"{Service}_PasswordResetPolicy", PortalSettings.Current.PortalId, "");
-        private string ProfilePolicyName => PortalController.GetPortalSetting($"{Service}_ProfilePolicy", PortalSettings.Current.PortalId, "");
         private readonly AzureConfig Settings;
 
         private ProfileMappings _customClaimsMappings;
@@ -108,9 +105,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 switch (Policy)
                 {
-                    case PolicyEnum.PasswordResetPolicy: return PasswordResetPolicyName;
-                    case PolicyEnum.ProfilePolicy: return ProfilePolicyName;
-                    default: return SignUpPolicyName;
+                    case PolicyEnum.PasswordResetPolicy: return Settings.PasswordResetPolicy;
+                    case PolicyEnum.ProfilePolicy: return Settings.ProfilePolicy;
+                    default: return Settings.SignUpPolicy;
                 }
             }
         }
@@ -125,7 +122,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             : base(portalId, mode, "AzureB2C")
         {
             Settings = new AzureConfig("AzureB2C", portalId);
-            
+
             TokenMethod = HttpMethod.POST;
             
             if (!string.IsNullOrEmpty(Settings.TenantName) && !string.IsNullOrEmpty(Settings.TenantId))
@@ -147,6 +144,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     .Select(x => $"{Settings.APIResource}{x.Trim()}")); 
                 APIResource = Settings.APIResource;
             }
+
+            if (!string.IsNullOrEmpty(Settings.RedirectUri))
+            {
+                CallbackUri = new Uri(Settings.RedirectUri);
+            }
+
             APIKey = Settings.APIKey;
             AuthTokenName = "AzureB2CUserToken";
             OAuthVersion = "2.0";
@@ -341,7 +344,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode($"{Service}-{redirectAfterEditUri}")),
                     new QueryParameter("response_type", "code"),
                     new QueryParameter("response_mode", "query"),
-                    new QueryParameter("p", ProfilePolicyName)
+                    new QueryParameter("p", Settings.ProfilePolicy)
                 };
 
             HttpContext.Current.Response.Redirect(AuthorizationEndpoint + "?" + parameters.ToNormalizedString(), false);
@@ -382,7 +385,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
 
             if (!string.IsNullOrEmpty(HttpContext.Current.Request.UrlReferrer?.Query)
-                && HttpContext.Current.Request.UrlReferrer.Query.IndexOf("p=" + PasswordResetPolicyName + "&") > -1)
+                && HttpContext.Current.Request.UrlReferrer.Query.IndexOf("p=" + Settings.PasswordResetPolicy + "&") > -1)
             {
                 Policy = PolicyEnum.PasswordResetPolicy;
             }

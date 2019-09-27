@@ -37,6 +37,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public string ApiKey { get; set; }
         [DataMember(Name = "apiSecret")]
         public string ApiSecret { get; set; }
+        [DataMember(Name = "redirectUri")]
+        public string RedirectUri { get; set; }
         [DataMember(Name = "autoRedirect")]
         public bool AutoRedirect { get; set; }
         [DataMember(Name = "enabled")]
@@ -76,6 +78,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 TenantId = config.TenantId,
                 ApiKey = config.APIKey,
                 ApiSecret = config.APISecret,
+                RedirectUri = config.RedirectUri,
                 AutoRedirect = config.AutoRedirect,
                 SignUpPolicy = config.SignUpPolicy,
                 ProfilePolicy = config.ProfilePolicy,
@@ -101,6 +104,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 TenantId = settings.TenantId,
                 APIKey = settings.ApiKey,
                 APISecret = settings.ApiSecret,
+                RedirectUri = settings.RedirectUri,
                 AutoRedirect = settings.AutoRedirect,
                 SignUpPolicy = settings.SignUpPolicy,
                 ProfilePolicy = settings.ProfilePolicy,
