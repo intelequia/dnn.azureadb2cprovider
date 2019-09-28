@@ -55,30 +55,30 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
         
         public User GetUser(string objectId)
         {
-            var result = SendGraphRequest("/users/" + objectId);
+            var result = SendAADGraphRequest("/users/" + objectId);
             return JsonConvert.DeserializeObject<User>(result);
         }
 
         public GraphList<User> GetAllUsers(string query)
         {
-            var result = SendGraphRequest("/users", query);
+            var result = SendAADGraphRequest("/users", query);
             return JsonConvert.DeserializeObject<GraphList<User>>(result);
         }
 
         public void DeleteUser(string objectId)
         {
-            _ = SendGraphRequest("/users/" + objectId, httpMethod: HttpMethod.Delete);
+            _ = SendAADGraphRequest("/users/" + objectId, httpMethod: HttpMethod.Delete);
         }
 
         public GraphList<Group> GetAllGroups(string query)
         {
-            var result = SendGraphRequest("/groups", query);
+            var result = SendAADGraphRequest("/groups", query);
             return JsonConvert.DeserializeObject<GraphList<Group>>(result);
         }
 
         public GraphList<Group> GetUserGroups(string userId)
         {
-            var result = SendGraphRequest($"/users/{userId}/memberOf", null);
+            var result = SendAADGraphRequest($"/users/{userId}/memberOf", null);
             //var result = await SendGraphGetRequest($"/users/{userId}/memberOf?$select=displayName,description", null);
             return JsonConvert.DeserializeObject<GraphList<Group>>(result);
         }
@@ -183,7 +183,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             // For B2C user managment, be sure to use the 1.6 Graph API version.
             using (var http = new HttpClient())
             {
-                var url = msGraphEndpoint + (apiVersion == GraphApiVersion.latest ? "1.0" : "beta") + api;
+                var url = msGraphEndpoint + (apiVersion == GraphApiVersion.latest ? msGraphVersion : "beta") + api;
                 if (!string.IsNullOrEmpty(query))
                 {
                     url += "&" + query;
@@ -217,7 +217,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             // For B2C user managment, be sure to use the 1.6 Graph API version.
             using (var http = new HttpClient())
             {
-                var url = msGraphEndpoint + (apiVersion == GraphApiVersion.latest ? "1.0" : "beta") + api;
+                var url = msGraphEndpoint + (apiVersion == GraphApiVersion.latest ? msGraphVersion : "beta") + api;
                 if (!string.IsNullOrEmpty(query))
                 {
                     url += "&" + query;
