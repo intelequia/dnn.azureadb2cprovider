@@ -1,0 +1,16 @@
+﻿.table tbody tr td.userName div {
+    max-width: 350px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.table tbody tr {
+    cursor: pointer;
+}
+
+@media (max-width: 800px) {
+    th.userName,
+    td.userName {
+        display: none;
+    }
+}

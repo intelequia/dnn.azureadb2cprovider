@@ -25,10 +25,12 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 using Dnn.PersonaBar.Library;
 using Dnn.PersonaBar.Library.Attributes;
 using DotNetNuke.Authentication.Azure.B2C.Components;
+using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Definitions;
@@ -117,6 +119,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
                 }
                 AzureADB2CProviderSettings.SaveAdvancedSettings("AzureB2C", PortalId, settings);
+                ProfileMappings.UpdateProfileMappingsExtensionNames(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath), PortalId);
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
@@ -125,6 +128,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
+
 
 
         private void AddUserProfilePage(int portalId, bool setAsPortalUserProfile)

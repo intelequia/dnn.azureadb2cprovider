@@ -22,47 +22,28 @@
 #endregion
 
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public partial class Entity
+    public class Extension : DirectoryObject
     {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "objectType", Required = Required.Default)]
+        public string ObjectType { get; set; }
 
-        ///<summary>
-        /// The internal Entity constructor
-        ///</summary>
-        protected internal Entity()
-        {
-            // Don't allow initialization of abstract entity types
-        }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "appDisplayName", Required = Required.Default)]
+        public string AppDisplayName { get; set; }
 
-        /// <summary>
-        /// Gets or sets id.
-        /// Read-only.
-        /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "id", Required = Newtonsoft.Json.Required.Default)]
-        public string Id { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "name", Required = Required.Default)]
+        public string Name { get; set; }
 
-        /// <summary>
-        /// Gets or sets id.
-        /// Read-only.
-        /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "objectId", Required = Newtonsoft.Json.Required.Default)]
-        public string ObjectId { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "dataType", Required = Required.Default)]
+        public string DataType   { get; set; }
 
-        /// <summary>
-        /// Gets or sets @odata.type.
-        /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "@odata.type", Required = Newtonsoft.Json.Required.Default)]
-        public string ODataType { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "isSyncedFromOnPremises", Required = Required.Default)]
+        public bool? IsSyncedFromOnPremises { get; set; }
 
-        /// <summary>
-        /// Gets or sets additional data.
-        /// </summary>
-        [JsonExtensionData(ReadData = true, WriteData = true)]
-        public IDictionary<string, object> AdditionalData { get; set; }
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "targetObjects", Required = Required.Default)]
+        public string[] TargetObjects { get; set; }
     }
 }

@@ -14,13 +14,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
 {
     public class GraphClient
     {
-        #region Enums
+        private const string aadInstance = "https://login.microsoftonline.com/";
+        private const string aadGraphResourceId = "https://graph.windows.net/";
+        private const string aadGraphEndpoint = "https://graph.windows.net/";
+        private const string aadGraphVersion = "api-version=1.6";
+        private const string msGraphResourceId = "https://graph.microsoft.com/";
+        private const string msGraphEndpoint = "https://graph.microsoft.com/";
+        private const string msGraphVersion = "1.0";
+
         private enum GraphApiVersion
         {
             beta,
-            v1_0
+            latest
         }
-        #endregion
 
         #region Properties
         private string ClientId { get; set; }
@@ -39,7 +45,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             Tenant = tenant;
 
             // The AuthenticationContext is ADAL's primary class, in which you indicate the direcotry to use.
-            AuthContext = new AuthenticationContext("https://login.microsoftonline.com/" + tenant);
+            AuthContext = new AuthenticationContext(aadInstance + tenant);
 
             // The ClientCredential is where you pass in your client_id and client_secret, which are 
             // provided to Azure AD in order to receive an access_token using the app's identity.
@@ -47,27 +53,32 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
         }
         #endregion
         
-        public User GetUserByObjectId(string objectId)
+        public User GetUser(string objectId)
         {
-            var result = SendGraphGetRequest("/users/" + objectId, null);
+            var result = SendGraphRequest("/users/" + objectId);
             return JsonConvert.DeserializeObject<User>(result);
         }
 
         public GraphList<User> GetAllUsers(string query)
         {
-            var result = SendGraphGetRequest("/users", query);
+            var result = SendGraphRequest("/users", query);
             return JsonConvert.DeserializeObject<GraphList<User>>(result);
+        }
+
+        public void DeleteUser(string objectId)
+        {
+            _ = SendGraphRequest("/users/" + objectId, httpMethod: HttpMethod.Delete);
         }
 
         public GraphList<Group> GetAllGroups(string query)
         {
-            var result = SendGraphGetRequest("/groups", query);
+            var result = SendGraphRequest("/groups", query);
             return JsonConvert.DeserializeObject<GraphList<Group>>(result);
         }
 
         public GraphList<Group> GetUserGroups(string userId)
         {
-            var result = SendGraphGetRequest($"/users/{userId}/memberOf", null);
+            var result = SendGraphRequest($"/users/{userId}/memberOf", null);
             //var result = await SendGraphGetRequest($"/users/{userId}/memberOf?$select=displayName,description", null);
             return JsonConvert.DeserializeObject<GraphList<Group>>(result);
         }
@@ -76,7 +87,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
         {
             try
             {
-                var result = SendGraphGetRequest("/users/" + userId + "/photo", null, GraphApiVersion.beta);
+                var result = SendGraphRequest("/users/" + userId + "/photo", apiVersion: GraphApiVersion.beta);
                 return JsonConvert.DeserializeObject<ProfilePictureMetadata>(result);
             }
             catch (WebException)
@@ -91,7 +102,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             try
             {
                 var metadata = GetUserProfilePictureMetadata(userId);
-                return SendGraphGetBinaryRequest("/users/" + userId + "/photo/$value", null, GraphApiVersion.beta);
+                return SendGraphBinaryRequest("/users/" + userId + "/photo/$value", null, GraphApiVersion.beta);
             }
             catch (WebException)
             {
@@ -100,62 +111,132 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             }
         }
 
-        private string SendGraphGetRequest(string api, string query, GraphApiVersion apiVersion = GraphApiVersion.v1_0)
+        public GraphList<Models.Application> GetApplications(string query)
         {
-            // First, use ADAL to acquire a token using the app's identity (the credential)
-            // The first parameter is the resource we want an access_token for; in this case, the Graph API.
-            var result = AuthContext.AcquireTokenAsync("https://graph.microsoft.com", Credential).Result;
-
-            // For B2C user managment, be sure to use the 1.6 Graph API version.
-            var http = new HttpClient();
-            var url = "https://graph.microsoft.com/" + (apiVersion == GraphApiVersion.v1_0 ? "v1.0" : "beta") + api;
-            if (!string.IsNullOrEmpty(query))
-            {
-                url += "&" + query;
-            }
-
-            // Append the access token for the Graph API to the Authorization header of the request, using the Bearer scheme.
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
-            var response = http.SendAsync(request).Result;
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = response.Content.ReadAsStringAsync().Result;
-                var formatted = JsonConvert.DeserializeObject(error);
-                throw new WebException("Error Calling the Graph API: \n" + JsonConvert.SerializeObject(formatted, Formatting.Indented));
-            }
-
-            return response.Content.ReadAsStringAsync().Result;
+            var result = SendAADGraphRequest("/applications", query);
+            return JsonConvert.DeserializeObject<GraphList<Models.Application>>(result);
         }
 
-        private byte[] SendGraphGetBinaryRequest(string api, string query, GraphApiVersion apiVersion = GraphApiVersion.v1_0)
+        public GraphList<Extension> RegisterExtension(string appObjectId, Extension extension)
+        {
+            var body = JsonConvert.SerializeObject(extension);
+            var result = SendAADGraphRequest("/applications/" + appObjectId + "/extensionProperties", body: body, httpMethod: HttpMethod.Post);
+            return JsonConvert.DeserializeObject<GraphList<Extension>>(result);
+        }
+
+        public void UnregisterExtension(string appObjectId, string extensionObjectId)
+        {
+            _ = SendAADGraphRequest("/applications/" + appObjectId + "/extensionProperties/" + extensionObjectId, httpMethod: HttpMethod.Delete);
+        }
+
+        public GraphList<Extension> GetExtensions(string appObjectId)
+        {
+            var result = SendAADGraphRequest("/applications/" + appObjectId + "/extensionProperties");
+            return JsonConvert.DeserializeObject<GraphList<Extension>>(result);
+        }
+
+        public Models.Application GetB2CExtensionApplication()
+        {
+            return GetApplications("$filter=startswith(displayName, 'b2c-extensions-app')").Values?.FirstOrDefault();
+        }
+
+        private string SendAADGraphRequest(string api, string query = null, string body = null, HttpMethod httpMethod = null)
         {
             // First, use ADAL to acquire a token using the app's identity (the credential)
             // The first parameter is the resource we want an access_token for; in this case, the Graph API.
-            var result = AuthContext.AcquireTokenAsync("https://graph.microsoft.com", Credential).Result;
+            var result = AuthContext.AcquireTokenAsync(aadGraphResourceId, Credential).Result;
 
             // For B2C user managment, be sure to use the 1.6 Graph API version.
-            HttpClient http = new HttpClient();
-            var url = "https://graph.microsoft.com/" + (apiVersion == GraphApiVersion.v1_0 ? "v1.0" : "beta") + api;
-            if (!string.IsNullOrEmpty(query))
+            using (var http = new HttpClient())
             {
-                url += "&" + query;
+                var url = aadGraphEndpoint + Tenant + api + "?" + aadGraphVersion;
+                if (!string.IsNullOrEmpty(query))
+                {
+                    url += "&" + query;
+                }
+
+                // Append the access token for the Graph API to the Authorization header of the request, using the Bearer scheme.
+                var request = new HttpRequestMessage(httpMethod ?? HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
+                if (!string.IsNullOrEmpty(body))
+                {
+                    request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                }
+                var response = http.SendAsync(request).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = response.Content.ReadAsStringAsync().Result;
+                    var formatted = JsonConvert.DeserializeObject(error);
+                    throw new WebException("Error Calling the Graph API: \n" + JsonConvert.SerializeObject(formatted, Formatting.Indented));
+                }
+                return response.Content.ReadAsStringAsync().Result;
             }
+        }
 
-            // Append the access token for the Graph API to the Authorization header of the request, using the Bearer scheme.
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
-            var response = http.SendAsync(request).Result;
+        private string SendGraphRequest(string api, string query = null, string body = null, GraphApiVersion apiVersion = GraphApiVersion.latest, HttpMethod httpMethod = null)
+        {
+            // First, use ADAL to acquire a token using the app's identity (the credential)
+            // The first parameter is the resource we want an access_token for; in this case, the Graph API.
+            var result = AuthContext.AcquireTokenAsync(msGraphResourceId, Credential).Result;
 
-            if (!response.IsSuccessStatusCode)
+            // For B2C user managment, be sure to use the 1.6 Graph API version.
+            using (var http = new HttpClient())
             {
-                var error = response.Content.ReadAsStringAsync().Result;
-                var formatted = JsonConvert.DeserializeObject(error);
-                throw new WebException("Error Calling the Graph API: \n" + JsonConvert.SerializeObject(formatted, Formatting.Indented));
-            }
+                var url = msGraphEndpoint + (apiVersion == GraphApiVersion.latest ? "1.0" : "beta") + api;
+                if (!string.IsNullOrEmpty(query))
+                {
+                    url += "&" + query;
+                }
 
-            return response.Content.ReadAsByteArrayAsync().Result;
+                // Append the access token for the Graph API to the Authorization header of the request, using the Bearer scheme.
+                var request = new HttpRequestMessage(httpMethod ?? HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
+                if (!string.IsNullOrEmpty(body))
+                {
+                    request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                }
+                var response = http.SendAsync(request).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = response.Content.ReadAsStringAsync().Result;
+                    var formatted = JsonConvert.DeserializeObject(error);
+                    throw new WebException("Error Calling the Graph API: \n" + JsonConvert.SerializeObject(formatted, Formatting.Indented));
+                }
+                return response.Content.ReadAsStringAsync().Result;
+            }
+        }
+
+        private byte[] SendGraphBinaryRequest(string api, string query, GraphApiVersion apiVersion = GraphApiVersion.latest, HttpMethod httpMethod = null)
+        {
+            // First, use ADAL to acquire a token using the app's identity (the credential)
+            // The first parameter is the resource we want an access_token for; in this case, the Graph API.
+            var result = AuthContext.AcquireTokenAsync(msGraphResourceId, Credential).Result;
+
+            // For B2C user managment, be sure to use the 1.6 Graph API version.
+            using (var http = new HttpClient())
+            {
+                var url = msGraphEndpoint + (apiVersion == GraphApiVersion.latest ? "1.0" : "beta") + api;
+                if (!string.IsNullOrEmpty(query))
+                {
+                    url += "&" + query;
+                }
+
+                // Append the access token for the Graph API to the Authorization header of the request, using the Bearer scheme.
+                var request = new HttpRequestMessage(httpMethod ?? HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
+                var response = http.SendAsync(request).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = response.Content.ReadAsStringAsync().Result;
+                    var formatted = JsonConvert.DeserializeObject(error);
+                    throw new WebException("Error Calling the Graph API: \n" + JsonConvert.SerializeObject(formatted, Formatting.Indented));
+                }
+
+                return response.Content.ReadAsByteArrayAsync().Result;
+            }
         }
     }
 }

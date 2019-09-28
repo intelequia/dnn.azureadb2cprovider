@@ -21,8 +21,11 @@
 
 #endregion
 
+using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using System;
 using System.IO;
+using System.Linq;
+using System.Web;
 using System.Xml.Serialization;
 
 /// <summary>
@@ -40,6 +43,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
     [XmlRoot]
     public class ProfileMappings
     {
+        public const string DefaultProfileMappingsFilePath = "~/DesktopModules/AuthenticationServices/AzureB2C/DnnProfileMappings.config";
+
         [XmlElement("profileMapping")]
         public ProfileMappingsProfileMapping[] ProfileMapping { get; set; }
 
@@ -54,6 +59,48 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 return (ProfileMappings)serializer.Deserialize(fileStream);
             }
         }
+
+        public static void UpdateProfileMappings(string filePath, ProfileMappings profileMappings)
+        {
+            var serializer = new XmlSerializer(typeof(ProfileMappings));
+            using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
+            {
+                serializer.Serialize(fileStream, profileMappings);
+            }
+        }
+
+        public static void UpdateProfileMappingsExtensionNames(string filePath, int portalId)
+        {
+            var config = new AzureConfig("AzureB2C", portalId);
+
+            if (string.IsNullOrEmpty(config.AADApplicationId)
+                || string.IsNullOrEmpty(config.AADApplicationKey)
+                || string.IsNullOrEmpty(config.TenantId))
+                return;
+
+            var graphClient = new GraphClient(config.AADApplicationId, config.AADApplicationKey, config.TenantId);
+
+            var extensionApp = graphClient.GetB2CExtensionApplication();
+            var extensions = graphClient.GetExtensions(extensionApp.ObjectId);
+
+            var profileMappings = GetProfileMappings(filePath);
+            var changedFlag = false; ;
+            foreach (var extension in extensions.Values)
+            {
+                var mapping = profileMappings.ProfileMapping.FirstOrDefault(x =>
+                                    extension.Name.ToLowerInvariant().EndsWith("_" + x.B2cClaimName.ToLowerInvariant()));
+                if (mapping != null)
+                {
+                    changedFlag = true;
+                    mapping.B2cExtensionName = extension.Name;
+                }
+            }
+
+            if (changedFlag)
+            {
+                UpdateProfileMappings(filePath, profileMappings);
+            }
+        }
     }
 
     [Serializable]
@@ -64,5 +111,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         [XmlAttribute("b2cClaimName")]
         public string B2cClaimName { get; set; }
+
+        [XmlAttribute("b2cExtensionName")]
+        public string B2cExtensionName { get; set; }
     }
 }

@@ -22,47 +22,24 @@
 #endregion
 
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public partial class Entity
+    public class Application : DirectoryObject
     {
 
-        ///<summary>
-        /// The internal Entity constructor
-        ///</summary>
-        protected internal Entity()
-        {
-            // Don't allow initialization of abstract entity types
-        }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "objectType", Required = Required.Default)]
+        public string ObjectType { get; set; }
 
-        /// <summary>
-        /// Gets or sets id.
-        /// Read-only.
-        /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "id", Required = Newtonsoft.Json.Required.Default)]
-        public string Id { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "appId", Required = Required.Default)]
+        public string AppId { get; set; }
 
-        /// <summary>
-        /// Gets or sets id.
-        /// Read-only.
-        /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "objectId", Required = Newtonsoft.Json.Required.Default)]
-        public string ObjectId { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "displayName", Required = Required.Default)]
+        public string DisplayName { get; set; }
 
-        /// <summary>
-        /// Gets or sets @odata.type.
-        /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "@odata.type", Required = Newtonsoft.Json.Required.Default)]
-        public string ODataType { get; set; }
-
-        /// <summary>
-        /// Gets or sets additional data.
-        /// </summary>
-        [JsonExtensionData(ReadData = true, WriteData = true)]
-        public IDictionary<string, object> AdditionalData { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "publisherDomain", Required = Required.Default)]
+        public string PublisherDomain { get; set; }
 
     }
 }

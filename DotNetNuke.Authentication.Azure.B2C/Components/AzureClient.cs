@@ -61,7 +61,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         private const string LogoutEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/logout?p={2}&post_logout_redirect_uri={3}";
         private const string AuthorizationEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/authorize";
         private const string GraphEndpointPattern = "https://graph.windows.net/{0}";
-        private const string ProfileMappingsFilePath = "~/DesktopModules/AuthenticationServices/AzureB2C/DnnProfileMappings.config";
 
         private static readonly ILog Logger = LoggerSource.Instance.GetLogger(typeof(AzureClient));
         private GraphClient _graphClient;
@@ -90,7 +89,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             get {
                 if (_customClaimsMappings == null)
                 {
-                    _customClaimsMappings = ProfileMappings.GetProfileMappings(HttpContext.Current.Server.MapPath(ProfileMappingsFilePath));
+                    _customClaimsMappings = ProfileMappings.GetProfileMappings(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath));
                 }
 
                 return _customClaimsMappings;
@@ -397,7 +396,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     new QueryParameter("scope", Scope),
                     new QueryParameter("client_id", APIKey),
                     new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
-                    new QueryParameter("state", Service),
+                    new QueryParameter("state", HttpContext.Current.Server.UrlEncode($"{Service};{Settings.PortalID}")),
                     new QueryParameter("response_type", "code"),
                     new QueryParameter("response_mode", "query"),
                     new QueryParameter("p", PolicyName)
