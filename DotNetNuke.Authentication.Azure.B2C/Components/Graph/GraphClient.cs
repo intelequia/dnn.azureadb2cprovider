@@ -70,6 +70,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             _ = SendAADGraphRequest("/users/" + objectId, httpMethod: HttpMethod.Delete);
         }
 
+        public void AddUser(NewUser newUser)
+        {
+            var body = JsonConvert.SerializeObject(newUser);
+            _ = SendAADGraphRequest("/users", body: body, httpMethod: HttpMethod.Post);
+        }
+
         public GraphList<Group> GetAllGroups(string query)
         {
             var result = SendAADGraphRequest("/groups", query);

@@ -4,28 +4,46 @@ dnn.extend(dnn.adb2c.UserManagement,
         UserModel: function (userManagement, model) {
             var that = this;
 
+            if (!model)
+                model = {};
+
             this.userManagement = userManagement;
-            this.displayName = ko.observable(model.displayName);
-            this.givenName = ko.observable(model.givenName);
-            this.id = ko.observable(model.id);
-            this.surname = ko.observable(model.surname);
-            this.userPrincipalName = ko.observable(model.userPrincipalName);
-            this.mail = ko.observable(model.mail);
-            this.jobTitle = ko.observable(model.jobTitle);
-            this.mobilePhone = ko.observable(model.mobilePhone);
-            this.officeLocation = ko.observable(model.officeLocation);
-            this.preferredLanguage = ko.observable(model.preferredLanguage);
-            this.businessPhones = ko.observableArray(model.businessPhones);
+            this.displayName = ko.observable(model.displayName || "");
+            this.givenName = ko.observable(model.givenName || "");
+            this.id = ko.observable(model.id || "");
+            this.surname = ko.observable(model.surname || "");
+            this.userPrincipalName = ko.observable(model.userPrincipalName || "");
+            this.mail = ko.observable(model.mail || "");
+            this.jobTitle = ko.observable(model.jobTitle || "");
+            this.mobilePhone = ko.observable(model.mobilePhone || "");
+            this.officeLocation = ko.observable(model.officeLocation || "");
+            this.preferredLanguage = ko.observable(model.preferredLanguage || "en");
+            this.businessPhones = ko.observableArray(model.businessPhones || []);
+            this.password = ko.observable("");
+            this.sendEmail = ko.observable(true);
 
-            /*this.cssClass = function () {
-                return that.complete() ? "complete" : "";
-            };*/
+            this.setDisplayName = function () {
+                if (that.displayName() === "")
+                    that.displayName(that.givenName() + " " + that.surname());
+            };
 
-            this.update = function () {
+            this.addUser = function () {
                 that.userManagement.loading(true);
-                that.userManagement.ajax("Update", {
-                    id: that.id,
-                    Complete: that.complete
+                that.userManagement.ajax("AddUser", {
+                    user: {
+                        displayName: that.displayName(),
+                        givenName: that.givenName(),
+                        surname: that.surname(),
+                        userPrincipalName: that.mail(),
+                        mail: that.mail(),
+                        jobTitle: that.jobTitle(),
+                        mobilePhone: that.mobilePhone(),
+                        officeLocation: that.officeLocation(),
+                        preferredLanguage: that.preferredLanguage(),
+                        businessPhones: that.businessPhones(),
+                    },
+                    password: that.password(),
+                    sendEmail: that.sendEmail()
                 },
                     function (data) {
                         that.userManagement.refresh();
@@ -66,6 +84,7 @@ dnn.extend(dnn.adb2c.UserManagement,
             var sf = $.dnnSF(dnn.getVar("moduleId"));
 
             this.users = ko.observableArray();
+            this.newUser = ko.observable(new dnn.adb2c.UserManagement.UserModel(that));
             this.loading = ko.observable(true);
 
             function setHeaders(xhr) {
@@ -110,8 +129,17 @@ dnn.extend(dnn.adb2c.UserManagement,
                     }
                 );
             };
-
+            this.showTab = function() {
+                $(".b2c-overlay").css("display", "block");
+                $(".b2c-rightTab").addClass("b2c-rightTab-show");
+            };
+            this.hideTab = function () {
+                $(".b2c-rightTab").removeClass("b2c-rightTab-show");
+                $(".b2c-overlay").css("display", "none");
+            };
             this.addUser = function (evt) {
+                that.newUser(new dnn.adb2c.UserManagement.UserModel(that));
+                that.showTab();                
 /*                var textbox = $("#newItemContent"),
                     itemText = textbox.val();
                 if (itemText !== '') {

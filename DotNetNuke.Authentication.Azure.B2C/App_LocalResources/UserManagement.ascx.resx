@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddUser.Text" xml:space="preserve">
+    <value>Add User</value>
+  </data>
+  <data name="AddUserDescription.Text" xml:space="preserve">
+    <value>To get started, fill out some basic information about who you're adding as a user.</value>
+  </data>
   <data name="AreYouSure.Text" xml:space="preserve">
     <value>Are you sure?</value>
   </data>
@@ -125,6 +131,36 @@
   </data>
   <data name="DeleteMessage.Text" xml:space="preserve">
     <value>You are going to delete this user. This action is not reversible.</value>
+  </data>
+  <data name="DisplayName.Text" xml:space="preserve">
+    <value>Display Name</value>
+  </data>
+  <data name="lblDisplayName.Text" xml:space="preserve">
+    <value>Display Name</value>
+  </data>
+  <data name="lblEmail.Text" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="lblFirstName.Text" xml:space="preserve">
+    <value>First Name</value>
+  </data>
+  <data name="lblLastName.Text" xml:space="preserve">
+    <value>Last Name</value>
+  </data>
+  <data name="lblPassword.Text" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="lblSendEmail.Text" xml:space="preserve">
+    <value>Send password in e-mail upon completion</value>
+  </data>
+  <data name="Loading.Text" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="Username.Text" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="Users.Text" xml:space="preserve">
+    <value>user(s)</value>
   </data>
   <data name="Yes.Text" xml:space="preserve">
     <value>Yes, delete it!</value>

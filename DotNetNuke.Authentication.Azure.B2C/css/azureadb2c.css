@@ -1,4 +1,52 @@
-﻿.table tbody tr td.userName div {
+﻿.userManagement.actions {
+    display: block;
+    padding: 10px;
+}
+
+.b2c-overlay {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    display: none;
+}
+
+.b2c-rightTab {
+    position: fixed;
+    right: 0;
+    left: auto;
+    top: 0;
+    bottom: 0;
+    z-index: 9999;
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+    margin-right: -500px;
+    -moz-transition: margin-right .3s ease-in;
+    -o-transition: margin-right .3s ease-in;
+    -webkit-transition: margin-right .3s ease-in;
+    transition: margin-right .3s ease-in;
+    background-color: #ffffff;
+    width: 500px;
+}
+    .b2c-rightTab.b2c-rightTab-show {
+        margin-right: 0;
+    }
+
+.b2c-panel {
+    padding: 20px;
+}
+.b2c-close-panel {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 2em;
+}
+
+.table tbody tr td.userName div {
     max-width: 350px;
     white-space: nowrap;
     overflow: hidden;
@@ -8,9 +56,27 @@
     cursor: pointer;
 }
 
-@media (max-width: 800px) {
+.b2c-panel .dnnFormItem label {
+    display: block;
+}
+.b2c-panel .dnnFormItem label.inline {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.b2c-panel .dnnFormItem .full-width {
+    width: 100%;
+}
+
+@media (max-width: 800px) { 
     th.userName,
     td.userName {
         display: none;
+    }
+}
+
+@media (max-width: 500px) {
+    .b2c-rightTab {
+        width: 100%;
     }
 }

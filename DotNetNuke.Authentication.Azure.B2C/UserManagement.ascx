@@ -9,14 +9,18 @@
 <dnn:DnnCssInclude runat="server" FilePath="DesktopModules/AuthenticationServices/AzureB2C/css/sweetalert.css" Priority="22"></dnn:DnnCssInclude>
 <dnn:DnnCssInclude runat="server" FilePath="DesktopModules/AuthenticationServices/AzureB2C/css/toastr.min.css" />
 
+<div class="b2c-overlay"></div>
+
 <!-- ko with: dnn.adb2c.usermgt -->
 <div id="UserManagement-<% = ModuleId %>">
-    <input id="addUser" type="submit" class="dnnPrimaryAction" value="Add" data-bind="click: addUser" />
+    <div class="userManagement actions">
+        <a id="addUser" data-bind="click: addUser"> <i class="fa fa-plus-square-o"></i> <% = LocalizeString("AddUser") %></a>
+    </div>
     <table id="userManagementTable" class="table table-hover">
         <thead>
             <tr role="row">
-                <th>Display Name</th>
-                <th class="userName">Username</th>
+                <th><% = LocalizeString("DisplayName") %></th>
+                <th class="userName"><% = LocalizeString("Username") %></th>
                 <th></th>
             </tr>
         </thead>
@@ -36,14 +40,60 @@
         <tfoot>
             <tr>
                 <th colspan="3">
-                    <div data-bind="visible: !loading()"><span class="userCount" data-bind="text: users().length">0</span> user(s)</div>
-                    <div data-bind="visible: loading()">Loading...</div>
+                    <div data-bind="visible: !loading()"><span class="userCount" data-bind="text: users().length">0</span> <% = LocalizeString("Users") %></div>
+                    <div data-bind="visible: loading()"><% = LocalizeString("Loading") %></div>
                 </th>
             </tr>
         </tfoot>
     </table>
+     
+    <div id="rightPanel" class="b2c-rightTab">  
+        <div class="b2c-close-panel">
+            <a id="b2c-close-btn" data-bind="click: hideTab"> <i class="fa fa-window-close-o"></i></a>
+        </div>
+        <!-- ko with: newUser -->
+        <div id="addUserPanel" class="b2c-panel">
+            <h3 class="dnnFormSectionHead"><% = LocalizeString("AddUser") %></h3>
+            <div class="dnnForm">
+                <p><% = LocalizeString("AddUserDescription") %></p>
+                <fieldset class="dnnClear">
+                    <div class="dnnFormItem">
+                        <label for="txtFirstName"><% = LocalizeString("lblFirstName") %> *</label>
+                        <input type="text" id="txtFirstName" class="full-width" data-bind="value: givenName" />
+                    </div>
+                    <div class="dnnFormItem">
+                        <label for="txtLastName"><% = LocalizeString("lblLastName") %> *</label>
+                        <input type="text" id="txtLastName" class="full-width" data-bind="value: surname" />
+                    </div>
+                    <div class="dnnFormItem">
+                        <label for="txtDisplayName"><% = LocalizeString("lblDisplayName") %> *</label>
+                        <input type="text" id="txtDisplayName" class="full-width" data-bind="value: displayName, event: { focus: setDisplayName }" />
+                    </div>
+                    <div class="dnnFormItem">
+                        <label for="txtEmail"><% = LocalizeString("lblEmail") %> *</label>
+                        <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
+                    </div>
+                    <div class="dnnFormItem">
+                        <label for="txtPassword"><% = LocalizeString("lblPassword") %> *</label>
+                        <input type="password" id="txtPassword" class="full-width" autocomplete="new-password" data-bind="value: password" />
+                    </div>
+                    <div class="dnnFormItem">
+                        <input type="checkbox" id="chkSendEmail" data-bind="checked: sendEmail" />
+                        <span class="inline" for="chkSendEmail"><% = LocalizeString("lblSendEmail") %></span>
+                    </div>
+                </fieldset>
+                <a id="btnAddUser" class="dnnPrimaryAction" data-bind="click: addUser"><% = LocalizeString("AddUser") %></a>
+                <a id="btnCancel" class="dnnSecondaryAction" data-bind="click: $parent.hideTab"><% = LocalizeString("Cancel") %></a>
+            </div>
+        </div>
+        <!-- /ko -->
+    </div>
+
 </div>
+
 <!-- /ko -->
+ 
+
  
 <script type="text/javascript">
     if (typeof dnn.adb2c === 'undefined') dnn.adb2c = {};

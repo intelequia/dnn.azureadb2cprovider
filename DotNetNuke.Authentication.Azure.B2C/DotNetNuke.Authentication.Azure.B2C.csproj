@@ -171,6 +171,7 @@
     <Compile Include="Components\Graph\Models\Extension.cs" />
     <Compile Include="Components\Graph\Models\GraphList.cs" />
     <Compile Include="Components\Graph\Models\Group.cs" />
+    <Compile Include="Components\Graph\Models\NewUser.cs" />
     <Compile Include="Components\Graph\Models\ProfilePicture.cs" />
     <Compile Include="Components\Graph\Models\ProfilePictureMetadata.cs" />
     <Compile Include="Components\Graph\Models\User.cs" />
