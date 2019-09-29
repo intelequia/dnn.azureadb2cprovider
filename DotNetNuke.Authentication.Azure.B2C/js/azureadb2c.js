@@ -10,7 +10,7 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.userManagement = userManagement;
             this.displayName = ko.observable(model.displayName || "");
             this.givenName = ko.observable(model.givenName || "");
-            this.id = ko.observable(model.id || "");
+            this.objectId = ko.observable(model.objectId || "");
             this.surname = ko.observable(model.surname || "");
             this.userPrincipalName = ko.observable(model.userPrincipalName || "");
             this.mail = ko.observable(model.mail || "");
@@ -34,18 +34,19 @@ dnn.extend(dnn.adb2c.UserManagement,
                         displayName: that.displayName(),
                         givenName: that.givenName(),
                         surname: that.surname(),
-                        userPrincipalName: that.mail(),
+                        //userPrincipalName: that.mail(),
                         mail: that.mail(),
-                        jobTitle: that.jobTitle(),
-                        mobilePhone: that.mobilePhone(),
-                        officeLocation: that.officeLocation(),
+                        //jobTitle: that.jobTitle(),
+                        //mobilePhone: that.mobilePhone(),
+                        //officeLocation: that.officeLocation(),
                         preferredLanguage: that.preferredLanguage(),
-                        businessPhones: that.businessPhones(),
+                        //businessPhones: that.businessPhones(),
                     },
                     password: that.password(),
                     sendEmail: that.sendEmail()
                 },
                     function (data) {
+                        that.userManagement.hideTab();
                         that.userManagement.refresh();
                     },
                     function (e) {
@@ -67,7 +68,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                 }, function () {
                     that.userManagement.loading(true);
                     that.userManagement.ajax("Remove", {
-                        id: that.id
+                        objectId: that.objectId()
                     },
                         function (data) {
                             that.userManagement.refresh();

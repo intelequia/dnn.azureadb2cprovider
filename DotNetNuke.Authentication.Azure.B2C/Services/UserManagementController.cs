@@ -55,6 +55,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     Value = newUser.Mail
                 });
                 newUser.PasswordProfile.Password = parameters.password;
+                newUser.Mail = null;
                 
                 
                 graphClient.AddUser(newUser);
@@ -68,7 +69,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
         public class RemoveParameters
         {
-            public string id { get; set; }
+            public string objectId { get; set; }
         }
         [HttpPost]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
@@ -79,7 +80,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
 
-                graphClient.DeleteUser(parameters.id);
+                graphClient.DeleteUser(parameters.objectId);
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
