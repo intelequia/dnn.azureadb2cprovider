@@ -19,6 +19,25 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
     {
         [HttpGet]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
+        public HttpResponseMessage GetAllGroups()
+        {
+            try
+            {
+                var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var query = "";
+
+                var users = graphClient.GetAllGroups(query);
+                return Request.CreateResponse(HttpStatusCode.OK, users.Values);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
         public HttpResponseMessage GetAllUsers()
         {
             try
@@ -36,6 +55,35 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 var users = graphClient.GetAllUsers(query);
                 return Request.CreateResponse(HttpStatusCode.OK, users.Values);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
+        public HttpResponseMessage GetUserGroups(string objectId)
+        {
+            try
+            {
+                var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var profileMapping = ProfileMappings.GetProfileMappings(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath))
+                    .ProfileMapping.FirstOrDefault(x => x.DnnProfilePropertyName == "PortalId");
+                var user = graphClient.GetUser(objectId);
+                if (profileMapping != null)
+                {
+                    if (user?.AdditionalData == null || !user.AdditionalData.ContainsKey(profileMapping.B2cExtensionName)
+                        || (int)(long)user.AdditionalData[profileMapping.B2cExtensionName] != PortalSettings.PortalId)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
+                    }
+                }
+
+                var groups = graphClient.GetUserGroups(objectId);
+                return Request.CreateResponse(HttpStatusCode.OK, groups.Values);
             }
             catch (Exception ex)
             {

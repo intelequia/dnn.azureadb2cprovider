@@ -45,8 +45,15 @@
     top: 10px;
     font-size: 2em;
 }
-
-.table tbody tr td.userName div {
+.b2c-groups-header {
+    width: 100%;
+    background-color: #f0f0f0;
+    padding: 10px;
+}
+.b2c-groups-row {
+    padding: 10px;
+}
+    .table tbody tr td.userName div {
     max-width: 350px;
     white-space: nowrap;
     overflow: hidden;

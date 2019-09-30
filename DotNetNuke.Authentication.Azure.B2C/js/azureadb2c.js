@@ -1,6 +1,16 @@
 ﻿Type.registerNamespace('dnn.adb2c.UserManagement');
 dnn.extend(dnn.adb2c.UserManagement,
     {
+        GroupModel: function (userManagement, model) {
+            var that = this;
+
+            if (!model)
+                model = {};
+
+            this.userManagement = userManagement;
+            this.objectId = ko.observable(model.objectId || "");
+            this.displayName = ko.observable(model.displayName || "");
+        },
         UserModel: function (userManagement, model) {
             var that = this;
 
@@ -65,6 +75,8 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.password = ko.observable("");
             this.sendEmail = ko.observable(true);
 
+            this.groups = ko.observableArray();
+
             this.usernameToDisplay = ko.computed(function () {
                 if (that.signInNames() && that.signInNames().length > 0 && that.signInNames()[0].type === "emailAddress") {
                     return that.signInNames()[0].value;
@@ -78,6 +90,23 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.setDisplayName = function () {
                 if (that.displayName() === "")
                     that.displayName(that.givenName() + " " + that.surname());
+            }; 
+
+            this.addGroup = function () {
+                if (that.userManagement.selectedGroup() && (that.groups().length === 0 || that.groups().find(function (data) {
+                        return data.objectId() === that.userManagement.selectedGroup().objectId();
+                    }) === null)) {
+                    var group = new dnn.adb2c.UserManagement.UserModel(that);
+                    group.displayName(that.userManagement.selectedGroup().displayName());
+                    group.objectId(that.userManagement.selectedGroup().objectId());
+                    that.groups.push(group);
+                }
+            };
+
+            this.removeGroup = function (g,t) {
+                that.groups.remove(function (group) {
+                    return group.objectId() === t.target.attributes["data-oid"].value;
+                }); 
             };
 
             this.addUser = function () {
@@ -156,6 +185,8 @@ dnn.extend(dnn.adb2c.UserManagement,
             var sf = $.dnnSF(dnn.getVar("moduleId"));
 
             this.users = ko.observableArray();
+            this.groups = ko.observableArray();
+            this.selectedGroup = ko.observable('');
             this.newUser = ko.observable();
             this.selectedUser = ko.observable();
             this.loading = ko.observable(true);
@@ -188,14 +219,26 @@ dnn.extend(dnn.adb2c.UserManagement,
 
             this.refresh = function () {
                 that.loading(true);
-                ajax("GetAllUsers", null,
+                ajax("GetAllGroups", null,
                     function (data) {
-                        that.users.removeAll();
+                        that.groups.removeAll();
                         $.each(data,
-                            function (index, user) {
-                                that.users.push(new dnn.adb2c.UserManagement.UserModel(that, user));
+                            function (index, group) {
+                                that.groups.push(new dnn.adb2c.UserManagement.GroupModel(that, group));
                             });
-                        that.loading(false);
+                        ajax("GetAllUsers", null,
+                            function (data) {
+                                that.users.removeAll();
+                                $.each(data,
+                                    function (index, user) {
+                                        that.users.push(new dnn.adb2c.UserManagement.UserModel(that, user));
+                                    });
+                                that.loading(false);
+                            },
+                            function (e) {
+                                that.loading(false);
+                            }
+                        );
                     },
                     function (e) {
                         that.loading(false);
@@ -213,14 +256,29 @@ dnn.extend(dnn.adb2c.UserManagement,
                 that.selectedUser(null);
             };
             this.addUser = function (evt) {
+                that.selectedUser(null);
                 that.newUser(new dnn.adb2c.UserManagement.UserModel(that));
                 that.showTab();                
             };
             this.updateUser = function (evt) {
-                that.selectedUser(evt);
-                that.showTab();
+                that.newUser(null);
+                ajax("GetUserGroups?objectId=" + evt.objectId(), null,
+                    function (data) {
+                        evt.groups.removeAll();
+                        $.each(data,
+                            function (index, group) {
+                                evt.groups.push(new dnn.adb2c.UserManagement.GroupModel(that, group));
+                            });
+                        that.selectedGroup('');
+                        that.selectedUser(evt);
+                        that.showTab();
+                        that.loading(false);
+                    },
+                    function (e) {
+                        that.loading(false);
+                    }
+                );
             };
-
 
             this.refresh();
         }

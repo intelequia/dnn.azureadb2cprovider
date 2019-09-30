@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddGroup.Text" xml:space="preserve">
+    <value>Add Group</value>
+  </data>
   <data name="AddUser.Text" xml:space="preserve">
     <value>Add User</value>
   </data>
@@ -128,6 +131,12 @@
   </data>
   <data name="Cancel.Text" xml:space="preserve">
     <value>Cancel</value>
+  </data>
+  <data name="ChooseGroup.Text" xml:space="preserve">
+    <value>Choose a group...</value>
+  </data>
+  <data name="CurrentGroups.Text" xml:space="preserve">
+    <value>Current groups</value>
   </data>
   <data name="DeleteMessage.Text" xml:space="preserve">
     <value>You are going to delete this user. This action is not reversible.</value>
@@ -144,6 +153,9 @@
   <data name="lblFirstName.Text" xml:space="preserve">
     <value>First Name</value>
   </data>
+  <data name="lblGroups.Text" xml:space="preserve">
+    <value>Groups</value>
+  </data>
   <data name="lblLastName.Text" xml:space="preserve">
     <value>Last Name</value>
   </data>
@@ -155,6 +167,9 @@
   </data>
   <data name="Loading.Text" xml:space="preserve">
     <value>Loading...</value>
+  </data>
+  <data name="NoGroups.Text" xml:space="preserve">
+    <value>This user is not currently on any group</value>
   </data>
   <data name="Refresh.Text" xml:space="preserve">
     <value>Refresh</value>
