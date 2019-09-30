@@ -323,5 +323,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "deviceEnrollmentLimit", Required = Newtonsoft.Json.Required.Default)]
         public Int32? DeviceEnrollmentLimit { get; set; }
+
     }
 }

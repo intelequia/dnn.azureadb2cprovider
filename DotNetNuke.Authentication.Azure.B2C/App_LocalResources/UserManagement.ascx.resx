@@ -133,7 +133,7 @@
     <value>You are going to delete this user. This action is not reversible.</value>
   </data>
   <data name="DisplayName.Text" xml:space="preserve">
-    <value>Display Name</value>
+    <value>Name</value>
   </data>
   <data name="lblDisplayName.Text" xml:space="preserve">
     <value>Display Name</value>
@@ -156,8 +156,14 @@
   <data name="Loading.Text" xml:space="preserve">
     <value>Loading...</value>
   </data>
+  <data name="Refresh.Text" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="UpdateUser.Text" xml:space="preserve">
+    <value>Update User</value>
+  </data>
   <data name="Username.Text" xml:space="preserve">
-    <value>Username</value>
+    <value>User Name</value>
   </data>
   <data name="Users.Text" xml:space="preserve">
     <value>user(s)</value>

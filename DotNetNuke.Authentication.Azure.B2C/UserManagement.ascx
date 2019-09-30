@@ -15,6 +15,8 @@
 <div id="UserManagement-<% = ModuleId %>">
     <div class="userManagement actions">
         <a id="addUser" data-bind="click: addUser"> <i class="fa fa-plus-square-o"></i> <% = LocalizeString("AddUser") %></a>
+         | 
+        <a id="refreshUsers" data-bind="click: refresh"> <i class="fa fa-refresh"></i> <% = LocalizeString("Refresh") %></a>
     </div>
     <table id="userManagementTable" class="table table-hover">
         <thead>
@@ -26,11 +28,11 @@
         </thead>
         <tbody data-bind="foreach: users">
             <tr>
-                <td class="displayName">
+                <td class="displayName" data-bind="event: { click: $parent.updateUser }">
                     <span data-bind="text: displayName"></span>
                 </td>
-                <td class="userName">
-                    <div data-bind="text: userPrincipalName"></div>
+                <td class="userName" data-bind="event: { click: $parent.updateUser }">
+                    <div data-bind="text: usernameToDisplay" ></div>
                 </td>
                 <td>
                     <a class="kblist-glyph segoemdl2 pull-right fa fa-trash-o" style="font-size: 1.2em; margin-left: 2.3em" data-bind="click: remove"></a>   
@@ -87,6 +89,37 @@
             </div>
         </div>
         <!-- /ko -->
+
+        <!-- ko with: selectedUser -->
+        <div id="updateUserPanel" class="b2c-panel">
+            <h3 class="dnnFormSectionHead"><% = LocalizeString("UpdateUser") %></h3>
+            <div class="dnnForm">
+                <p><% = LocalizeString("AddUserDescription") %></p>
+                <fieldset class="dnnClear">
+                    <div class="dnnFormItem">
+                        <label for="txtFirstName"><% = LocalizeString("lblFirstName") %> *</label>
+                        <input type="text" id="txtFirstName" class="full-width" data-bind="value: givenName" />
+                    </div>
+                    <div class="dnnFormItem">
+                        <label for="txtLastName"><% = LocalizeString("lblLastName") %> *</label>
+                        <input type="text" id="txtLastName" class="full-width" data-bind="value: surname" />
+                    </div>
+                    <div class="dnnFormItem">
+                        <label for="txtDisplayName"><% = LocalizeString("lblDisplayName") %> *</label>
+                        <input type="text" id="txtDisplayName" class="full-width" data-bind="value: displayName, event: { focus: setDisplayName }" />
+                    </div>
+                    <div class="dnnFormItem">
+                        <label for="txtEmail"><% = LocalizeString("lblEmail") %> *</label>
+                        <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
+                    </div>
+                </fieldset>
+                <a id="btnAddUser" class="dnnPrimaryAction" data-bind="click: update"><% = LocalizeString("UpdateUser") %></a>
+                <a id="btnCancel" class="dnnSecondaryAction" data-bind="click: $parent.hideTab"><% = LocalizeString("Cancel") %></a>
+            </div>
+        </div>
+        <!-- /ko -->
+
+
     </div>
 
 </div>

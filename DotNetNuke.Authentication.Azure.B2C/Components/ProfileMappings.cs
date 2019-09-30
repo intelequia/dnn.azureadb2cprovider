@@ -60,6 +60,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
         }
 
+
+        public static ProfileMappingsProfileMapping GetFieldProfileMapping(string filePath, string fieldName)
+        {
+            return GetProfileMappings(HttpContext.Current.Server.MapPath(DefaultProfileMappingsFilePath))
+                    .ProfileMapping.FirstOrDefault(x => x.DnnProfilePropertyName == fieldName);
+        }
+
         public static void UpdateProfileMappings(string filePath, ProfileMappings profileMappings)
         {
             var serializer = new XmlSerializer(typeof(ProfileMappings));

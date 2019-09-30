@@ -36,6 +36,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
         protected internal Entity()
         {
             // Don't allow initialization of abstract entity types
+            AdditionalData = new Dictionary<string, object>();
         }
 
         /// <summary>

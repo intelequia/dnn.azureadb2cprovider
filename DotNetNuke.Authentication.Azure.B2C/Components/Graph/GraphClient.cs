@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -70,10 +71,18 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             _ = SendAADGraphRequest("/users/" + objectId, httpMethod: HttpMethod.Delete);
         }
 
-        public void AddUser(NewUser newUser)
+        public User AddUser(NewUser newUser)
         {
             var body = JsonConvert.SerializeObject(newUser);
-            _ = SendAADGraphRequest("/users", body: body, httpMethod: HttpMethod.Post);
+            var result = SendAADGraphRequest("/users", body: body, httpMethod: HttpMethod.Post);
+            return JsonConvert.DeserializeObject<User>(result);
+        }
+
+        public User UpdateUser(User user)
+        {
+            var body = JsonConvert.SerializeObject(user);
+            var result = SendAADGraphRequest("/users/" + user.ObjectId, body: body, httpMethod: new HttpMethod("PATCH"));
+            return JsonConvert.DeserializeObject<User>(result);
         }
 
         public GraphList<Group> GetAllGroups(string query)

@@ -74,4 +74,5 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "forceChangePasswordNextLogin", Required = Required.Default)]
         public bool ForceChangePasswordNextLogin { get; set; }
     }
+
 }
