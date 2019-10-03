@@ -122,7 +122,7 @@
                         <div data-bind="foreach: groups">
                             <div class="b2c-groups-row">
                                 <span data-bind="text: displayName"></span>
-                                <a class="kblist-glyph segoemdl2 pull-right fa fa-trash-o" style="font-size: 1.2em; margin-left: 2.3em" data-bind="attr: { 'data-oid': objectId }, click: removeGroup"></a>   
+                                <a class="kblist-glyph segoemdl2 pull-right fa fa-trash-o" style="font-size: 1.2em; margin-left: 2.3em" data-bind="attr: { 'data-oid': objectId }, click: $parent.removeGroup"></a>   
                             </div>
                         </div>
                         <!-- ko if: groups().length == 0 -->

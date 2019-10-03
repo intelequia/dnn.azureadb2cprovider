@@ -78,11 +78,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             return JsonConvert.DeserializeObject<User>(result);
         }
 
-        public User UpdateUser(User user)
+        public void UpdateUser(User user)
         {
             var body = JsonConvert.SerializeObject(user);
-            var result = SendAADGraphRequest("/users/" + user.ObjectId, body: body, httpMethod: new HttpMethod("PATCH"));
-            return JsonConvert.DeserializeObject<User>(result);
+            _ = SendAADGraphRequest("/users/" + user.ObjectId, body: body, httpMethod: new HttpMethod("PATCH"));
         }
 
         public GraphList<Group> GetAllGroups(string query)
@@ -93,9 +92,34 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
 
         public GraphList<Group> GetUserGroups(string userId)
         {
-            var result = SendAADGraphRequest($"/users/{userId}/memberOf", null);
+            var result = SendAADGraphRequest($"/users/{userId}/memberOf");
             //var result = await SendGraphGetRequest($"/users/{userId}/memberOf?$select=displayName,description", null);
             return JsonConvert.DeserializeObject<GraphList<Group>>(result);
+        }
+
+        public GraphList<User> GetGroupMembers(string groupId)
+        {
+            var result = SendAADGraphRequest($"/groups/{groupId}/members");
+            return JsonConvert.DeserializeObject<GraphList<User>>(result);
+        }
+
+        public void RemoveGroupMember(string groupId, string userId)
+        {
+            var result = SendAADGraphRequest($"/groups/{groupId}/members/{userId}", httpMethod: HttpMethod.Delete);
+            _ = JsonConvert.DeserializeObject<GraphList<User>>(result);
+        }
+
+        public void UpdateGroupMembers(string groupId, GraphList<User> users)
+        {
+            var body = JsonConvert.SerializeObject(users);
+            _ = SendAADGraphRequest($"/groups/{groupId}/members", body: body, httpMethod: HttpMethod.Post);
+        }
+
+        public void UpdateUserGroups(string userId, GraphList<Group> groups)
+        {
+            groups.ODataMetadata = "https://graph.windows.net/ec1b8ca3-f43e-4af7-80d2-dd7147b58417/$metadata#directoryObjects";
+            var body = JsonConvert.SerializeObject(groups);
+            _ = SendAADGraphRequest($"/users/{userId}/memberOf", body: body, httpMethod: HttpMethod.Post);
         }
 
         public ProfilePictureMetadata GetUserProfilePictureMetadata(string userId)

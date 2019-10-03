@@ -10,6 +10,16 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.userManagement = userManagement;
             this.objectId = ko.observable(model.objectId || "");
             this.displayName = ko.observable(model.displayName || "");
+            this.objectType = ko.observable(model.objectType || "");
+            this.odataType = ko.observable(model.@odata.type] || "")
+
+            this.toSimple = function () {
+                return {
+                    objectId: that.objectId(),
+                    displayName: that.displayName,
+                    objectType: that.objectType
+                };
+            };
         },
         UserModel: function (userManagement, model) {
             var that = this;
@@ -76,6 +86,14 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.sendEmail = ko.observable(true);
 
             this.groups = ko.observableArray();
+            this.groupsSimple = function () {
+                var g = [];
+                $.each(that.groups(),
+                    function (index, group) {
+                        g.push(group.toSimple());
+                    });
+                return g;
+            };
 
             this.usernameToDisplay = ko.computed(function () {
                 if (that.signInNames() && that.signInNames().length > 0 && that.signInNames()[0].type === "emailAddress") {
@@ -96,7 +114,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                 if (that.userManagement.selectedGroup() && (that.groups().length === 0 || that.groups().find(function (data) {
                         return data.objectId() === that.userManagement.selectedGroup().objectId();
                     }) === null)) {
-                    var group = new dnn.adb2c.UserManagement.UserModel(that);
+                    var group = new dnn.adb2c.UserManagement.GroupModel(that);
                     group.displayName(that.userManagement.selectedGroup().displayName());
                     group.objectId(that.userManagement.selectedGroup().objectId());
                     that.groups.push(group);
@@ -143,8 +161,9 @@ dnn.extend(dnn.adb2c.UserManagement,
                         surname: that.surname(),
                         mail: that.mail(),
                         preferredLanguage: that.preferredLanguage()
-                    }
-                },
+                    },
+                    groups: that.groupsSimple()
+                    },
                     function (data) {
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);

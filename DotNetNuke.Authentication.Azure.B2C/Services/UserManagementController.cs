@@ -136,6 +136,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public class UpdateUserParameters
         {
             public User user { get; set; }
+            public List<Group> groups { get; set; }
         }
         [HttpPost]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
@@ -146,8 +147,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var portalProfileMapping = ProfileMappings.GetFieldProfileMapping(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath), "PortalId");
-                var user = graphClient.GetUser(parameters.user.ObjectId);
 
+                // Validate permissions
+                var user = graphClient.GetUser(parameters.user.ObjectId);
                 // Check user is from current portal, if PortalId is an extension name
                 if (portalProfileMapping != null)
                 {
@@ -158,6 +160,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     }
                 }
 
+                // Update user
                 user.DisplayName = parameters.user.DisplayName;
                 user.GivenName = parameters.user.GivenName;
                 user.Surname = parameters.user.Surname;
@@ -171,10 +174,38 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         Value = parameters.user.Mail
                     }
                 });
-
                 user.OtherMails = new string[] { parameters.user.Mail };
+                graphClient.UpdateUser(user);
 
-                user = graphClient.UpdateUser(user);
+                // Update group membership
+                //var groups = graphClient.GetAllGroups("");
+                //foreach (var group in groups.Values)
+                //{
+                //    var membershipChanged = false;
+                //    var groupMembers = graphClient.GetGroupMembers(group.ObjectId);
+                //    if (groupMembers.Values.Any(u => u.ObjectId == user.ObjectId) 
+                //        && !parameters.groups.Any(x => x.ObjectId == group.ObjectId))
+                //    {
+                //        membershipChanged = true;
+                //        groupMembers.Values.Add(user);
+                //    }
+                //    if (!groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
+                //        && parameters.groups.Any(x => x.ObjectId == group.ObjectId))
+                //    {
+                //        membershipChanged = true;
+                //        groupMembers.Values.Remove(user);
+                //    }
+                //    if (membershipChanged)
+                //    {
+                //        graphClient.UpdateGroupMembers(group.ObjectId, groupMembers);
+                //    }
+                //}
+
+                //var groups = new GraphList<Group>();
+                //groups.Values = new List<Group>();
+                //groups.Values.AddRange(parameters.groups);
+                //graphClient.UpdateUserGroups(parameters.user.ObjectId, groups);
+
                 return Request.CreateResponse(HttpStatusCode.OK, user);
             }
             catch (Exception ex)
