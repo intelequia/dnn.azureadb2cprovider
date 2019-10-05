@@ -11,7 +11,7 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.objectId = ko.observable(model.objectId || "");
             this.displayName = ko.observable(model.displayName || "");
             this.objectType = ko.observable(model.objectType || "");
-            this.odataType = ko.observable(model.@odata.type] || "")
+            //this.odataType = ko.observable(model["odata.type"] || "");
 
             this.toSimple = function () {
                 return {
@@ -20,6 +20,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                     objectType: that.objectType
                 };
             };
+
         },
         UserModel: function (userManagement, model) {
             var that = this;

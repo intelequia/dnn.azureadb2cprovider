@@ -103,23 +103,24 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             return JsonConvert.DeserializeObject<GraphList<User>>(result);
         }
 
+        public string GetAADObjectReference(string objectId)
+        {
+            return aadGraphEndpoint + Tenant + "/directoryObjects/" + objectId;
+        }
+        public string GetObjectReference(string objectId)
+        {
+            return msGraphEndpoint + msGraphVersion + "/directoryObjects/" + objectId;
+        }
+
+        public void AddGroupMember(string groupId, string userId)
+        {
+            var body = "{'url':'" + GetAADObjectReference(userId) + "'}";
+            _ = SendAADGraphRequest($"/groups/{groupId}/$links/members", body: body, httpMethod: HttpMethod.Post);
+        }
+
         public void RemoveGroupMember(string groupId, string userId)
         {
-            var result = SendAADGraphRequest($"/groups/{groupId}/members/{userId}", httpMethod: HttpMethod.Delete);
-            _ = JsonConvert.DeserializeObject<GraphList<User>>(result);
-        }
-
-        public void UpdateGroupMembers(string groupId, GraphList<User> users)
-        {
-            var body = JsonConvert.SerializeObject(users);
-            _ = SendAADGraphRequest($"/groups/{groupId}/members", body: body, httpMethod: HttpMethod.Post);
-        }
-
-        public void UpdateUserGroups(string userId, GraphList<Group> groups)
-        {
-            groups.ODataMetadata = "https://graph.windows.net/ec1b8ca3-f43e-4af7-80d2-dd7147b58417/$metadata#directoryObjects";
-            var body = JsonConvert.SerializeObject(groups);
-            _ = SendAADGraphRequest($"/users/{userId}/memberOf", body: body, httpMethod: HttpMethod.Post);
+            var result = SendAADGraphRequest($"/groups/{groupId}/$links/members/{userId}", httpMethod: HttpMethod.Delete);
         }
 
         public ProfilePictureMetadata GetUserProfilePictureMetadata(string userId)

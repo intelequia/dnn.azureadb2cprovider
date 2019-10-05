@@ -52,7 +52,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     query = $"$filter={profileMapping.B2cExtensionName} eq {PortalSettings.PortalId}";
                 }
 
-
                 var users = graphClient.GetAllUsers(query);
                 return Request.CreateResponse(HttpStatusCode.OK, users.Values);
             }
@@ -178,28 +177,21 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 graphClient.UpdateUser(user);
 
                 // Update group membership
-                //var groups = graphClient.GetAllGroups("");
-                //foreach (var group in groups.Values)
-                //{
-                //    var membershipChanged = false;
-                //    var groupMembers = graphClient.GetGroupMembers(group.ObjectId);
-                //    if (groupMembers.Values.Any(u => u.ObjectId == user.ObjectId) 
-                //        && !parameters.groups.Any(x => x.ObjectId == group.ObjectId))
-                //    {
-                //        membershipChanged = true;
-                //        groupMembers.Values.Add(user);
-                //    }
-                //    if (!groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
-                //        && parameters.groups.Any(x => x.ObjectId == group.ObjectId))
-                //    {
-                //        membershipChanged = true;
-                //        groupMembers.Values.Remove(user);
-                //    }
-                //    if (membershipChanged)
-                //    {
-                //        graphClient.UpdateGroupMembers(group.ObjectId, groupMembers);
-                //    }
-                //}
+                var groups = graphClient.GetAllGroups("");
+                foreach (var group in groups.Values)
+                {
+                    var groupMembers = graphClient.GetGroupMembers(group.ObjectId);
+                    if (groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
+                        && !parameters.groups.Any(x => x.ObjectId == group.ObjectId))
+                    {
+                        graphClient.RemoveGroupMember(group.ObjectId, user.ObjectId);
+                    }
+                    if (!groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
+                        && parameters.groups.Any(x => x.ObjectId == group.ObjectId))
+                    {
+                        graphClient.AddGroupMember(group.ObjectId, user.ObjectId);
+                    }
+                }
 
                 //var groups = new GraphList<Group>();
                 //groups.Values = new List<Group>();
