@@ -139,7 +139,8 @@ dnn.extend(dnn.adb2c.UserManagement,
                         preferredLanguage: that.preferredLanguage()
                     },
                     password: that.password(),
-                    sendEmail: that.sendEmail()
+                    sendEmail: that.sendEmail(),
+                    groups: that.groupsSimple()
                 },
                     function (data) {
                         that.userManagement.users.push(new dnn.adb2c.UserManagement.UserModel(that, data));

@@ -92,9 +92,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
         public class AddUserParameters
         {
-            public Components.Graph.Models.User user { get; set; }
+            public User user { get; set; }
             public string password { get; set; }
             public bool sendEmail { get; set; }
+            public List<Group> groups { get; set; }
         }
         [HttpPost]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
@@ -124,6 +125,24 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 var user = graphClient.AddUser(newUser);
+
+                // Update group membership
+                var groups = graphClient.GetAllGroups("");
+                foreach (var group in groups.Values)
+                {
+                    var groupMembers = graphClient.GetGroupMembers(group.ObjectId);
+                    if (groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
+                        && !parameters.groups.Any(x => x.ObjectId == group.ObjectId))
+                    {
+                        graphClient.RemoveGroupMember(group.ObjectId, user.ObjectId);
+                    }
+                    if (!groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
+                        && parameters.groups.Any(x => x.ObjectId == group.ObjectId))
+                    {
+                        graphClient.AddGroupMember(group.ObjectId, user.ObjectId);
+                    }
+                }
+
                 return Request.CreateResponse(HttpStatusCode.OK, user);
             }
             catch (Exception ex)
@@ -192,11 +211,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         graphClient.AddGroupMember(group.ObjectId, user.ObjectId);
                     }
                 }
-
-                //var groups = new GraphList<Group>();
-                //groups.Values = new List<Group>();
-                //groups.Values.AddRange(parameters.groups);
-                //graphClient.UpdateUserGroups(parameters.user.ObjectId, groups);
 
                 return Request.CreateResponse(HttpStatusCode.OK, user);
             }
