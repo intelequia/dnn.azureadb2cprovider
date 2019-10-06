@@ -3,10 +3,13 @@ using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models;
 using DotNetNuke.Common;
 using DotNetNuke.Common.Utilities;
+using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Security;
+using DotNetNuke.Services.Localization;
 using DotNetNuke.Web.Api;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -17,6 +20,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 {
     public class UserManagementController: DnnApiController
     {
+        private string LocalResourceFile
+        {
+            get
+            {
+                return System.Web.Hosting.HostingEnvironment.MapPath("~/DesktopModules/AuthenticationServices/AzureB2C/App_LocalResources/UserManagement.ascx.resx");
+            }
+        }
+
+        private string LocalizeString(string key)
+        {
+            return Localization.GetString(key, LocalResourceFile);
+        }
+
         [HttpGet]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
         public HttpResponseMessage GetAllGroups()
@@ -112,7 +128,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     Type = "emailAddress",
                     Value = newUser.Mail
                 });
-                newUser.PasswordProfile.Password = parameters.password;                
+                newUser.PasswordProfile.Password = parameters.password;
                 newUser.OtherMails = new string[] { newUser.Mail };
                 newUser.Mail = null;
 
@@ -127,20 +143,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var user = graphClient.AddUser(newUser);
 
                 // Update group membership
-                var groups = graphClient.GetAllGroups("");
-                foreach (var group in groups.Values)
+                UpdateGroupMemberShip(graphClient, user, parameters.groups);
+
+                // Send welcome email with password
+                if (parameters.sendEmail)
                 {
-                    var groupMembers = graphClient.GetGroupMembers(group.ObjectId);
-                    if (groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
-                        && !parameters.groups.Any(x => x.ObjectId == group.ObjectId))
-                    {
-                        graphClient.RemoveGroupMember(group.ObjectId, user.ObjectId);
-                    }
-                    if (!groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
-                        && parameters.groups.Any(x => x.ObjectId == group.ObjectId))
-                    {
-                        graphClient.AddGroupMember(group.ObjectId, user.ObjectId);
-                    }
+                    SendWelcomeEmail(newUser);
                 }
 
                 return Request.CreateResponse(HttpStatusCode.OK, user);
@@ -196,21 +204,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 graphClient.UpdateUser(user);
 
                 // Update group membership
-                var groups = graphClient.GetAllGroups("");
-                foreach (var group in groups.Values)
-                {
-                    var groupMembers = graphClient.GetGroupMembers(group.ObjectId);
-                    if (groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
-                        && !parameters.groups.Any(x => x.ObjectId == group.ObjectId))
-                    {
-                        graphClient.RemoveGroupMember(group.ObjectId, user.ObjectId);
-                    }
-                    if (!groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
-                        && parameters.groups.Any(x => x.ObjectId == group.ObjectId))
-                    {
-                        graphClient.AddGroupMember(group.ObjectId, user.ObjectId);
-                    }
-                }
+                UpdateGroupMemberShip(graphClient, user, parameters.groups);
 
                 return Request.CreateResponse(HttpStatusCode.OK, user);
             }
@@ -240,6 +234,49 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
+        }
+
+        private static void UpdateGroupMemberShip(GraphClient graphClient, User user, List<Group> userGroups)
+        {
+            var groups = graphClient.GetAllGroups("");
+            foreach (var group in groups.Values)
+            {
+                var groupMembers = graphClient.GetGroupMembers(group.ObjectId);
+                if (groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
+                    && !userGroups.Any(x => x.ObjectId == group.ObjectId))
+                {
+                    graphClient.RemoveGroupMember(group.ObjectId, user.ObjectId);
+                }
+                if (!groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
+                    && userGroups.Any(x => x.ObjectId == group.ObjectId))
+                {
+                    graphClient.AddGroupMember(group.ObjectId, user.ObjectId);
+                }
+            }
+        }
+
+        private void SendWelcomeEmail(NewUser user)
+        {
+            var subject = ReplaceTokens(LocalizeString("WelcomeMailSubject"), user);
+            var body = ReplaceTokens(LocalizeString("WelcomeMailBody"), user);
+            
+            DotNetNuke.Services.Mail.Mail.SendMail(HostController.Instance.GetString("HostEmail"), 
+                user.OtherMails.FirstOrDefault(), "", subject, body, "", "Html", "", "", "", "");
+        }
+
+        private string ReplaceTokens(string message, NewUser user)
+        {            
+
+            message = message.Replace("[Portal:PortalName]", PortalSettings.PortalName);
+            message = message.Replace("[Portal:URL]", Globals.AddHTTP(PortalSettings.DefaultPortalAlias));
+            message = message.Replace("[Portal:LogoURL]", $"{Globals.AddHTTP(PortalSettings.DefaultPortalAlias)}/Portals/{PortalSettings.PortalId}/{PortalSettings.LogoFile}");
+            message = message.Replace("[Portal:Copyright]", PortalSettings.FooterText.Replace("[year]", DateTime.Now.ToString("yyyy")));
+            message = message.Replace("[User:UserName]", user.SignInNames.FirstOrDefault().Value);
+            message = message.Replace("[User:DisplayName]", user.DisplayName);
+            message = message.Replace("[User:FirstName]", user.GivenName);
+            message = message.Replace("[User:LastName]", user.Surname);
+            message = message.Replace("[User:Password]", user.PasswordProfile.Password);
+            return message;
         }
     }
 }
