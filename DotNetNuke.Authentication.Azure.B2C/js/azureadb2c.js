@@ -83,6 +83,7 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.userState = ko.observable(model.userState || null);
             this.userStateChangedOn = ko.observable(model.userStateChangedOn || null);
 
+            this.passwordType = ko.observable("auto");
             this.password = ko.observable("");
             this.sendEmail = ko.observable(true);
 
@@ -138,12 +139,13 @@ dnn.extend(dnn.adb2c.UserManagement,
                         mail: that.mail(),
                         preferredLanguage: that.preferredLanguage()
                     },
+                    passwordType: that.passwordType(),
                     password: that.password(),
                     sendEmail: that.sendEmail(),
                     groups: that.groupsSimple()
                 },
                     function (data) {
-                        that.userManagement.users.push(new dnn.adb2c.UserManagement.UserModel(that, data));
+                        that.userManagement.users.push(new dnn.adb2c.UserManagement.UserModel(that.userManagement, data));
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
                     },

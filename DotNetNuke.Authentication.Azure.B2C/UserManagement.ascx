@@ -76,9 +76,22 @@
                         <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
                     </div>
                     <div class="dnnFormItem">
+                        <label><% =LocalizeString("PasswordSettings") %></label>
+                    </div>
+                    <div class="dnnFormItem">
+                        <input type="radio" name="PasswordType" value="auto" data-bind="checked: passwordType" />
+                        <span class="inline"><% = LocalizeString("AutoGeneratePassword") %></span>
+                    </div>
+                    <div class="dnnFormItem">
+                        <input type="radio" name="PasswordType" value="user" data-bind="checked: passwordType" />
+                        <span class="inline"><% = LocalizeString("UserGeneratedPassword") %></span>
+                    </div>
+                    <!-- ko if: passwordType() === "user" -->
+                    <div class="dnnFormItem">
                         <label for="txtPassword"><% = LocalizeString("lblPassword") %> *</label>
                         <input type="password" id="txtPassword" class="full-width" autocomplete="new-password" data-bind="value: password" />
                     </div>
+                    <!-- /ko -->
                     <div class="dnnFormItem">
                         <input type="checkbox" id="chkSendEmail" data-bind="checked: sendEmail" />
                         <span class="inline" for="chkSendEmail"><% = LocalizeString("lblSendEmail") %></span>

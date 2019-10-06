@@ -390,4 +390,13 @@ Thank you, we appreciate your support.
   <data name="Yes.Text" xml:space="preserve">
     <value>Yes, delete it!</value>
   </data>
+  <data name="AutoGeneratePassword.Text" xml:space="preserve">
+    <value>Auto-generate password</value>
+  </data>
+  <data name="PasswordSettings.Text" xml:space="preserve">
+    <value>Password Settings</value>
+  </data>
+  <data name="UserGeneratedPassword.Text" xml:space="preserve">
+    <value>Let me create the password</value>
+  </data>
 </root>

@@ -15,6 +15,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Web.Security;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Services
 {
@@ -109,6 +110,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public class AddUserParameters
         {
             public User user { get; set; }
+            public string passwordType { get; set; }
             public string password { get; set; }
             public bool sendEmail { get; set; }
             public List<Group> groups { get; set; }
@@ -128,7 +130,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     Type = "emailAddress",
                     Value = newUser.Mail
                 });
-                newUser.PasswordProfile.Password = parameters.password;
+                newUser.PasswordProfile.Password = parameters.passwordType == "auto" 
+                    ? Membership.GeneratePassword(Membership.MinRequiredPasswordLength < 8 ? 8 : Membership.MinRequiredPasswordLength, 
+                        Membership.MinRequiredNonAlphanumericCharacters < 2 ? 2 : Membership.MinRequiredNonAlphanumericCharacters) 
+                    : parameters.password;
                 newUser.OtherMails = new string[] { newUser.Mail };
                 newUser.Mail = null;
 
