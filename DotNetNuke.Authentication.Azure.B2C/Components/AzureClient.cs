@@ -89,10 +89,22 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             get {
                 if (_customClaimsMappings == null)
                 {
-                    _customClaimsMappings = ProfileMappings.GetProfileMappings(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath));
+                    _customClaimsMappings = ProfileMappings.GetProfileMappings(System.Web.Hosting.HostingEnvironment.MapPath(ProfileMappings.DefaultProfileMappingsFilePath));
                 }
-
                 return _customClaimsMappings;
+            }
+        }
+
+        private RoleMappings _customRoleMappings;
+        public RoleMappings CustomRoleMappings
+        {
+            get
+            {
+                if (_customRoleMappings == null)
+                {
+                    _customRoleMappings = RoleMappings.GetRoleMappings(System.Web.Hosting.HostingEnvironment.MapPath(RoleMappings.DefaultRoleMappingsFilePath));
+                }
+                return _customRoleMappings;
             }
         }
 
@@ -445,25 +457,44 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
                 if (aadGroups != null && aadGroups.Values != null)
                 {
-                    // In DNN, remove user from roles where the user doesn't belong to in AAD (we'll take care only AAD B2C roles; the ones that starts with "AzureB2C-")
-                    foreach (var dnnUserRole in userInfo.Roles.Where(r => r.StartsWith($"{Service}-")))
+                    var groupPrefix = $"{Service}-";
+                    var groups = aadGroups.Values;
+                    if (CustomRoleMappings.RoleMapping.Length > 0)
                     {
-                        if (aadGroups.Values.FirstOrDefault(aadGroup => $"{Service}-{aadGroup.DisplayName}" == dnnUserRole) == null)
+                        groupPrefix = "";
+                        var b2cRoles = CustomRoleMappings.RoleMapping.Select(rm => rm.B2cRoleName);
+                        groups.RemoveAll(x => b2cRoles.Contains(x.DisplayName));
+                    }
+
+
+                    // In DNN, remove user from roles where the user doesn't belong to in AAD (we'll take care only AAD B2C roles; 
+                    // the ones that starts with "AzureB2C-")
+                    foreach (var dnnUserRole in userInfo.Roles.Where(r => groupPrefix == "" || r.StartsWith(groupPrefix)))
+                    {
+                        var aadGroupName = dnnUserRole;
+                        var roleName = dnnUserRole;
+                        var mapping = CustomRoleMappings.RoleMapping?.FirstOrDefault(x => x.DnnRoleName == dnnUserRole);
+                        if (mapping != null)
                         {
-                            var role = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, dnnUserRole);
+                            aadGroupName = mapping.B2cRoleName;
+                            roleName = mapping.DnnRoleName;
+                        }
+                        if (groups.FirstOrDefault(aadGroup => $"{groupPrefix}{aadGroup.DisplayName}" == aadGroupName) == null)
+                        {
+                            var role = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, roleName);
                             Security.Roles.RoleController.DeleteUserRole(userInfo, role, PortalSettings.Current, false);
                         }
                     }
 
-                    foreach (var group in aadGroups.Values)
+                    foreach (var group in groups)
                     {
-                        var dnnRole = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, $"{Service}-{group.DisplayName}");
+                        var dnnRole = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, $"{groupPrefix}{group.DisplayName}");
                         if (dnnRole == null)
                         {
                             // Create role
                             var roleId = Security.Roles.RoleController.Instance.AddRole(new Security.Roles.RoleInfo
                             {
-                                RoleName = $"{Service}-{group.DisplayName}",
+                                RoleName = $"{groupPrefix}{group.DisplayName}",
                                 Description = group.Description,
                                 PortalID = PortalSettings.Current.PortalId,
                                 Status = Security.Roles.RoleStatus.Approved,
@@ -484,9 +515,15 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                         else
                         {
                             // If user doesn't belong to that DNN role, let's add it
-                            if (!userInfo.Roles.Contains($"{Service}-{group.DisplayName}"))
+                            if (!userInfo.Roles.Contains($"{groupPrefix}{group.DisplayName}"))
                             {
-                                Security.Roles.RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId, userInfo.UserID, dnnRole.RoleID, Security.Roles.RoleStatus.Approved, false, group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DateTime.Today, DateTime.MaxValue);
+                                Security.Roles.RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId, 
+                                    userInfo.UserID, 
+                                    dnnRole.RoleID, 
+                                    Security.Roles.RoleStatus.Approved, 
+                                    false, 
+                                    group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DateTime.Today,
+                                    DotNetNuke.Common.Utilities.Null.NullDate);
                             }
                         }
                     }
