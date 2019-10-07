@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="nav_AzureADB2C.Text" xml:space="preserve">
+    <value>Azure AD B2C</value>
+  </data>
+  <data name="No.Text" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="SettingsError.Text" xml:space="preserve">
+    <value>No se puedieron guardar los ajustes. Por favor inténtelo más tarde.</value>
+  </data>
+  <data name="SettingsRestoreWarning.Text" xml:space="preserve">
+    <value>¿Estás seguro de que quiere cancelar los cambios?</value>
+  </data>
+  <data name="SettingsUpdateSuccess.Text" xml:space="preserve">
+    <value>Los ajustes han sido guardados</value>
+  </data>
+  <data name="Yes.Text" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="Cancel.Text" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="lblTenantName.Error" xml:space="preserve">
+    <value>Debes especificar el nombre del tenant de Azure AD B2C</value>
+  </data>
+  <data name="lblTenantName.Help" xml:space="preserve">
+    <value>El nombre del tenant de Azure Active Directory B2C(&amp;lt;NombreTenant&amp;gt;.onmicrosoft.com). No incluyas la parte ".onmicrosoft.com", simplemente el nombre del tenant</value>
+  </data>
+  <data name="lblTenantId.Text" xml:space="preserve">
+    <value>ID de Tenant</value>
+  </data>
+  <data name="lblTenantId.Error" xml:space="preserve">
+    <value>Debes especificar el ID de tenant de Azure AD B2C</value>
+  </data>
+  <data name="lblTenantId.Help" xml:space="preserve">
+    <value>ID de Tenant de Azure Active Directory B2C (ID de directorio). Puedes encontrarlo a través del portal de Azure, en la sección de las propiedades del Azure AD que contienen los usuarios</value>
+  </data>
+  <data name="lblAppId.Error" xml:space="preserve">
+    <value>Debes especificar tu ID de aplicación de B2C</value>
+  </data>
+  <data name="lblAppId.Help" xml:space="preserve">
+    <value>El identificador único de la aplicación Azure AD B2C</value>
+  </data>
+  <data name="lblAppId.Text" xml:space="preserve">
+    <value>ID de Aplicación</value>
+  </data>
+  <data name="lblAppSecret.Error" xml:space="preserve">
+    <value>Debes especificar la clave secreta de la aplicación</value>
+  </data>
+  <data name="lblAppSecret.Help" xml:space="preserve">
+    <value>Secreto de aplicación de Azure AD B2C</value>
+  </data>
+  <data name="lblAppSecret.Text" xml:space="preserve">
+    <value>Secreto</value>
+  </data>
+  <data name="lblAutoRedirect.Help" xml:space="preserve">
+    <value>Si está habilitado, la página de incio de sesióñn redirigirá automáticamente a la pantalla de inicio de sesión de Azure AD B2C</value>
+  </data>
+  <data name="lblAutoRedirect.Text" xml:space="preserve">
+    <value>Auto-redirección</value>
+  </data>
+  <data name="lblEnabled.Help" xml:space="preserve">
+    <value>Habilita el proveedor de autenticación Azure Active Directory B2C authentication provider for this portal</value>
+  </data>
+  <data name="lblEnabled.Text" xml:space="preserve">
+    <value>Habilitado</value>
+  </data>
+  <data name="lblDirectory.Text" xml:space="preserve">
+    <value>Directorio</value>
+  </data>
+  <data name="lblProviderCredentials.Text" xml:space="preserve">
+    <value>Credenciales del Proveedor</value>
+  </data>
+  <data name="lblTabDescription.Text" xml:space="preserve">
+    <value>El proveedor de autenticación DNN Azure Active Directory B2C es un proveedor para DNN Platform que usa la autenticación Azure Active Directory B2C OAuth2 para autenticar usuarios.</value>
+  </data>
+  <data name="SaveSettings.Text" xml:space="preserve">
+    <value>Guardar Ajustes</value>
+  </data>
+  <data name="lblPasswordResetPolicyName.Error" xml:space="preserve">
+    <value>Debes especificar el nombre de la política para restablecer la contraseña</value>
+  </data>
+  <data name="lblPasswordResetPolicyName.Help" xml:space="preserve">
+    <value>El nombre de la política para restablecer la contraseña</value>
+  </data>
+  <data name="lblPasswordResetPolicyName.Text" xml:space="preserve">
+    <value>Política para Restablecer Contraseña</value>
+  </data>
+  <data name="lblPolicies.Text" xml:space="preserve">
+    <value>Políticas (Flujos de usuario)</value>
+  </data>
+  <data name="lblProfilePolicyName.Error" xml:space="preserve">
+    <value>Debes especificar el nombre de la política para editar el perfil</value>
+  </data>
+  <data name="lblProfilePolicyName.Help" xml:space="preserve">
+    <value>El nombre de la política para el perfil de usuario</value>
+  </data>
+  <data name="lblProfilePolicyName.Text" xml:space="preserve">
+    <value>Política del Perfil de Usuario</value>
+  </data>
+  <data name="lblSignUpPolicyName.Error" xml:space="preserve">
+    <value>Debes especificar el nombre de la política de registro e inicio de sesión</value>
+  </data>
+  <data name="lblSignUpPolicyName.Help" xml:space="preserve">
+    <value>El nombre de la política de registro e inicio de sesión. Si no deseas usar el registro, añade el nombre de la política de inicio de sesión</value>
+  </data>
+  <data name="lblSignUpPolicyName.Text" xml:space="preserve">
+    <value>Política de Registro y/o Inicio de Sesión</value>
+  </data>
+  <data name="lblTenantName.Text" xml:space="preserve">
+    <value>Nombre del Tenant</value>
+  </data>
+  <data name="lblAADAppClientId.Error" xml:space="preserve">
+    <value>Debes espeficiar el ID de Aplicación de Azure AD</value>
+  </data>
+  <data name="lblAADAppClientId.Help" xml:space="preserve">
+    <value>El ID de Aplicación de Azure AD (se usa para sincronizar los datos del usuario)</value>
+  </data>
+  <data name="lblAADAppClientId.Text" xml:space="preserve">
+    <value>ID de Aplicación</value>
+  </data>
+  <data name="lblAADAppSecret.Error" xml:space="preserve">
+    <value>Debes especificar la clave de la aplicación</value>
+  </data>
+  <data name="lblAADAppSecret.Help" xml:space="preserve">
+    <value>Una clave válida para la aplicación de Azure AD</value>
+  </data>
+  <data name="lblAADAppSecret.Text" xml:space="preserve">
+    <value>Clave de Apliación</value>
+  </data>
+  <data name="lblAADSettings.Text" xml:space="preserve">
+    <value>Cliente Graph</value>
+  </data>
+  <data name="lblAudiences.Help" xml:space="preserve">
+    <value>Introduce las audiencias a validar en los tokens JWT, separados por comas. Si está vacío, el ID de Aplicación B2C se usará por defecto.</value>
+  </data>
+  <data name="lblAudiences.Text" xml:space="preserve">
+    <value>Audiencias</value>
+  </data>
+  <data name="lblGraphClient.Help" xml:space="preserve">
+    <value>Si la sincronización está habilitada, necesitas especificar un ID de Aplicación y su secreto para usar la API de Microsoft Graph.</value>
+  </data>
+  <data name="lblJwtAuthEnabled.Help" xml:space="preserve">
+    <value>Habilita la autorización JWT para este portal</value>
+  </data>
+  <data name="lblJwtAuthEnabled.Text" xml:space="preserve">
+    <value>Habilitada</value>
+  </data>
+  <data name="lblProfileSyncEnabled.Help" xml:space="preserve">
+    <value>Habilita la sincronización del perfil para este portal</value>
+  </data>
+  <data name="lblProfileSyncEnabled.Text" xml:space="preserve">
+    <value>Sincronizar Perfil</value>
+  </data>
+  <data name="lblRoleSyncEnabled.Help" xml:space="preserve">
+    <value>Habilita la sincronización de roles para este portal</value>
+  </data>
+  <data name="lblRoleSyncEnabled.Text" xml:space="preserve">
+    <value>Sincronizar Roles</value>
+  </data>
+  <data name="lblSynchronization.Text" xml:space="preserve">
+    <value>Sincronización</value>
+  </data>
+  <data name="lblSynchronizationDesc.Text" xml:space="preserve">
+    <value>El proceso de sincronización sincroniza automáticamente roles y perfiles de usuario desde el tenant Azure AD B2C en el portal DNN cuando un usuario inicia sesión. Esto puede afectar al rendimiento del inicio de sesión.</value>
+  </data>
+  <data name="lblTokenValidation.Help" xml:space="preserve">
+    <value>Este proveedor soporta autorización JWT. Si está habilitado, puedes obtener un token JWT directamente desde la API de Azure AD B2C API y luego llamar a un controlador de WebAPI de DNN.</value>
+  </data>
+  <data name="lblTokenValidation.Text" xml:space="preserve">
+    <value>Autorización JWT</value>
+  </data>
+  <data name="lblAPIResource.Text" xml:space="preserve">
+    <value>Recurso API</value>
+  </data>
+  <data name="lblAPIResourceDesc.Text" xml:space="preserve">
+    <value>Si vas a usar los tokens emitidos para acceder a una WebAPI externa que use autorización B2C, puedes especificar el App ID URI y los ámbitos que serán validados por el WebAPI</value>
+  </data>
+  <data name="lblAppIdUri.Help" xml:space="preserve">
+    <value>La Uri de la App de la WebAPI externa obtenida desde el portal de Azure (ejemplo: https://mytenant.onmicrosoft.com/myapi/)</value>
+  </data>
+  <data name="lblAppIdUri.Text" xml:space="preserve">
+    <value>Uri App ID</value>
+  </data>
+  <data name="lblScopes.Help" xml:space="preserve">
+    <value>Los ámbitos separados por espacios, que se incluirán en los tokens emitidos, para ser validados por el WebAPI externo (ejemplo: "read write")</value>
+  </data>
+  <data name="lblScopes.Text" xml:space="preserve">
+    <value>Ámbitos</value>
+  </data>
+  <data name="lblUseGlobalSettings.Help" xml:space="preserve">
+    <value>Si está habilitado, todos los ajustes serán aplicados a todos los portales en esta instancia de DNN. Sólo los Super Users pueden editar este ajuste</value>
+  </data>
+  <data name="lblUseGlobalSettings.Text" xml:space="preserve">
+    <value>Usar Ajustes Globales</value>
+  </data>
+  <data name="lblRedirectUri.Help" xml:space="preserve">
+    <value>Si se especifica, la URL a la que será redirigido el usuario después de iniciar sesión. Por defecto (vacío), el usuario se redirigirá a la página que originó la redicción de inicio de sesión.</value>
+  </data>
+  <data name="lblRedirectUri.Text" xml:space="preserve">
+    <value>URL de Retorno</value>
+  </data>
+</root>

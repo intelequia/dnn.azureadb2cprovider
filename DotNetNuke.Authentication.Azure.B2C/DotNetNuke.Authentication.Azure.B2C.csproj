@@ -241,6 +241,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="admin\personaBar\App_LocalResources\AzureADB2C.de.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="admin\personaBar\App_LocalResources\AzureADB2C.es.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="admin\personaBar\App_LocalResources\AzureADB2C.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -248,6 +254,30 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_LocalResources\UserManagement.ascx.resx">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_LocalResources\Login.ascx.es.resx">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_LocalResources\Login.ascx.de.resx">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_LocalResources\Settings.ascx.es.resx">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_LocalResources\Settings.ascx.de.resx">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_LocalResources\UserProfile.ascx.es.resx">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_LocalResources\UserProfile.ascx.de.resx">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_LocalResources\UserManagement.ascx.es.resx">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_LocalResources\UserManagement.ascx.de.resx">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
