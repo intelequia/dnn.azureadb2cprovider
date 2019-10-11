@@ -4,6 +4,7 @@ using DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models;
 using DotNetNuke.Common;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Controllers;
+using DotNetNuke.Entities.Users;
 using DotNetNuke.Security;
 using DotNetNuke.Services.Localization;
 using DotNetNuke.Web.Api;
@@ -233,6 +234,15 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
 
                 graphClient.DeleteUser(parameters.objectId);
+
+                // Delete user if exist locally
+                var userInfo = UserController.GetUserByName(PortalSettings.PortalId, $"AzureB2C-{parameters.objectId}");
+                if (userInfo != null)
+                {                    
+                    UserController.DeleteUser(ref userInfo, false, true);
+                    UserController.RemoveDeletedUsers(PortalSettings.PortalId);
+                }
+
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
