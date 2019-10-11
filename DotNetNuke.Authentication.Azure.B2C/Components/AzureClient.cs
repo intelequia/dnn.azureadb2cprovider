@@ -371,19 +371,28 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 if (IsCurrentUserAuthorized())
                 {
                     userInfo = UserController.GetUserByEmail(PortalSettings.Current.PortalId, user.Email);
-                    UpdateUserRoles(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo);
-                    UpdateUserProfilePicture(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo, true);
+                    UpdateUserAndRoles(userInfo);
                 }
             }
             else
             {
                 if (IsCurrentUserAuthorized())
                 {
-                    UpdateUserRoles(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo);
-                    UpdateUserProfilePicture(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo, true);
+                    UpdateUserAndRoles(userInfo);
                 }
                 base.AuthenticateUser(user, settings, IPAddress, addCustomProperties, onAuthenticated);
             }
+        }
+
+        private void UpdateUserAndRoles(UserInfo userInfo)
+        {
+            if (!userInfo.Membership.Approved && IsCurrentUserAuthorized())
+            {
+                userInfo.Membership.Approved = true; // Delegate approval on Auth Provider
+                UserController.UpdateUser(userInfo.PortalID, userInfo);
+            }
+            UpdateUserRoles(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo);
+            UpdateUserProfilePicture(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo, true);
         }
 
         public override AuthorisationResult Authorize()
@@ -459,7 +468,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 {
                     var groupPrefix = $"{Service}-";
                     var groups = aadGroups.Values;
-                    if (CustomRoleMappings.RoleMapping.Length > 0)
+                    if (CustomRoleMappings.RoleMapping != null && CustomRoleMappings.RoleMapping.Length > 0)
                     {
                         groupPrefix = "";
                         var b2cRoles = CustomRoleMappings.RoleMapping.Select(rm => rm.B2cRoleName);
