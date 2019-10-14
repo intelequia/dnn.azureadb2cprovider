@@ -38,12 +38,31 @@
 
 .b2c-panel {
     padding: 20px;
+    overflow-y: auto;
+    max-height: 100vh;  
 }
-.b2c-close-panel {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    font-size: 2em;
+
+    .b2c-panel h3.dnnFormSectionHead {
+        position: fixed;
+        background-color: white;
+        width: 100%;
+        top: 0px;
+        margin: 0;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        z-index: 99;
+    }
+     
+    .b2c-close-panel {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        font-size: 2em;
+        z-index: 100;
+    }
+
+.b2c-panel .dnnForm {
+    margin-top: 60px;
 }
 .b2c-groups-header {
     width: 100%;
