@@ -21,8 +21,14 @@
 
 #endregion
 
+using DotNetNuke.Common;
+using DotNetNuke.Common.Utilities;
+using DotNetNuke.Entities.Portals;
+using DotNetNuke.Entities.Tabs;
+using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Web;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Common
 {
@@ -33,6 +39,110 @@ namespace DotNetNuke.Authentication.Azure.B2C.Common
         {
             return System.Configuration.ConfigurationManager.AppSettings.AllKeys.Contains(key) ? System.Configuration.ConfigurationManager.AppSettings[key] : defaultValue;
         }
+
+        /// <summary>
+        /// Gets the login URL for the given portal from the current <paramref name="request"/>.
+        /// </summary>
+        /// <param name="portalSettings">The portal settings.</param>
+        /// <param name="request">The request.</param>
+        /// <returns>The URL for the login page</returns>
+        /// <exception cref="ArgumentNullException">if <paramref name="portalSettings"/> or <paramref name="request"/> is null.</exception>
+        public static string GetLoginUrl(PortalSettings portalSettings, HttpRequest request)
+        {
+            Requires.NotNull("portalSettings", portalSettings);
+            Requires.NotNull("request", request);
+
+            int tabId = portalSettings.ActiveTab.TabID;
+            string controlKey = "Login";
+            string returnUrl = request.RawUrl;
+            if (returnUrl.IndexOf("?returnurl=", StringComparison.OrdinalIgnoreCase) > -1)
+            {
+                returnUrl = returnUrl.Substring(0, returnUrl.IndexOf("?returnurl=", StringComparison.OrdinalIgnoreCase));
+            }
+
+            returnUrl = HttpUtility.UrlEncode(returnUrl);
+
+            if (!Null.IsNull(portalSettings.LoginTabId) && string.IsNullOrEmpty(request.QueryString["override"]))
+            {
+                // user defined tab
+                controlKey = string.Empty;
+                tabId = portalSettings.LoginTabId;
+            }
+            else if (!Null.IsNull(portalSettings.HomeTabId))
+            {
+                // portal tab
+                tabId = portalSettings.HomeTabId;
+            }
+
+            // else current tab
+            return Globals.NavigateURL(tabId, controlKey, new string[] { "returnUrl=" + returnUrl });            
+        }
+
+        public static string GetLoginUrl(int portalId, string culture, HttpRequest request)
+        {
+            Requires.NotNull("request", request);
+
+            var portalSettings = new PortalSettings(portalId);
+            int tabId = portalSettings.ActiveTab.TabID;
+            string controlKey = "Login";
+            string returnUrl = request.RawUrl;
+            if (returnUrl.IndexOf("?returnurl=", StringComparison.OrdinalIgnoreCase) > -1)
+            {
+                returnUrl = returnUrl.Substring(0, returnUrl.IndexOf("?returnurl=", StringComparison.OrdinalIgnoreCase));
+            }
+
+            returnUrl = HttpUtility.UrlEncode(returnUrl);
+
+            if (!Null.IsNull(portalSettings.LoginTabId) && string.IsNullOrEmpty(request.QueryString["override"]))
+            {
+                // user defined tab
+                controlKey = string.Empty;
+                tabId = portalSettings.LoginTabId;
+            }
+            else if (!Null.IsNull(portalSettings.HomeTabId))
+            {
+                // portal tab
+                tabId = portalSettings.HomeTabId;
+            }
+
+            // else current tab
+
+            var portalAliases = PortalAliasController.Instance.GetPortalAliasesByPortalId(portalId).Where(x => x.IsPrimary);
+            var portalAlias = portalAliases.FirstOrDefault();
+            if (!string.IsNullOrEmpty(culture) && portalAliases.Any(x => x.CultureCode == culture))
+            {
+                portalAlias = portalAliases.FirstOrDefault(x => x.CultureCode == culture);
+            }
+            portalSettings.PortalAlias = portalAlias;
+            var uriBuilder = new UriBuilder(request.Url.Scheme, portalAlias.HTTPAlias);
+            if (!request.Url.IsDefaultPort)
+            {
+                uriBuilder.Port = request.Url.Port;
+            }
+
+            var tab = TabController.Instance.GetTab(tabId, portalSettings.PortalId);            
+            uriBuilder.Path = tab.TabPath.Replace("//", "/");
+            var query = $"tabId={tabId}";
+            if (!string.IsNullOrEmpty(controlKey))
+            {
+                query += $"&ctl={controlKey}";
+            }
+            if (!string.IsNullOrEmpty(culture))
+            {
+                query += $"&language={culture}";
+            }
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                query += $"&returnUrl={returnUrl}"; 
+            }
+            if (!string.IsNullOrEmpty(request.Url.Query)) {
+                query += $"&{request.Url.Query.Substring(1)}";
+            }
+            uriBuilder.Query = query;
+            return uriBuilder.ToString();
+        }
+
+
     }
 
 }

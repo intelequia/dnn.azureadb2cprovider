@@ -40,9 +40,11 @@ using DotNetNuke.Common;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Users;
 using DotNetNuke.Instrumentation;
+using DotNetNuke.Security.Membership;
 using DotNetNuke.Services.Authentication;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.FileSystem;
+using DotNetNuke.Services.Localization;
 
 #endregion
 
@@ -162,6 +164,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
 
             APIKey = Settings.APIKey;
+            APISecret = Settings.APISecret;
             AuthTokenName = "AzureB2CUserToken";
             OAuthVersion = "2.0";
             OAuthHeaderCode = "Basic";
@@ -351,8 +354,15 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 {
                     new QueryParameter("scope", Scope),
                     new QueryParameter("client_id", APIKey),
-                    new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/UserProfile")), 
-                    new QueryParameter("state", HttpContext.Current.Server.UrlEncode($"{Service}-{redirectAfterEditUri}")),
+                    new QueryParameter("redirect_uri", string.IsNullOrEmpty(Settings.RedirectUri) 
+                        ? HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/UserProfile")
+                        : HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
+                    new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() { 
+                        PortalId = PortalSettings.Current.PortalId, 
+                        Culture = PortalSettings.Current.CultureCode,
+                        RedirectUrl = redirectAfterEditUri.ToString(),
+                        IsUserProfile = true
+                    }.ToString())),
                     new QueryParameter("response_type", "code"),
                     new QueryParameter("response_mode", "query"),
                     new QueryParameter("p", Settings.ProfilePolicy)
@@ -363,14 +373,44 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         public override void AuthenticateUser(UserData user, PortalSettings settings, string IPAddress, Action<NameValueCollection> addCustomProperties, Action<UserAuthenticatedEventArgs> onAuthenticated)
         {
-            var userInfo = UserController.GetUserByEmail(PortalSettings.Current.PortalId, user.Email);
+            var portalSettings = settings;
+            if (IsCurrentUserAuthorized() && JwtIdToken != null)
+            {
+                // Check if portalId profile mapping exists
+                var portalProfileMapping = ProfileMappings.GetFieldProfileMapping(System.Web.Hosting.HostingEnvironment.MapPath(ProfileMappings.DefaultProfileMappingsFilePath), "PortalId");
+                if (!string.IsNullOrEmpty(portalProfileMapping?.B2cClaimName))
+                {
+                    var claimName = portalProfileMapping?.B2cClaimName;
+                    if (!claimName.StartsWith("extension_"))
+                    {
+                        claimName = $"extension_{claimName}";
+                    }
+                    // Get PortalId from claim
+                    var portalIdClaim = JwtIdToken.Claims.FirstOrDefault(x => x.Type == claimName)?.Value;
+                    if (string.IsNullOrEmpty(portalIdClaim))
+                    {
+                        throw new SecurityTokenException("The user has no portalId claim and portalId profile mapping is setup. The B2C user can't login to any portal until the portalId attribute has been setup for the user");
+                    }
+                    if (int.TryParse(portalIdClaim, out int portalId) && portalId != portalSettings.PortalId)
+                    {
+                        // Redirect to the user portal
+                        var request = HttpContext.Current.Request;
+                        var state = new State(request["state"]);
+                        HttpContext.Current.Response.Redirect(Utils.GetLoginUrl(portalId, state.Culture, request));
+                        return;
+                    }
+                }
+            }
+
+
+            var userInfo = UserController.GetUserByEmail(portalSettings.PortalId, user.Email);
             // If user doesn't exist, AuthenticateUser() will create it. Otherwise, AuthenticateUser will perform a Response.Redirect, so we have to sincronize the roles before that, to avoid the ThreadAbortException caused by the Response.Redirect
             if (userInfo == null)
             {
-                base.AuthenticateUser(user, settings, IPAddress, addCustomProperties, onAuthenticated);
+                base.AuthenticateUser(user, portalSettings, IPAddress, addCustomProperties, onAuthenticated);
                 if (IsCurrentUserAuthorized())
                 {
-                    userInfo = UserController.GetUserByEmail(PortalSettings.Current.PortalId, user.Email);
+                    userInfo = UserController.GetUserByEmail(portalSettings.PortalId, user.Email);
                     UpdateUserAndRoles(userInfo);
                 }
             }
@@ -380,7 +420,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 {
                     UpdateUserAndRoles(userInfo);
                 }
-                base.AuthenticateUser(user, settings, IPAddress, addCustomProperties, onAuthenticated);
+                base.AuthenticateUser(user, portalSettings, IPAddress, addCustomProperties, onAuthenticated);
             }
         }
 
@@ -417,7 +457,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     new QueryParameter("scope", Scope),
                     new QueryParameter("client_id", APIKey),
                     new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
-                    new QueryParameter("state", HttpContext.Current.Server.UrlEncode($"{Service};{Settings.PortalID}")),
+                    new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() {
+                        PortalId = Settings.PortalID,
+                        Culture = PortalSettings.Current.CultureCode
+                    }.ToString())),
                     new QueryParameter("response_type", "code"),
                     new QueryParameter("response_mode", "query"),
                     new QueryParameter("p", PolicyName)

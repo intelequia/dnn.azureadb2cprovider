@@ -51,11 +51,13 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 // User clicked on Cancel when resetting the password => Redirect to the original page
                 if (Request["error_description"]?.IndexOf("AADB2C90091") > -1)
                 {
-                    var url = Request["state"].Split('-');
-                    if (url.Length > 1)
-                    {
-                        Response.Redirect(url[1], true);
-                    }                        
+                    if (!string.IsNullOrEmpty(Request["state"])) {
+                        var state = new State(Request["state"]);
+                        if (!string.IsNullOrEmpty(state.RedirectUrl))
+                        {
+                            Response.Redirect(state.RedirectUrl, true);
+                        }
+                    }
                 }
                 else
                 {
@@ -70,11 +72,13 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 if (UserInfo != null && UserInfo.Username.ToLowerInvariant().StartsWith("azureb2c-"))
                 {
                     var oauthClient = new AzureClient(PortalId, AuthMode.Login);
+
                     // Is returning after editing the user profile?
+                    var state = new State(Request["state"]);
                     if (Request.UrlReferrer?.Host == oauthClient.LogoutEndpoint.Host
                         && !string.IsNullOrEmpty(Request["state"])
-                        && Request["state"].StartsWith(oauthClient.Service)
-                        && Request["state"].Length > oauthClient.Service.Length
+                        && state.Service == oauthClient.Service
+                        && !string.IsNullOrEmpty(state.RedirectUrl)
                         && oauthClient.HaveVerificationCode())
                     {
                         oauthClient.Policy = AzureClient.PolicyEnum.ProfilePolicy;
@@ -82,9 +86,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                         if (result != AuthorisationResult.Denied)
                         {
                             oauthClient.UpdateUserProfile();
-                            var url = Request["state"].Split('-');
-                            if (url.Length > 1)
-                                Response.Redirect(url[1]);
+                            Response.Redirect(state.RedirectUrl);
                         }
                     }
                     else

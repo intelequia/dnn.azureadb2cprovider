@@ -179,7 +179,9 @@
     <Compile Include="Components\MenuController.cs" />
     <Compile Include="Components\ProfileMappings.cs" />
     <Compile Include="Components\RoleMappings.cs" />
+    <Compile Include="Components\State.cs" />
     <Compile Include="ScheduledTasks\SyncSchedule.cs" />
+    <Compile Include="Services\AuthorizationController.cs" />
     <Compile Include="Services\HelloController.cs" />
     <Compile Include="Services\UserManagementController.cs" />
     <Compile Include="UserManagement.ascx.cs">

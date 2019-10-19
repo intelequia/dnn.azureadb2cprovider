@@ -178,7 +178,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var portalProfileMapping = ProfileMappings.GetFieldProfileMapping(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath), "PortalId");
+                var portalProfileMapping = ProfileMappings.GetFieldProfileMapping(System.Web.Hosting.HostingEnvironment.MapPath(ProfileMappings.DefaultProfileMappingsFilePath), "PortalId");
 
                 // Validate permissions
                 var user = graphClient.GetUser(parameters.user.ObjectId);

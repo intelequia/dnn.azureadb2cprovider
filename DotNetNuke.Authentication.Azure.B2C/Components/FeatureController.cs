@@ -21,13 +21,9 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DotNetNuke.Entities.Modules;
-using DotNetNuke.Services.Upgrade;
+using System;
+using System.Linq;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Components
 {
