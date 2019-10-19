@@ -79,7 +79,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 {
                     var groupPrefix = "AzureB2C-";
                     var groups = aadGroups.Values;
-                    if (CustomRoleMappings.RoleMapping.Length > 0) {
+                    if (CustomRoleMappings.RoleMapping != null && CustomRoleMappings.RoleMapping.Length > 0)
+                    { 
                         groupPrefix = "";
                         var b2cRoles = CustomRoleMappings.RoleMapping.Select(rm => rm.B2cRoleName);
                         groups.RemoveAll(x => b2cRoles.Contains(x.DisplayName));
@@ -106,7 +107,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 }
 
                 // Remove roles no longer exists on AAD B2C (but only if no role mappings are configured)
-                if (CustomRoleMappings.RoleMapping.Length == 0)
+                if (CustomRoleMappings.RoleMapping == null || CustomRoleMappings.RoleMapping.Length == 0)
                 {
                     var dnnRoles = Security.Roles.RoleController.Instance.GetRoles(portalId, x => x.RoleName.StartsWith($"AzureB2C-"));
                     foreach (var dnnRole in dnnRoles)
