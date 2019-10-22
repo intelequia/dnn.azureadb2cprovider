@@ -74,7 +74,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                             Culture = item[1];
                             break;
                         case "r":
-                            RedirectUrl = Uri.EscapeDataString(item[1]);
+                            RedirectUrl = Uri.UnescapeDataString(item[1]);
                             break;
                         case "up":
                             IsUserProfile = item[1] == "1";
