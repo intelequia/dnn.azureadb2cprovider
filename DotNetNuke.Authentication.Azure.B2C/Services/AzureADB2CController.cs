@@ -100,6 +100,39 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
         }
 
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetProfileSettings()
+        {
+            try
+            {
+                var profileSettings = ProfileMappings.GetProfileMappings();
+                
+                return Request.CreateResponse(HttpStatusCode.OK, profileSettings);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage UpdateProfileSettings(ProfileMappings profileMappings)
+        {
+            try
+            {
+                ProfileMappings.UpdateProfileMappings(profileMappings);
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
         // POST: api/RedisCaching/UpdateGeneralSettings
         /// <summary>
         /// Updates the general settings
