@@ -404,13 +404,18 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
 
             var userInfo = UserController.GetUserByEmail(portalSettings.PortalId, user.Email);
-            // If user doesn't exist, AuthenticateUser() will create it. Otherwise, AuthenticateUser will perform a Response.Redirect, so we have to sincronize the roles before that, to avoid the ThreadAbortException caused by the Response.Redirect
+            // If user doesn't exist on current portal, AuthenticateUser() will create it. 
+            // Otherwise, AuthenticateUser will perform a Response.Redirect, so we have to sinchronize the roles before that, to avoid the ThreadAbortException caused by the Response.Redirect
             if (userInfo == null)
             {
                 base.AuthenticateUser(user, portalSettings, IPAddress, addCustomProperties, onAuthenticated);
                 if (IsCurrentUserAuthorized())
                 {
                     userInfo = UserController.GetUserByEmail(portalSettings.PortalId, user.Email);
+                    if (userInfo == null)
+                    {
+                        throw new SecurityTokenException($"The logged in user {user.Email} does not belong to PortalId {portalSettings.PortalId}");
+                    }
                     UpdateUserAndRoles(userInfo);
                 }
             }
