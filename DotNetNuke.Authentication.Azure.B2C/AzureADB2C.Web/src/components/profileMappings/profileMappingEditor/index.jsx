@@ -6,6 +6,7 @@ import { SingleLineInputWithError, GridSystem, Label, Button, InputGroup, Dropdo
 // import {
 //     siteBehavior as SiteBehaviorActions
 // } from "../../../../actions";
+import SettingsActions from "../../../actions/settings";
 import util from "../../../utils";
 import resx from "../../../resources";
 
@@ -26,13 +27,17 @@ class ProfileMappingEditor extends Component {
             triedToSubmit: false
         };
     }
-
-    componentDidMount() {
+    
+    componentWillMount() {
         const {props} = this;
-        if (props.profileMappingId) {
-            // TODO - Get profile mapping
-            //props.dispatch(SiteBehaviorActions.getSiteAlias(props.aliasId));
-        }
+        const {state} = this;
+
+        state.profileMappingDetail["DnnProfilePropertyName"] = props.dnnProfilePropertyName;
+        state.profileMappingDetail["B2cClaimName"] = props.b2cClaimName;
+        state.profileMappingDetail["B2cExtensionName"] = props.b2cExtensionName;
+
+        state.error["dnnProfilePropertyName"] = (props.dnnProfilePropertyName === null);
+        state.error["b2cClaimName"] = (props.b2cClaimName === null);
     }
 
     /* eslint-disable react/no-did-update-set-state */
@@ -72,7 +77,7 @@ class ProfileMappingEditor extends Component {
             state.error["b2cClaimName"] = false;
         }
 
-        if (key === "B2cExtensionName") {
+        if (key === "DnnProfilePropertyName") {
             profileMappingDetail[key] = event.value;
         }
         else {
@@ -85,8 +90,7 @@ class ProfileMappingEditor extends Component {
             error: state.error
         });
 
-        // TODO - Dispatch this change
-        //props.dispatch(SiteBehaviorActions.siteAliasClientModified(aliasDetail));
+        props.dispatch(SettingsActions.profileMappingClientModified(profileMappingDetail));
     }
 
     getProfilePropertyOptions() {
@@ -117,22 +121,19 @@ class ProfileMappingEditor extends Component {
     onCancel() {
         const {props} = this;
 
-        // TODO - Handle cancel action
-
-        // if (props.siteAliasClientModified) {
-        //     util.utilities.confirm(resx.get("SettingsRestoreWarning"), resx.get("Yes"), resx.get("No"), () => {
-        //         props.dispatch(SiteBehaviorActions.cancelSiteAliasClientModified());
-        //         props.Collapse();
-        //     });
-        // }
-        // else {
-        //     props.Collapse();
-        // }
+        if (props.profileMappingClientModified) {
+            util.utilities.confirm(resx.get("SettingsRestoreWarning"), resx.get("Yes"), resx.get("No"), () => {
+                props.dispatch(SettingsActions.cancelProfileMappingClientModified());
+                props.Collapse();
+            });
+        }
+        else {
+            props.Collapse();
+        }
     }
 
     /* eslint-disable react/no-danger */
     render() {
-        /* eslint-disable react/no-danger */
         if (this.state.profileMappingDetail !== undefined || this.props.id === "add") {
             const columnOne = <div key="column-one" className="left-column">
                 <InputGroup>
@@ -142,10 +143,21 @@ class ProfileMappingEditor extends Component {
                     <Dropdown
                         options={this.getProfilePropertyOptions()}
                         value={this.state.profileMappingDetail.DnnProfilePropertyName}
-                        onSelect={this.onSettingChange.bind(this, "DnnProfileProperty")}
+                        onSelect={this.onSettingChange.bind(this, "DnnProfilePropertyName")}
                     />
                 </InputGroup>
-
+                <InputGroup>
+                    <Label
+                        label={resx.get("lblB2cExtensionName")}
+                    />
+                    <SingleLineInputWithError
+                        withLabel={false}
+                        value={this.state.profileMappingDetail.B2cExtensionName}
+                        onChange={this.onSettingChange.bind(this, "B2cExtensionName")}
+                    />
+                </InputGroup>
+            </div>;
+            const columnTwo = <div key="column-two" className="right-column">
                 <InputGroup>
                     <Label
                         label={resx.get("lblB2cClaimName")}
@@ -156,19 +168,7 @@ class ProfileMappingEditor extends Component {
                         error={this.state.error.B2cClaimName && this.state.triedToSubmit}
                         errorMessage={resx.get("InvalidB2cClaimName")}
                         value={this.state.profileMappingDetail.B2cClaimName}
-                        onChange={this.onSettingChange.bind(this, "B2cClaim")}
-                    />
-                </InputGroup>
-            </div>;
-            const columnTwo = <div key="column-two" className="right-column">
-                <InputGroup>
-                    <Label
-                        label={resx.get("lblB2cExtensionName")}
-                    />
-                    <SingleLineInputWithError
-                        withLabel={false}
-                        value={this.state.profileMappingDetail.B2cExtensionName}
-                        onChange={this.onSettingChange.bind(this, "B2cClaim")}
+                        onChange={this.onSettingChange.bind(this, "B2cClaimName")}
                     />
                 </InputGroup>
             </div>;
@@ -199,17 +199,19 @@ ProfileMappingEditor.propTypes = {
     dispatch: PropTypes.func.isRequired,
     profileMappingDetail: PropTypes.object,
     profileMappingId: PropTypes.string,
+    dnnProfilePropertyName: PropTypes.string,
+    b2cClaimName: PropTypes.string,
+    b2cExtensionName: PropTypes.string,
     Collapse: PropTypes.func,
     onUpdate: PropTypes.func,
     id: PropTypes.string,
-    siteAliasClientModified: PropTypes.bool
+    profileMappingClientModified: PropTypes.bool
 };
 
 function mapStateToProps(state) {
     return {
-        aliasDetail: state.siteBehavior.aliasDetail,
-        siteAliases: state.siteBehavior.siteAliases,
-        siteAliasClientModified: state.siteBehavior.siteAliasClientModified
+        // profileMappingDetail: state.siteBehavior.aliasDetail,
+        // profileMappingClientModified: state.siteBehavior.siteAliasClientModified
     };
 }
 

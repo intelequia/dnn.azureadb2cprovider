@@ -129,6 +129,27 @@ const settingsActions = {
             });
         };
     },
+    cancelProfileMappingClientModified() {
+        return (dispatch) => {
+            dispatch({
+                type: ActionTypes.CANCELLED_PROFILEMAPPING_CLIENT_MODIFIED,
+                data: {
+                    profileMappingClientModified: false
+                }
+            });
+        };
+    },
+    profileMappingClientModified(parameter) {
+        return (dispatch) => {
+            dispatch({
+                type: ActionTypes.PROFILEMAPPINGS_CLIENT_MODIFIED,
+                data: {
+                    profileMappingDetail: parameter,
+                    profileMappingClientModified: true
+                }
+            });
+        };
+    },
 };
 
 export default settingsActions;

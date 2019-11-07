@@ -63,6 +63,15 @@ export default function settings(state = {
                 ...state,
                 selectedTab: action.payload
             };            
+        case ActionTypes.CANCELLED_PROFILEMAPPING_CLIENT_MODIFIED:
+            return { ...state,
+                profileMappingClientModified: action.data.profileMappingClientModified
+            };
+        case ActionTypes.PROFILEMAPPINGS_CLIENT_MODIFIED:
+            return { ...state,
+                profileMappingDetail: action.data.profileMappingDetail,
+                profileMappingClientModified: action.data.profileMappingClientModified
+            };
         default:
             return { ...state
             };

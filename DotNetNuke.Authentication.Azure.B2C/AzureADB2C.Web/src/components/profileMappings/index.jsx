@@ -177,6 +177,9 @@ class ProfileMappings extends Component {
                         id={id}>
                         <ProfileMappingEditor
                             profileMappingId={profileMappingId}
+                            dnnProfilePropertyName={item.DnnProfilePropertyName}
+                            b2cClaimName={item.B2cClaimName}
+                            b2cExtensionName={item.B2cExtensionName}
                             Collapse={this.collapse.bind(this)}
                             onUpdate={this.onUpdateProfileMapping.bind(this)}
                             id={id}
