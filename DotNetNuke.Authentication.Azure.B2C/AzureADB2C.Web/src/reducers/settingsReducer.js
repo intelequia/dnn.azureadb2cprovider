@@ -54,6 +54,10 @@ export default function settings(state = {
             return { ...state,
                 clientModified: action.data.clientModified
             };            
+        case ActionTypes.RETRIEVED_PROFILESETTINGS:
+            return { ...state,
+                profileMapping: action.data.profileMapping
+            };
         case ActionTypes.SWITCH_TAB:
             return {
                 ...state,

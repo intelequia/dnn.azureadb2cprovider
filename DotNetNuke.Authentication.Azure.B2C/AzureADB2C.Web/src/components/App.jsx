@@ -5,6 +5,7 @@ import {PersonaBarPage, PersonaBarPageHeader, PersonaBarPageBody, DnnTabs as Tab
 import SettingsActions from "../actions/settings";
 import GeneralSettings from "./general";
 import SyncSettings from "./sync";
+import ProfileMappings from "./profileMappings";
 
 import "./style.less";
 
@@ -27,9 +28,10 @@ class App extends Component {
                         <Tabs
                             onSelect={this.onSelectTab.bind(this)}
                             selectedIndex={this.props.selectedTab}
-                            tabHeaders={["General Settings","Advanced Settings"]}>
+                            tabHeaders={["General Settings","Advanced Settings", "Profile Mappings"]}>
                             <GeneralSettings />
                             <SyncSettings />
+                            <ProfileMappings />
                         </Tabs>  
                     </PersonaBarPageBody>
                 </PersonaBarPage>

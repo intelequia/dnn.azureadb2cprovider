@@ -19,7 +19,12 @@ class ApplicationService {
     updateAdvancedSettings(payload, callback, failureCallback) {
         const sf = this.getServiceFramework("AzureADB2C");        
         sf.post("UpdateAdvancedSettings", payload, failureCallback, callback);
-    }      
+    }
+
+    getProfileSettings(callback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.get("GetProfileSettings", {}, callback);
+    }
 }
 const applicationService = new ApplicationService();
 export default applicationService;

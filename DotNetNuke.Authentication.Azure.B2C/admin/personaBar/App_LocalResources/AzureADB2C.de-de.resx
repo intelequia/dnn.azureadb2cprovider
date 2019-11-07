@@ -318,4 +318,34 @@
   <data name="lblRedirectUri.Text" xml:space="preserve">
     <value>Leiten Sie Uri um</value>
   </data>
+  <data name="B2cClaim.Header.Text" xml:space="preserve">
+    <value>B2C Claim</value>
+  </data>
+  <data name="B2cExtension.Header.Text" xml:space="preserve">
+    <value>B2C Erweiterung</value>
+  </data>
+  <data name="cmdAddProfileMapping.Text" xml:space="preserve">
+    <value>Zuordnung hinzufügen</value>
+  </data>
+  <data name="DnnProfileProperty.Header.Text" xml:space="preserve">
+    <value>DNN-Profileigenschaft</value>
+  </data>
+  <data name="lblProfilePropertiesMapping.Text" xml:space="preserve">
+    <value>ZUORDNUNG VON BENUTZERPROFILEIGENSCHAFTEN</value>
+  </data>
+  <data name="InvalidB2cClaimName.Text" xml:space="preserve">
+    <value>Sie müssen einen gültigen B2C-Anspruchsnamen eingeben.</value>
+  </data>
+  <data name="lblB2cClaimName.Text" xml:space="preserve">
+    <value>B2C Claim</value>
+  </data>
+  <data name="lblB2cExtensionName.Text" xml:space="preserve">
+    <value>B2C Erweiterung</value>
+  </data>
+  <data name="lblDnnProfilePropertyName.Text" xml:space="preserve">
+    <value>DNN-Profileigenschaft</value>
+  </data>
+  <data name="ProfileMappingDeletedWarning.Text" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie dieses Mapping löschen möchten?</value>
+  </data>
 </root>

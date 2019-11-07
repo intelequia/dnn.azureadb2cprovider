@@ -318,4 +318,34 @@
   <data name="lblRedirectUri.Text" xml:space="preserve">
     <value>URL de Retorno</value>
   </data>
+  <data name="B2cClaim.Header.Text" xml:space="preserve">
+    <value>B2C Claim</value>
+  </data>
+  <data name="B2cExtension.Header.Text" xml:space="preserve">
+    <value>Extensión B2C</value>
+  </data>
+  <data name="cmdAddProfileMapping.Text" xml:space="preserve">
+    <value>Añadir mapeo</value>
+  </data>
+  <data name="DnnProfileProperty.Header.Text" xml:space="preserve">
+    <value>Propiedad de perfil DNN</value>
+  </data>
+  <data name="lblProfilePropertiesMapping.Text" xml:space="preserve">
+    <value>MAPEO DE PROPIEDADES DE PERFIL DE USUARIO</value>
+  </data>
+  <data name="InvalidB2cClaimName.Text" xml:space="preserve">
+    <value>Nombre de claim B2C incorrecto</value>
+  </data>
+  <data name="lblB2cClaimName.Text" xml:space="preserve">
+    <value>Claim B2C</value>
+  </data>
+  <data name="lblB2cExtensionName.Text" xml:space="preserve">
+    <value>Extensión B2C</value>
+  </data>
+  <data name="lblDnnProfilePropertyName" xml:space="preserve">
+    <value>Propiedad del perfil DNN</value>
+  </data>
+  <data name="ProfileMappingDeletedWarning.Text" xml:space="preserve">
+    <value>¿Está seguro de borrar este mapeo?</value>
+  </data>
 </root>

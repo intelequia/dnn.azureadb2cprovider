@@ -113,7 +113,22 @@ const settingsActions = {
                 }
             });
         };
-    }
+    },
+    getProfileSettings(callback) {
+        return (dispatch) => {
+            ApplicationService.getProfileSettings(data => {
+                dispatch({
+                    type: ActionTypes.RETRIEVED_PROFILESETTINGS,
+                    data: {
+                        profileMapping: data.ProfileMapping
+                    }
+                });
+                if (callback) {
+                    callback(data);
+                }
+            });
+        };
+    },
 };
 
 export default settingsActions;
