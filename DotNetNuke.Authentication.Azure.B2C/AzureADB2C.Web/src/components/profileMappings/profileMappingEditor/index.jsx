@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import "./style.less";
-import { SingleLineInputWithError, GridSystem, Label, Button, InputGroup, Dropdown } from "@dnnsoftware/dnn-react-common";
+import { SingleLineInputWithError, GridSystem, Label, Button, InputGroup, DropdownWithError } from "@dnnsoftware/dnn-react-common";
 // import {
 //     siteBehavior as SiteBehaviorActions
 // } from "../../../../actions";
@@ -21,8 +21,8 @@ class ProfileMappingEditor extends Component {
                 B2cExtensionName: ""
             },
             error: {
-                dnnProfilePropertyName: true,
-                b2cClaimName: true
+                dnnProfilePropertyName: false,
+                b2cClaimName: false
             },
             triedToSubmit: false
         };
@@ -32,6 +32,7 @@ class ProfileMappingEditor extends Component {
         const {props} = this;
         const {state} = this;
 
+        state.profileMappingDetail["ProfileMappingId"] = props.profileMappingId;
         state.profileMappingDetail["DnnProfilePropertyName"] = props.dnnProfilePropertyName;
         state.profileMappingDetail["B2cClaimName"] = props.b2cClaimName;
         state.profileMappingDetail["B2cExtensionName"] = props.b2cExtensionName;
@@ -63,11 +64,8 @@ class ProfileMappingEditor extends Component {
         let {state, props} = this;
         let profileMappingDetail = Object.assign({}, state.profileMappingDetail);
 
-        if (profileMappingDetail[key] === "" && key === "DnnProfilePropertyName") {
-            state.error["dnnProfilePropertyName"] = true;
-        }
-        else if (profileMappingDetail[key] !== "" && key === "DnnProfilePropertyName") {
-            state.error["dnnProfilePropertyName"] = false;
+        if (key === "DnnProfilePropertyName") {
+            state.error["dnnProfilePropertyName"] = !props.onValidate(profileMappingDetail, event.value);
         }
 
         if (profileMappingDetail[key] === "" && key === "B2cClaimName") {
@@ -95,14 +93,12 @@ class ProfileMappingEditor extends Component {
 
     getProfilePropertyOptions() {
         let options = [];
-        
-        // TODO - Get the profile property options (maybe from the props?)
-
-        // if (this.props.siteAliases.BrowserTypes !== undefined) {
-        //     options = this.props.siteAliases.BrowserTypes.map((item) => {
-        //         return { label: item, value: item };
-        //     });
-        // }
+    
+        if (this.props.availableProperties !== undefined) {
+            options = this.props.availableProperties.map((item) => {
+                return { label: item, value: item };
+            });
+        }
         return options;
     }
 
@@ -116,6 +112,7 @@ class ProfileMappingEditor extends Component {
         }
 
         props.onUpdate(state.profileMappingDetail);
+        props.Collapse();
     }
 
     onCancel() {
@@ -137,21 +134,22 @@ class ProfileMappingEditor extends Component {
         if (this.state.profileMappingDetail !== undefined || this.props.id === "add") {
             const columnOne = <div key="column-one" className="left-column">
                 <InputGroup>
-                    <Label
+                    <DropdownWithError
+                        withLabel={true}
                         label={resx.get("lblDnnProfilePropertyName")}
-                    />
-                    <Dropdown
+                        tooltipMessage={resx.get("lblDnnProfilePropertyName.Help")}
+                        error={this.state.error.dnnProfilePropertyName}
+                        errorMessage={resx.get("ErrorProfileMappingDuplicated")}
                         options={this.getProfilePropertyOptions()}
                         value={this.state.profileMappingDetail.DnnProfilePropertyName}
                         onSelect={this.onSettingChange.bind(this, "DnnProfilePropertyName")}
                     />
                 </InputGroup>
                 <InputGroup>
-                    <Label
-                        label={resx.get("lblB2cExtensionName")}
-                    />
                     <SingleLineInputWithError
-                        withLabel={false}
+                        withLabel={true}
+                        label={resx.get("lblB2cExtensionName")}
+                        tooltipMessage={resx.get("lblB2cExtensionName.Help")}
                         value={this.state.profileMappingDetail.B2cExtensionName}
                         onChange={this.onSettingChange.bind(this, "B2cExtensionName")}
                     />
@@ -159,13 +157,12 @@ class ProfileMappingEditor extends Component {
             </div>;
             const columnTwo = <div key="column-two" className="right-column">
                 <InputGroup>
-                    <Label
-                        label={resx.get("lblB2cClaimName")}
-                    />
                     <SingleLineInputWithError
+                        withLabel={true}
+                        label={resx.get("lblB2cClaimName")}
+                        tooltipMessage={resx.get("lblB2cClaimName.Help")}
                         inputStyle={{ margin: "0" }}
-                        withLabel={false}
-                        error={this.state.error.B2cClaimName && this.state.triedToSubmit}
+                        error={this.state.error.b2cClaimName}
                         errorMessage={resx.get("InvalidB2cClaimName")}
                         value={this.state.profileMappingDetail.B2cClaimName}
                         onChange={this.onSettingChange.bind(this, "B2cClaimName")}
@@ -205,7 +202,9 @@ ProfileMappingEditor.propTypes = {
     Collapse: PropTypes.func,
     onUpdate: PropTypes.func,
     id: PropTypes.string,
-    profileMappingClientModified: PropTypes.bool
+    profileMappingClientModified: PropTypes.bool,
+    availableProperties: PropTypes.array,
+    onValidate: PropTypes.func
 };
 
 function mapStateToProps(state) {

@@ -21,9 +21,19 @@ class ApplicationService {
         sf.post("UpdateAdvancedSettings", payload, failureCallback, callback);
     }
 
+    updateProfileMapping(payload, callback, failureCallback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.post("UpdateProfileMapping", payload, failureCallback, callback);
+    }
+
     getProfileSettings(callback) {
         const sf = this.getServiceFramework("AzureADB2C");        
         sf.get("GetProfileSettings", {}, callback);
+    }
+
+    getProfileProperties(callback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.get("GetProfileProperties", {}, callback);
     }
 }
 const applicationService = new ApplicationService();

@@ -337,15 +337,30 @@
     <value>Nombre de claim B2C incorrecto</value>
   </data>
   <data name="lblB2cClaimName.Text" xml:space="preserve">
-    <value>Claim B2C</value>
+    <value>Claim B2C*</value>
   </data>
   <data name="lblB2cExtensionName.Text" xml:space="preserve">
     <value>Extensión B2C</value>
   </data>
   <data name="lblDnnProfilePropertyName" xml:space="preserve">
-    <value>Propiedad del perfil DNN</value>
+    <value>Propiedad del perfil DNN*</value>
   </data>
   <data name="ProfileMappingDeletedWarning.Text" xml:space="preserve">
     <value>¿Está seguro de borrar este mapeo?</value>
+  </data>
+  <data name="ErrorProfileMappingDuplicated.Text" xml:space="preserve">
+    <value>Esta propiedad ya está mapeada</value>
+  </data>
+  <data name="lblB2cClaimName.Help" xml:space="preserve">
+    <value>El nombre del claim B2C</value>
+  </data>
+  <data name="lblB2cExtensionName.Help" xml:space="preserve">
+    <value>El nombre de la extensión B2C</value>
+  </data>
+  <data name="lblDnnProfilePropertyName.Help" xml:space="preserve">
+    <value>La propiedad del perfil de DNN que desea asignar con un claim de B2C</value>
+  </data>
+  <data name="MappingUpdateSuccess.Text" xml:space="preserve">
+    <value>Mapping guardado correctamente</value>
   </data>
 </root>

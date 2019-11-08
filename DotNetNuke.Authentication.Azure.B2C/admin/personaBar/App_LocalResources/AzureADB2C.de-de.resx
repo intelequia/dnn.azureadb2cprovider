@@ -337,15 +337,30 @@
     <value>Sie müssen einen gültigen B2C-Anspruchsnamen eingeben.</value>
   </data>
   <data name="lblB2cClaimName.Text" xml:space="preserve">
-    <value>B2C Claim</value>
+    <value>B2C Claim*</value>
   </data>
   <data name="lblB2cExtensionName.Text" xml:space="preserve">
     <value>B2C Erweiterung</value>
   </data>
   <data name="lblDnnProfilePropertyName.Text" xml:space="preserve">
-    <value>DNN-Profileigenschaft</value>
+    <value>DNN-Profileigenschaft*</value>
   </data>
   <data name="ProfileMappingDeletedWarning.Text" xml:space="preserve">
     <value>Sind Sie sicher, dass Sie dieses Mapping löschen möchten?</value>
+  </data>
+  <data name="ErrorProfileMappingDuplicated.Text" xml:space="preserve">
+    <value>Diese Eigenschaft ist bereits zugeordnet.</value>
+  </data>
+  <data name="lblB2cClaimName.Help" xml:space="preserve">
+    <value>Der B2C-Anspruchsname</value>
+  </data>
+  <data name="lblB2cExtensionName.Help" xml:space="preserve">
+    <value>Der Name der B2C-Erweiterung</value>
+  </data>
+  <data name="lblDnnProfilePropertyName.Help" xml:space="preserve">
+    <value>Die DNN-Profileigenschaft, die Sie mit einem B2C-Claim abbilden möchten.</value>
+  </data>
+  <data name="MappingUpdateSuccess.Text" xml:space="preserve">
+    <value>Zuordnung erfolgreich gespeichert</value>
   </data>
 </root>

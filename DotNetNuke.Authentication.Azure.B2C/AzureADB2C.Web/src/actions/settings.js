@@ -129,6 +129,21 @@ const settingsActions = {
             });
         };
     },
+    getProfileProperties(callback) {
+        return (dispatch) => {
+            ApplicationService.getProfileProperties(data => {
+                dispatch({
+                    type: ActionTypes.RETRIEVED_PROFILEPROPERTIES,
+                    data: {
+                        profileProperties: data
+                    }
+                });
+                if (callback) {
+                    callback(data);
+                }
+            });
+        };
+    },
     cancelProfileMappingClientModified() {
         return (dispatch) => {
             dispatch({
@@ -150,6 +165,19 @@ const settingsActions = {
             });
         };
     },
+    updateProfileMapping(payload, callback, failureCallback) {
+        return (dispatch) => {
+            ApplicationService.updateProfileMapping(payload, data => {
+                if (callback) {
+                    callback(data);
+                }
+            }, data => {
+                if (failureCallback) {
+                    failureCallback(data);
+                }
+            });
+        };
+    }
 };
 
 export default settingsActions;

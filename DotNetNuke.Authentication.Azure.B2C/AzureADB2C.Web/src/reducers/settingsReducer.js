@@ -72,6 +72,10 @@ export default function settings(state = {
                 profileMappingDetail: action.data.profileMappingDetail,
                 profileMappingClientModified: action.data.profileMappingClientModified
             };
+        case ActionTypes.RETRIEVED_PROFILEPROPERTIES:
+            return { ...state,
+                profileProperties: action.data.profileProperties
+            };
         default:
             return { ...state
             };

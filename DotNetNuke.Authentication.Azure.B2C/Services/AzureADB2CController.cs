@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -35,6 +36,7 @@ using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Definitions;
 using DotNetNuke.Entities.Portals;
+using DotNetNuke.Entities.Profile;
 using DotNetNuke.Entities.Tabs;
 using DotNetNuke.Instrumentation;
 using DotNetNuke.Security.Permissions;
@@ -109,6 +111,83 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var profileSettings = ProfileMappings.GetProfileMappings();
                 
                 return Request.CreateResponse(HttpStatusCode.OK, profileSettings);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        public class UpdateProfileMappingInput
+        {
+            public string originalDnnPropertyName;
+            public ProfileMappingsProfileMapping profileMappingDetail;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage UpdateProfileMapping(UpdateProfileMappingInput input)
+        {
+            try
+            {
+                // Get all the profile mappings
+                var profileMappings = ProfileMappings.GetProfileMappings();
+                // Find the one with DnnPropertyName = input.originalDnnPropertyName
+                var itemFound = Array.Find(profileMappings.ProfileMapping, item => item.DnnProfilePropertyName == input.originalDnnPropertyName);
+                if (itemFound == null)
+                {
+                    // The item is not in the list, so it's new
+                    var list = new List<ProfileMappingsProfileMapping>(profileMappings.ProfileMapping);
+                    itemFound = new ProfileMappingsProfileMapping
+                    {
+                        DnnProfilePropertyName = input.profileMappingDetail.DnnProfilePropertyName,
+                        B2cClaimName = input.profileMappingDetail.B2cClaimName,
+                        B2cExtensionName = input.profileMappingDetail.B2cExtensionName
+                    };
+
+                    list.Add(itemFound);
+
+                    profileMappings.ProfileMapping = list.OrderBy(e => e.DnnProfilePropertyName).ToArray();
+                }
+                else
+                {
+                    itemFound.DnnProfilePropertyName = input.profileMappingDetail.DnnProfilePropertyName;
+                    itemFound.B2cClaimName = input.profileMappingDetail.B2cClaimName;
+                    itemFound.B2cExtensionName = input.profileMappingDetail.B2cExtensionName;
+                }
+
+                ProfileMappings.UpdateProfileMappings(profileMappings);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetProfileProperties()
+        {
+            try
+            {
+                var profileProperties = ProfileController.GetPropertyDefinitionsByPortal(0, false, false).Cast<ProfilePropertyDefinition>().Select(v => new
+                {
+                    v.PropertyName
+                });
+                
+                var result = new List<string>();
+                foreach (var item in profileProperties)
+                {
+                    result.Add(item.PropertyName);
+                }
+                result.Add("PortalId");
+
+                result.Sort();
+
+                return Request.CreateResponse(HttpStatusCode.OK, result);
             }
             catch (Exception ex)
             {

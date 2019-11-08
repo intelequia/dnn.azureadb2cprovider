@@ -337,15 +337,30 @@
     <value>You have to type a valid B2C claim name</value>
   </data>
   <data name="lblB2cClaimName.Text" xml:space="preserve">
-    <value>B2C Claim</value>
+    <value>B2C Claim*</value>
   </data>
   <data name="lblB2cExtensionName.Text" xml:space="preserve">
     <value>B2C Extension</value>
   </data>
   <data name="lblDnnProfilePropertyName.Text" xml:space="preserve">
-    <value>DNN profile property</value>
+    <value>DNN profile property*</value>
   </data>
   <data name="ProfileMappingDeletedWarning.Text" xml:space="preserve">
     <value>Are you sure you want to delete this mapping?</value>
+  </data>
+  <data name="ErrorProfileMappingDuplicated.Text" xml:space="preserve">
+    <value>This property is already mapped</value>
+  </data>
+  <data name="lblB2cClaimName.Help" xml:space="preserve">
+    <value>The B2C claim name</value>
+  </data>
+  <data name="lblB2cExtensionName.Help" xml:space="preserve">
+    <value>The B2C extension name</value>
+  </data>
+  <data name="lblDnnProfilePropertyName.Help" xml:space="preserve">
+    <value>The DNN profile property you want to map with a B2C claim</value>
+  </data>
+  <data name="MappingUpdateSuccess.Text" xml:space="preserve">
+    <value>Mapping saved successfully</value>
   </data>
 </root>
