@@ -40,7 +40,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 #endregion
 
 namespace DotNetNuke.Authentication.Azure.B2C.Components
@@ -160,7 +162,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (!IsValidSchemeType(header))
                 return null;
 
-
             var jwt = GetAndValidateJwt(authorization, true);
             if (jwt == null)
                 return null;
@@ -168,59 +169,108 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             var userInfo = TryGetUser(jwt);
             var userName = userInfo?.Username;
 
-            // Sync Azure AD B2C profile and roles once per token
-            if (!string.IsNullOrEmpty(userName)) {
-                var cache = DotNetNuke.Services.Cache.CachingProvider.Instance();
-                if (string.IsNullOrEmpty((string) cache.GetItem($"SyncB2CToken|{authorization}"))) {
-                    var azureClient = new AzureClient(userInfo.PortalID, AuthMode.Login);
-                    azureClient.UpdateUserProfile(jwt);
-                    cache.Insert($"SyncB2CToken|{authorization}", "OK", null, jwt.ValidTo, TimeSpan.Zero);
-                }
-            }
-
             return userName;
         }
 
         private UserInfo TryGetUser(JwtSecurityToken jwt)
         {
-            var portalSettings = PortalController.Instance.GetCurrentPortalSettings();
-            var azureB2cConfig = new AzureConfig("AzureB2C", portalSettings.PortalId);
-            if (portalSettings == null)
+            try
             {
-                if (Logger.IsDebugEnabled) Logger.Debug("Unable to retrieve portal settings");
-                return null;
-            }
-            if (!azureB2cConfig.Enabled || !azureB2cConfig.JwtAuthEnabled)
-            {
-                if (Logger.IsDebugEnabled) Logger.Debug($"Azure B2C JWT auth is not enabled for portal {portalSettings.PortalId}");
-                return null;
-            }
+                var portalSettings = PortalController.Instance.GetCurrentPortalSettings();
+                var azureB2cConfig = new AzureConfig("AzureB2C", portalSettings.PortalId);
+                if (portalSettings == null)
+                {
+                    if (Logger.IsDebugEnabled) Logger.Debug("Unable to retrieve portal settings");
+                    return null;
+                }
+                if (!azureB2cConfig.Enabled || !azureB2cConfig.JwtAuthEnabled)
+                {
+                    if (Logger.IsDebugEnabled) Logger.Debug($"Azure B2C JWT auth is not enabled for portal {portalSettings.PortalId}");
+                    return null;
+                }
 
-            var userClaim = jwt.Claims.FirstOrDefault(x => x.Type == "sub");
-            if (userClaim == null)
-            {
-                if (Logger.IsDebugEnabled) Logger.Debug("Can't find 'sub' claim on token");
+                var userClaim = jwt.Claims.FirstOrDefault(x => x.Type == "sub");
+                if (userClaim == null)
+                {
+                    if (Logger.IsDebugEnabled) Logger.Debug("Can't find 'sub' claim on token");
+                }
+
+                var userInfo = GetOrCreateCachedUserInfo(jwt, portalSettings, userClaim);
+                if (userInfo == null)
+                {
+                    if (Logger.IsDebugEnabled) Logger.Debug("Invalid user");
+                    return null;
+                }
+
+                var status = UserController.ValidateUser(userInfo, portalSettings.PortalId, false);
+                var valid =
+                    status == UserValidStatus.VALID ||
+                    status == UserValidStatus.UPDATEPROFILE ||
+                    status == UserValidStatus.UPDATEPASSWORD;
+
+                if (!valid && Logger.IsDebugEnabled)
+                {
+                    Logger.Debug("Inactive user status: " + status);
+                    return null;
+                }
+
+                return userInfo;
             }
+            catch (Exception ex)
+            {
+                Logger.Error("Error while login in: " + ex.Message);
+            }
+            return null;
+
+        }
+
+        private static UserInfo GetOrCreateCachedUserInfo(JwtSecurityToken jwt, PortalSettings portalSettings, System.Security.Claims.Claim userClaim)
+        {
             var userInfo = UserController.GetUserByName(portalSettings.PortalId, $"azureb2c-{userClaim.Value}");
-            if (userInfo == null)
+            var tokenKey = ComputeSha256Hash(jwt.RawData);
+            var cache = DotNetNuke.Services.Cache.CachingProvider.Instance();
+            if (string.IsNullOrEmpty((string)cache.GetItem($"SyncB2CToken|{tokenKey}")))
             {
-                if (Logger.IsDebugEnabled) Logger.Debug("Invalid user");
-                return null;
-            }
+                var azureClient = new AzureClient(portalSettings.PortalId, AuthMode.Login)
+                {
+                    JwtIdToken = jwt
+                };
+                azureClient.SetAuthTokenInternal(jwt.RawData);
+                azureClient.SetAutoMatchExistingUsers(true);
+                var userData = azureClient.GetCurrentUserInternal(jwt);
+                if (userInfo == null)
+                {
+                    // If user doesn't exist, create the user
+                    userInfo = userData.ToUserInfo();
+                    userInfo.PortalID = portalSettings.PortalId;
+                    userInfo.Membership.Password = UserController.GeneratePassword();
+                    var result = UserController.CreateUser(ref userInfo);
+                }
 
-            var status = UserController.ValidateUser(userInfo, portalSettings.PortalId, false);
-            var valid =
-                status == UserValidStatus.VALID ||
-                status == UserValidStatus.UPDATEPROFILE ||
-                status == UserValidStatus.UPDATEPASSWORD;
-
-            if (!valid && Logger.IsDebugEnabled)
-            {
-                Logger.Debug("Inactive user status: " + status);
-                return null;
+                azureClient.AuthenticateUser(userData, portalSettings, HttpContext.Current.Request["REMOTE_ADDR"], azureClient.AddCustomProperties, azureClient.OnUserAuthenticated);
+                azureClient.UpdateUserProfile(jwt, false, false);
+                cache.Insert($"SyncB2CToken|{tokenKey}", "OK", null, jwt.ValidTo, TimeSpan.Zero);
             }
 
             return userInfo;
+        }
+
+        private static string ComputeSha256Hash(string rawData)
+        {
+            // Create a SHA256   
+            using (var sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+
+                // Convert byte array to a string   
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
 
 

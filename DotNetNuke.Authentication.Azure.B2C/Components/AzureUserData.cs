@@ -24,6 +24,7 @@
 #region Usings
 
 using System.Runtime.Serialization;
+using DotNetNuke.Entities.Users;
 using DotNetNuke.Services.Authentication.OAuth;
 
 #endregion
@@ -63,6 +64,18 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         [DataMember(Name = "name")]
         public string AzureDisplayName { get; set; }
+
+        public UserInfo ToUserInfo()
+        {
+            return new UserInfo()
+            {
+                DisplayName = this.DisplayName,
+                FirstName = this.FirstName,
+                LastName = this.LastName,
+                Email = this.Email,
+                Username = "AzureB2C-" + this.Id
+            };
+        }
 
     }
 }
