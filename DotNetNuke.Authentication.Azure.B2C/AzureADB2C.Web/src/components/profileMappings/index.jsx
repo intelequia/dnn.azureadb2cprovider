@@ -57,7 +57,10 @@ class ProfileMappings extends Component {
     }
 
     onValidateProfileMapping(profileMappingDetail, newDnnProfilePropertyName) {
-        let originalPropertyName = profileMappingDetail.ProfileMappingId.split('-')[0];
+        let originalPropertyName = null;
+        if (profileMappingDetail.ProfileMappingId) {
+            originalPropertyName = profileMappingDetail.ProfileMappingId.split('-')[0];
+        }
         if (originalPropertyName != newDnnProfilePropertyName) {
             // The PropertyName of this row has changed. Let's see if that property has already been mapped
             if (this.props.profileMapping.find(p => p.DnnProfilePropertyName == newDnnProfilePropertyName) != undefined) {
@@ -74,15 +77,16 @@ class ProfileMappings extends Component {
     onUpdateProfileMapping(profileMappingDetail) {
         const {props} = this;
 
-        let originalPropertyName = profileMappingDetail.ProfileMappingId.split('-')[0];
+        let originalPropertyName = profileMappingDetail.ProfileMappingId ? profileMappingDetail.ProfileMappingId.split('-')[0] : null;
         if (originalPropertyName != profileMappingDetail.DnnProfilePropertyName) {
             // The PropertyName of this row has changed. Let's see if that property has already been mapped
             if (this.props.profileMapping.find(p => p.DnnProfilePropertyName == profileMappingDetail.DnnProfilePropertyName) != undefined) {
                 utils.utilities.notifyError(resx.get("ErrorProfileMappingDuplicated"));
+                return;
             }
         }
-        else {
-            let payload = {
+
+        let payload = {
                 originalDnnPropertyName: originalPropertyName,
                 profileMappingDetail: profileMappingDetail
             };
@@ -93,8 +97,7 @@ class ProfileMappings extends Component {
             }, (error) => {
                 const errorMessage = JSON.parse(error.responseText);
                 utils.utilities.notifyError(errorMessage.Message);
-            }));
-        }
+        }));
     }
 
     onDeleteProfileMapping(profileMappingId) {
@@ -263,6 +266,7 @@ class ProfileMappings extends Component {
                                     availableProperties={this.props.profileProperties}
                                     Collapse={this.collapse.bind(this)}
                                     onUpdate={this.onUpdateProfileMapping.bind(this)}
+                                    onValidate={this.onValidateProfileMapping.bind(this)}
                                     id={"add"}
                                     openId={this.state.openId} />
                             </ProfileMappingRow>

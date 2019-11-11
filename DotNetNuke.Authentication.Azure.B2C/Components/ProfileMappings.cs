@@ -58,14 +58,26 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         public static ProfileMappings GetProfileMappings(string filePath)
         {
+            ProfileMappings result;
             if (!File.Exists(filePath))
-                return new ProfileMappings();
-
-            var serializer = new XmlSerializer(typeof(ProfileMappings));
-            using (var fileStream = new FileStream(filePath, FileMode.Open))
             {
-                return (ProfileMappings)serializer.Deserialize(fileStream);
+                result = new ProfileMappings();
             }
+            else
+            {
+                var serializer = new XmlSerializer(typeof(ProfileMappings));
+                using (var fileStream = new FileStream(filePath, FileMode.Open))
+                {
+                    result = (ProfileMappings)serializer.Deserialize(fileStream);
+                }
+            }
+
+            if (result.ProfileMapping == null)
+            {
+                result.ProfileMapping = new ProfileMappingsProfileMapping[0];
+            }
+
+            return result;
         }
 
 
