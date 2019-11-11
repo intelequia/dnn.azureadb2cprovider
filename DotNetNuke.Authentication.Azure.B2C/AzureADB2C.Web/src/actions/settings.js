@@ -166,7 +166,7 @@ const settingsActions = {
         };
     },
     updateProfileMapping(payload, callback, failureCallback) {
-        return (dispatch) => {
+        return () => {
             ApplicationService.updateProfileMapping(payload, data => {
                 if (callback) {
                     callback(data);
@@ -179,7 +179,7 @@ const settingsActions = {
         };
     },
     deleteProfileMapping(payload, callback, failureCallback) {
-        return (dispatch) => {
+        return () => {
             ApplicationService.deleteProfileMapping(payload, data => {
                 if (callback) {
                     callback(data);

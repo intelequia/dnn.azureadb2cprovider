@@ -2,10 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import "./style.less";
-import { SingleLineInputWithError, GridSystem, Label, Button, InputGroup, DropdownWithError } from "@dnnsoftware/dnn-react-common";
-// import {
-//     siteBehavior as SiteBehaviorActions
-// } from "../../../../actions";
+import { SingleLineInputWithError, GridSystem, Button, InputGroup, DropdownWithError } from "@dnnsoftware/dnn-react-common";
 import SettingsActions from "../../../actions/settings";
 import util from "../../../utils";
 import resx from "../../../resources";
@@ -207,7 +204,7 @@ ProfileMappingEditor.propTypes = {
     onValidate: PropTypes.func
 };
 
-function mapStateToProps(state) {
+function mapStateToProps() {
     return {
         // profileMappingDetail: state.siteBehavior.aliasDetail,
         // profileMappingClientModified: state.siteBehavior.siteAliasClientModified

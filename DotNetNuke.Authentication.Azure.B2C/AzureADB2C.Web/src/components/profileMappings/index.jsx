@@ -34,36 +34,16 @@ class ProfileMappings extends Component {
         const {state} = this;
 
         state.error["profileMapping"] = (nextProps.profileMapping === null);
-    }   
-
-    onSettingChange(key, event) {
-        let {props} = this;
-
-        // TODO - We will have something like profileMappingsModified
-
-        // props.dispatch(SettingsActions.settingsClientModified({
-        //     enabled: (key === "AADB2CProviderEnabled") ? !props.enabled : props.enabled,
-        //     useGlobalSettings: (key === "UseGlobalSettings") ? !props.useGlobalSettings : props.useGlobalSettings,
-        //     autoRedirect: (key === "AutoRedirect") ? !props.autoRedirect : props.autoRedirect,
-        //     apiKey: (key === "AppId") ? event.target.value : props.apiKey,
-        //     apiSecret: (key === "AppSecret") ? event.target.value : props.apiSecret,
-        //     redirectUri: (key === "RedirectUri") ? event.target.value: props.redirectUri,
-        //     tenantName: (key === "TenantName") ? event.target.value : props.tenantName,
-        //     tenantId: (key === "TenantId") ? event.target.value : props.tenantId,
-        //     signUpPolicy: (key === "SignUpPolicy") ? event.target.value : props.signUpPolicy,
-        //     profilePolicy: (key === "ProfilePolicy") ? event.target.value : props.profilePolicy,
-        //     passwordResetPolicy: (key === "PasswordResetPolicy") ? event.target.value : props.passwordResetPolicy,
-        // }));
     }
 
     onValidateProfileMapping(profileMappingDetail, newDnnProfilePropertyName) {
         let originalPropertyName = null;
         if (profileMappingDetail.ProfileMappingId) {
-            originalPropertyName = profileMappingDetail.ProfileMappingId.split('-')[0];
+            originalPropertyName = profileMappingDetail.ProfileMappingId.split("-")[0];
         }
-        if (originalPropertyName != newDnnProfilePropertyName) {
+        if (originalPropertyName !== newDnnProfilePropertyName) {
             // The PropertyName of this row has changed. Let's see if that property has already been mapped
-            if (this.props.profileMapping.find(p => p.DnnProfilePropertyName == newDnnProfilePropertyName) != undefined) {
+            if (this.props.profileMapping.find(p => p.DnnProfilePropertyName === newDnnProfilePropertyName) !== undefined) {
                 return false; // Not valid; it's already in the list
             }
             else {
@@ -77,33 +57,33 @@ class ProfileMappings extends Component {
     onUpdateProfileMapping(profileMappingDetail) {
         const {props} = this;
 
-        let originalPropertyName = profileMappingDetail.ProfileMappingId ? profileMappingDetail.ProfileMappingId.split('-')[0] : null;
-        if (originalPropertyName != profileMappingDetail.DnnProfilePropertyName) {
+        let originalPropertyName = profileMappingDetail.ProfileMappingId ? profileMappingDetail.ProfileMappingId.split("-")[0] : null;
+        if (originalPropertyName !== profileMappingDetail.DnnProfilePropertyName) {
             // The PropertyName of this row has changed. Let's see if that property has already been mapped
-            if (this.props.profileMapping.find(p => p.DnnProfilePropertyName == profileMappingDetail.DnnProfilePropertyName) != undefined) {
+            if (this.props.profileMapping.find(p => p.DnnProfilePropertyName === profileMappingDetail.DnnProfilePropertyName) !== undefined) {
                 utils.utilities.notifyError(resx.get("ErrorProfileMappingDuplicated"));
                 return;
             }
         }
 
         let payload = {
-                originalDnnPropertyName: originalPropertyName,
-                profileMappingDetail: profileMappingDetail
-            };
-            props.dispatch(SettingsActions.updateProfileMapping(payload, () => {
-                utils.utilities.notify(resx.get("MappingUpdateSuccess"));
-                this.collapse();
-                props.dispatch(SettingsActions.getProfileSettings());
-            }, (error) => {
-                const errorMessage = JSON.parse(error.responseText);
-                utils.utilities.notifyError(errorMessage.Message);
+            originalDnnPropertyName: originalPropertyName,
+            profileMappingDetail: profileMappingDetail
+        };
+        props.dispatch(SettingsActions.updateProfileMapping(payload, () => {
+            utils.utilities.notify(resx.get("MappingUpdateSuccess"));
+            this.collapse();
+            props.dispatch(SettingsActions.getProfileSettings());
+        }, (error) => {
+            const errorMessage = JSON.parse(error.responseText);
+            utils.utilities.notifyError(errorMessage.Message);
         }));
     }
 
     onDeleteProfileMapping(profileMappingId) {
         const {props} = this;
         utils.utilities.confirm(resx.get("ProfileMappingDeletedWarning"), resx.get("Yes"), resx.get("No"), () => {
-            let originalPropertyName = profileMappingId.split('-')[0];
+            let originalPropertyName = profileMappingId.split("-")[0];
             
             let payload = {
                 dnnProfilePropertyName: originalPropertyName
@@ -121,34 +101,6 @@ class ProfileMappings extends Component {
 
     onClickCancel() {
         utils.utilities.closePersonaBar();
-    }
-
-    onClickSave() {
-        event.preventDefault();
-        let {props} = this;
-
-        // TODO - We will have an updateProfileMappings
-
-        // props.dispatch(SettingsActions.updateGeneralSettings({
-        //     enabled: props.enabled,
-        //     useGlobalSettings: props.useGlobalSettings,
-        //     autoRedirect: props.autoRedirect,
-        //     apiKey: props.apiKey,
-        //     apiSecret: props.apiSecret,
-        //     redirectUri: props.redirectUri,
-        //     tenantName: props.tenantName,
-        //     tenantId: props.tenantId,
-        //     signUpPolicy: props.signUpPolicy,
-        //     profilePolicy: props.profilePolicy,
-        //     passwordResetPolicy: props.passwordResetPolicy,
-        // }, () => {
-        //     utils.utilities.notify(resx.get("SettingsUpdateSuccess"));
-        //     this.setState({
-        //         clientModified: false
-        //     });            
-        // }, () => {
-        //     utils.utilities.notifyError(resx.get("SettingsError"));
-        // }));
     }
 
     /* eslint-disable react/no-did-update-set-state */
