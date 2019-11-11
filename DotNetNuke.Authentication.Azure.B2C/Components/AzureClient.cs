@@ -23,6 +23,15 @@
 
 #region Usings
 
+using DotNetNuke.Authentication.Azure.B2C.Common;
+using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
+using DotNetNuke.Common;
+using DotNetNuke.Entities.Portals;
+using DotNetNuke.Entities.Users;
+using DotNetNuke.Instrumentation;
+using DotNetNuke.Services.Authentication;
+using DotNetNuke.Services.Authentication.OAuth;
+using DotNetNuke.Services.FileSystem;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -34,17 +43,7 @@ using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Script.Serialization;
-using DotNetNuke.Authentication.Azure.B2C.Common;
-using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
-using DotNetNuke.Common;
-using DotNetNuke.Entities.Portals;
-using DotNetNuke.Entities.Users;
-using DotNetNuke.Instrumentation;
-using DotNetNuke.Security.Membership;
-using DotNetNuke.Services.Authentication;
-using DotNetNuke.Services.Authentication.OAuth;
-using DotNetNuke.Services.FileSystem;
-using DotNetNuke.Services.Localization;
+using static DotNetNuke.Services.Authentication.AuthenticationLoginBase;
 
 #endregion
 
@@ -127,8 +126,21 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         #region Constructors
 
-        private JwtSecurityToken JwtIdToken { get; set; }
+        internal JwtSecurityToken JwtIdToken { get; set; }
         public Uri LogoutEndpoint { get; }
+
+        private bool _autoMatchExistingUsers = false;
+        public override bool AutoMatchExistingUsers { 
+            get
+            {
+                return _autoMatchExistingUsers;
+            }
+        }
+
+        public void SetAutoMatchExistingUsers(bool value)
+        {
+            _autoMatchExistingUsers = value;
+        }
 
 
         public AzureClient(int portalId, AuthMode mode) 
@@ -202,7 +214,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             return GetCurrentUserInternal() as TUserData;
         }
 
-        private AzureUserData GetCurrentUserInternal(JwtSecurityToken pToken = null)
+        internal void SetAuthTokenInternal(string token)
+        {
+            AuthToken = token;
+        }
+
+        internal AzureUserData GetCurrentUserInternal(JwtSecurityToken pToken = null)
         {
             if (pToken == null && (!IsCurrentUserAuthorized() || JwtIdToken == null))
             {
@@ -299,7 +316,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         }
 
 
-        public void UpdateUserProfile(JwtSecurityToken pToken = null)
+        public void UpdateUserProfile(JwtSecurityToken pToken = null, bool updateProfilePicture = true, bool updateUserRoles = true)
         {
             if (pToken == null && (!IsCurrentUserAuthorized() || JwtIdToken == null))
             {
@@ -327,12 +344,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                         userInfo.Profile.SetProfileProperty(prop, properties[prop]);
                     }
                 }
-                UpdateUserProfilePicture(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo);
+                if (updateProfilePicture)
+                {
+                    UpdateUserProfilePicture(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo);
+                }
             }
             UserController.UpdateUser(PortalSettings.Current.PortalId, userInfo);
 
             // Update user roles
-            UpdateUserRoles(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo);
+            if (updateUserRoles)
+            {
+                UpdateUserRoles(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo);
+            }
+            
 
         }
 
@@ -395,6 +419,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     {
                         // Redirect to the user portal
                         var request = HttpContext.Current.Request;
+                        if (!string.IsNullOrEmpty(request.Headers["Authorization"]) && request.Headers["Authorization"].StartsWith("Bearer"))
+                        {
+                            throw new SecurityTokenException($"The user portalId claim ({portalId}) is different from current portalId ({portalSettings.PortalId}). Portal redirection flow is not supported on native apps. Please call the API from the corresponding portal URL");
+                        }
                         var state = new State(request["state"]);
                         HttpContext.Current.Response.Redirect(Utils.GetLoginUrl(portalId, state.Culture, request));
                         return;
@@ -736,6 +764,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             return new Uri(string.Format("{0}{1}{2}", url, url.Contains("?") ? "&" : "?", parameters));
         }
 
+        public event UserAuthenticatedEventHandler UserAuthenticated;
+        public void OnUserAuthenticated(UserAuthenticatedEventArgs ea)
+        {
+            if (UserAuthenticated != null)
+            {
+                UserAuthenticated(null, ea);
+            }
+        }
     }
 
 
