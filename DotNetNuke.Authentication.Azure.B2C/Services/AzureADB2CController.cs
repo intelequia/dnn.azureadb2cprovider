@@ -167,6 +167,36 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
         }
 
+        public class DeleteProfileMappingInput
+        {
+            public string dnnProfilePropertyName;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage DeleteProfileMapping(DeleteProfileMappingInput input)
+        {
+            try
+            {
+                var profileMappings = ProfileMappings.GetProfileMappings();
+                var list = new List<ProfileMappingsProfileMapping>(profileMappings.ProfileMapping);
+                var itemToRemove = list.Find(item => item.DnnProfilePropertyName == input.dnnProfilePropertyName);
+                if (itemToRemove != null)
+                {
+                    list.Remove(itemToRemove);
+                    profileMappings.ProfileMapping = list.ToArray();
+
+                    ProfileMappings.UpdateProfileMappings(profileMappings);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
         [HttpGet]
         [ValidateAntiForgeryToken]
         public HttpResponseMessage GetProfileProperties()

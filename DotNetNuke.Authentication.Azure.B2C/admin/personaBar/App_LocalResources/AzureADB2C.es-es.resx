@@ -363,4 +363,7 @@
   <data name="MappingUpdateSuccess.Text" xml:space="preserve">
     <value>Mapping guardado correctamente</value>
   </data>
+  <data name="MappingDeleteSuccess.Text" xml:space="preserve">
+    <value>Mapeado borrado satisfactoriamente</value>
+  </data>
 </root>

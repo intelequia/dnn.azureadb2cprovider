@@ -363,4 +363,7 @@
   <data name="MappingUpdateSuccess.Text" xml:space="preserve">
     <value>Zuordnung erfolgreich gespeichert</value>
   </data>
+  <data name="MappingDeleteSuccess.Text" xml:space="preserve">
+    <value>Zuordnung erfolgreich entfernt</value>
+  </data>
 </root>

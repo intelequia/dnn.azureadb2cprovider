@@ -177,6 +177,19 @@ const settingsActions = {
                 }
             });
         };
+    },
+    deleteProfileMapping(payload, callback, failureCallback) {
+        return (dispatch) => {
+            ApplicationService.deleteProfileMapping(payload, data => {
+                if (callback) {
+                    callback(data);
+                }
+            }, data => {
+                if (failureCallback) {
+                    failureCallback(data);
+                }
+            });
+        };
     }
 };
 

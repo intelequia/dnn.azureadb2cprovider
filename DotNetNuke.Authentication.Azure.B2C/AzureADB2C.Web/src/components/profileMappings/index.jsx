@@ -100,17 +100,19 @@ class ProfileMappings extends Component {
     onDeleteProfileMapping(profileMappingId) {
         const {props} = this;
         utils.utilities.confirm(resx.get("ProfileMappingDeletedWarning"), resx.get("Yes"), resx.get("No"), () => {
-
-            // TODO - Remove the mapping
-
-            // const siteAliases = Object.assign({}, props.siteAliases);
-            // siteAliases.PortalAliases = siteAliases.PortalAliases.filter((item) => item.PortalAliasID !== aliasId);
-            // props.dispatch(SiteBehaviorActions.deleteSiteAlias(aliasId, siteAliases, () => {
-            //     util.utilities.notify(resx.get("SiteAliasDeleteSuccess"));
-            //     this.collapse();
-            // }, () => {
-            //     util.utilities.notify(resx.get("SiteAliasDeleteError"));
-            // }));
+            let originalPropertyName = profileMappingId.split('-')[0];
+            
+            let payload = {
+                dnnProfilePropertyName: originalPropertyName
+            };
+            props.dispatch(SettingsActions.deleteProfileMapping(payload, () => {
+                utils.utilities.notify(resx.get("MappingDeleteSuccess"));
+                this.collapse();
+                props.dispatch(SettingsActions.getProfileSettings());
+            }, (error) => {
+                const errorMessage = JSON.parse(error.responseText);
+                utils.utilities.notifyError(errorMessage.Message);
+            }));
         });
     }
 

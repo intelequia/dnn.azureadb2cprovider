@@ -26,6 +26,10 @@ class ApplicationService {
         sf.post("UpdateProfileMapping", payload, failureCallback, callback);
     }
 
+    deleteProfileMapping(payload, callback, failureCallback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.post("DeleteProfileMapping", payload, failureCallback, callback);
+    }
     getProfileSettings(callback) {
         const sf = this.getServiceFramework("AzureADB2C");        
         sf.get("GetProfileSettings", {}, callback);
