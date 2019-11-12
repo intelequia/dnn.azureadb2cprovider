@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Collapsible, SvgIcons } from "@dnnsoftware/dnn-react-common";
 import "./style.less";
-import resx from "../../../resources";
 
 class RoleMappingRow extends Component {
     /* eslint-disable react/no-did-mount-set-state */
@@ -34,8 +33,6 @@ class RoleMappingRow extends Component {
                             {props.dnnRoleName}</div>
                         <div className="role-item item-row-b2crole">
                             {props.b2cRoleName}</div>
-                        <div className="role-item item-row-b2cextension">
-                            {props.b2cExtensionName}&nbsp;</div>
                         <div className="role-item item-row-actionButtons">
                             {props.deletable &&
                                 <div className={opened ? "delete-icon-hidden" : "delete-icon"} dangerouslySetInnerHTML={{ __html: SvgIcons.TrashIcon }} onClick={props.onDelete.bind(this)}></div>
@@ -46,7 +43,7 @@ class RoleMappingRow extends Component {
                         </div>
                     </div>
                 </div>
-                <Collapsible fixedHeight={320} keepContent={true} isOpened={opened} style={{ float: "left", width: "100%", overflow: "inherit" }}>{opened && props.children}</Collapsible>
+                <Collapsible fixedHeight={205} keepContent={true} isOpened={opened} style={{ float: "left", width: "100%", overflow: "inherit" }}>{opened && props.children}</Collapsible>
             </div>
         );
     }
@@ -56,7 +53,6 @@ RoleMappingRow.propTypes = {
     mappingId: PropTypes.string,
     dnnRoleName: PropTypes.string,
     b2cRoleName: PropTypes.string,
-    b2cExtensionName: PropTypes.string,
     deletable: PropTypes.bool,
     editable: PropTypes.bool,
     OpenCollapse: PropTypes.func,

@@ -14,8 +14,7 @@ class RoleMappingEditor extends Component {
         this.state = {
             mappingDetail: {
                 DnnRoleName: "",
-                B2cRoleName: "",
-                B2cExtensionName: ""
+                B2cRoleName: ""
             },
             error: {
                 dnnRoleName: false,
@@ -32,7 +31,6 @@ class RoleMappingEditor extends Component {
         state.mappingDetail["MappingId"] = props.mappingId;
         state.mappingDetail["DnnRoleName"] = props.dnnRoleName;
         state.mappingDetail["B2cRoleName"] = props.b2cRoleName;
-        state.mappingDetail["B2cExtensionName"] = props.b2cExtensionName;
 
         state.error["dnnRoleName"] = (props.dnnRoleName === null);
         state.error["b2cRoleName"] = (props.b2cRoleName === null);
@@ -143,15 +141,6 @@ class RoleMappingEditor extends Component {
                         onSelect={this.onSettingChange.bind(this, "DnnRoleName")}
                     />
                 </InputGroup>
-                <InputGroup>
-                    <SingleLineInputWithError
-                        withLabel={true}
-                        label={resx.get("lblB2cExtensionName")}
-                        tooltipMessage={resx.get("lblB2cExtensionName.Help")}
-                        value={this.state.mappingDetail.B2cExtensionName}
-                        onChange={this.onSettingChange.bind(this, "B2cExtensionName")}
-                    />
-                </InputGroup>
             </div>;
             const columnTwo = <div key="column-two" className="right-column">
                 <InputGroup>
@@ -196,7 +185,6 @@ RoleMappingEditor.propTypes = {
     mappingId: PropTypes.string,
     dnnRoleName: PropTypes.string,
     b2cRoleName: PropTypes.string,
-    b2cExtensionName: PropTypes.string,
     Collapse: PropTypes.func,
     onUpdate: PropTypes.func,
     id: PropTypes.string,

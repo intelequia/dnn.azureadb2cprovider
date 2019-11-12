@@ -109,9 +109,8 @@ class RoleMappings extends Component {
         if (props !== prevProps) {
             let tableFields = [];
             if (tableFields.length === 0) {
-                tableFields.push({ "name": resx.get("DnnProfileProperty.Header"), "id": "DnnProfileProperty" });
-                tableFields.push({ "name": resx.get("B2cClaim.Header"), "id": "B2cClaim" });
-                tableFields.push({ "name": resx.get("B2cExtension.Header"), "id": "B2cExtension" });
+                tableFields.push({ "name": resx.get("DnnRole.Header"), "id": "DnnRole" });
+                tableFields.push({ "name": resx.get("B2cRole.Header"), "id": "B2cRole" });
             }
             this.setState({tableFields});
         }
@@ -152,13 +151,12 @@ class RoleMappings extends Component {
         if (this.props.mapping) {
             return this.props.mapping.map((item, index) => {
                 let id = "row-" + i++;
-                let mappingId = item.DnnRoleName + "-" + item.B2cRoleName + "-" + item.B2cExtensionName;
+                let mappingId = item.DnnRoleName + "-" + item.B2cRoleName;
                 return (
                     <RoleMappingRow
                         mappingId={mappingId}
                         dnnRoleName={item.DnnRoleName}
                         b2cRoleName={item.B2cRoleName}
-                        b2cExtensionName={item.B2cExtensionName}
                         index={index}
                         key={"role-" + index}
                         closeOnClick={true}
@@ -172,7 +170,6 @@ class RoleMappings extends Component {
                             mappingId={mappingId}
                             dnnRoleName={item.DnnRoleName}
                             b2cRoleName={item.B2cRoleName}
-                            b2cExtensionName={item.B2cExtensionName}
                             Collapse={this.collapse.bind(this)}
                             onUpdate={this.onUpdateMapping.bind(this)}
                             onValidate={this.onValidateMapping.bind(this)}
@@ -203,7 +200,6 @@ class RoleMappings extends Component {
                             <RoleMappingRow
                                 dnnRoleName={"-"}
                                 b2cRoleName={"-"}
-                                b2cExtensionName={"-"}
                                 deletable={false}
                                 editable={false}
                                 index={"add"}

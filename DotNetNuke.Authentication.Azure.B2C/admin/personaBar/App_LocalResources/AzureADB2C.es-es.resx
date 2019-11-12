@@ -408,6 +408,12 @@
   <data name="lblRolesMapping.Text" xml:space="preserve">
     <value>MAPEO DE ROLES</value>
   </data>
+  <data name="B2cRole.Header.Text" xml:space="preserve">
+    <value>Role B2C</value>
+  </data>
+  <data name="DnnRole.Header.Text" xml:space="preserve">
+    <value>Role DNN</value>
+  </data>
   <data name="lblB2cRoleName.Text" xml:space="preserve">
     <value>Role B2C*</value>
   </data>
