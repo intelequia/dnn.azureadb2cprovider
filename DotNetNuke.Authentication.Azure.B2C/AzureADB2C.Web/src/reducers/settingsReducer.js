@@ -58,11 +58,24 @@ export default function settings(state = {
             return { ...state,
                 profileMapping: action.data.profileMapping
             };
+        case ActionTypes.RETRIEVED_ROLEMAPPINGSETTINGS:
+            return { ...state,
+                roleMapping: action.data.roleMapping
+            };
+        case ActionTypes.RETRIEVED_AVAILABLEROLES:
+            return { ...state,
+                roles: action.data.roles
+            };    
         case ActionTypes.SWITCH_TAB:
             return {
                 ...state,
                 selectedTab: action.payload
-            };            
+            };
+        case ActionTypes.SWITCH_MAPPING_SUBTAB:
+            return {
+                ...state,
+                selectedSubTab: action.payload
+            };  
         case ActionTypes.CANCELLED_PROFILEMAPPING_CLIENT_MODIFIED:
             return { ...state,
                 profileMappingClientModified: action.data.profileMappingClientModified
@@ -76,6 +89,10 @@ export default function settings(state = {
             return { ...state,
                 profileProperties: action.data.profileProperties
             };
+        case ActionTypes.ROLEMAPPINGS_CLIENT_MODIFIED:
+            return { ...state,
+                roleProperties: action.data.roleProperties
+            };    
         default:
             return { ...state
             };

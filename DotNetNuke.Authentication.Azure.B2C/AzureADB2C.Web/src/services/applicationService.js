@@ -39,6 +39,27 @@ class ApplicationService {
         const sf = this.getServiceFramework("AzureADB2C");        
         sf.get("GetProfileProperties", {}, callback);
     }
+
+    getRoleMappingSettings(callback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.get("GetRoleMappingSettings", {}, callback);
+    }
+
+    getAvailableRoles(callback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.get("GetAvailableRoles", {}, callback);
+    }
+
+    updateRoleMapping(payload, callback, failureCallback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.post("UpdateRoleMapping", payload, failureCallback, callback);
+    }
+
+    deleteRoleMapping(payload, callback, failureCallback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.post("DeleteRoleMapping", payload, failureCallback, callback);
+    }
+
 }
 const applicationService = new ApplicationService();
 export default applicationService;

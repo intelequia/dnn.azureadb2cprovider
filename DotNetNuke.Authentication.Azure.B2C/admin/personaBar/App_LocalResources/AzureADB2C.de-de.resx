@@ -366,4 +366,49 @@
   <data name="MappingDeleteSuccess.Text" xml:space="preserve">
     <value>Zuordnung erfolgreich entfernt</value>
   </data>
+  <data name="ErrorMappingDuplicated.Text" xml:space="preserve">
+    <value>Dieses Element ist bereits zugeordnet.</value>
+  </data>
+  <data name="ErrorUserMappingDuplicated.Text" xml:space="preserve">
+    <value>Diese Eigenschaft ist bereits zugeordnet.</value>
+  </data>
+  <data name="lblDnnUserPropertyName.Help" xml:space="preserve">
+    <value>Die DNN-Benutzereigenschaft, die Sie mit einem B2C-Claim abbilden möchten.</value>
+  </data>
+  <data name="lblDnnUserPropertyName.Text" xml:space="preserve">
+    <value>DNN-Benutzereigenschaft*</value>
+  </data>
+  <data name="lblPortalId.Text" xml:space="preserve">
+    <value>PortalId</value>
+  </data>
+  <data name="MappingDeletedWarning.Text" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie dieses Mapping löschen möchten?</value>
+  </data>
+  <data name="TabRoleMappings.Text" xml:space="preserve">
+    <value>Role Mappings</value>
+  </data>
+  <data name="TabUserMappings.Text" xml:space="preserve">
+    <value>User Mappings</value>
+  </data>
+  <data name="TabUserProfileMappings.Text" xml:space="preserve">
+    <value>User Profile Mappings</value>
+  </data>
+  <data name="cmdAddRoleMapping.Text" xml:space="preserve">
+    <value>Zuordnung hinzufügen</value>
+  </data>
+  <data name="InvalidB2cRoleName.Text" xml:space="preserve">
+    <value>Falscher B2C-Rollenname</value>
+  </data>
+  <data name="lblDnnRoleName.Help" xml:space="preserve">
+    <value>Die DNN-Rolle, die Sie mit einer B2C-Rolle abbilden möchten.</value>
+  </data>
+  <data name="lblDnnRoleName.Text" xml:space="preserve">
+    <value>DNN Rolle*</value>
+  </data>
+  <data name="lblRolesMapping.Text" xml:space="preserve">
+    <value>ROLLENZUORDNUNG</value>
+  </data>
+  <data name="lblB2cRoleName.Text" xml:space="preserve">
+    <value>B2C Rolle*</value>
+  </data>
 </root>

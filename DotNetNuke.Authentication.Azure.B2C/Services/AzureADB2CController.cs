@@ -40,6 +40,7 @@ using DotNetNuke.Entities.Profile;
 using DotNetNuke.Entities.Tabs;
 using DotNetNuke.Instrumentation;
 using DotNetNuke.Security.Permissions;
+using DotNetNuke.Security.Roles;
 using DotNetNuke.Services.Exceptions;
 using DotNetNuke.Services.Upgrade;
 using DotNetNuke.Web.Api;
@@ -111,6 +112,124 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var profileSettings = ProfileMappings.GetProfileMappings();
                 
                 return Request.CreateResponse(HttpStatusCode.OK, profileSettings);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetRoleMappingSettings()
+        {
+            try
+            {
+                var roleMappings = RoleMappings.GetRoleMappings();
+
+                return Request.CreateResponse(HttpStatusCode.OK, roleMappings);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetAvailableRoles()
+        {
+            try
+            {
+                var availableRoles = RoleController.Instance.GetRoles(PortalId);
+                var result = new List<string>();
+                foreach (var availableRole in availableRoles)
+                {
+                    result.Add(availableRole.RoleName);
+                }
+
+                result.Sort();
+
+                return Request.CreateResponse(HttpStatusCode.OK, result);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+
+        public class UpdateRoleMappingInput
+        {
+            public string originalDnnRoleName;
+            public RoleMappingsRoleMapping mappingDetail;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage UpdateRoleMapping(UpdateRoleMappingInput input)
+        {
+            try
+            {
+                // Get all the role mappings
+                var roleMappings = RoleMappings.GetRoleMappings();
+                // Find the one with DnnRoleName = input.originalDnnRoleName
+                var itemFound = Array.Find(roleMappings.RoleMapping, item => item.DnnRoleName == input.originalDnnRoleName);
+                if (itemFound == null)
+                {
+                    // The item is not in the list, so it's new
+                    var list = new List<RoleMappingsRoleMapping>(roleMappings.RoleMapping);
+                    itemFound = new RoleMappingsRoleMapping
+                    {
+                        DnnRoleName = input.mappingDetail.DnnRoleName,
+                        B2cRoleName = input.mappingDetail.B2cRoleName
+                    };
+
+                    list.Add(itemFound);
+
+                    roleMappings.RoleMapping = list.OrderBy(e => e.DnnRoleName).ToArray();
+                }
+                else
+                {
+                    itemFound.DnnRoleName = input.mappingDetail.DnnRoleName;
+                    itemFound.B2cRoleName = input.mappingDetail.B2cRoleName;
+                }
+
+                RoleMappings.UpdateRoleMappings(roleMappings);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        public class DeleteRoleMappingInput
+        {
+            public string dnnRoleName;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage DeleteRoleMapping(DeleteRoleMappingInput input)
+        {
+            try
+            {
+                var roleMappings = RoleMappings.GetRoleMappings();
+                var list = new List<RoleMappingsRoleMapping>(roleMappings.RoleMapping);
+                var itemToRemove = list.Find(item => item.DnnRoleName == input.dnnRoleName);
+                if (itemToRemove != null)
+                {
+                    list.Remove(itemToRemove);
+                    roleMappings.RoleMapping = list.ToArray();
+
+                    RoleMappings.UpdateRoleMappings(roleMappings);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

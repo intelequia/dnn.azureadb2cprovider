@@ -12,7 +12,18 @@ const settingsActions = {
                 callback();
             }
         };
-    },    
+    },
+    switchMappingSubTab(index, callback) {
+        return (dispatch) => {
+            dispatch({
+                type: ActionTypes.SWITCH_MAPPING_SUBTAB,
+                payload: index
+            });
+            if (callback) {
+                callback();
+            }
+        };
+    }, 
     getSettings(callback) {
         return (dispatch) => {
             ApplicationService.getSettings(data => {
@@ -190,7 +201,74 @@ const settingsActions = {
                 }
             });
         };
-    }
+    },
+    getRoleSettings(callback) {
+        return (dispatch) => {
+            ApplicationService.getRoleMappingSettings(data => {
+                dispatch({
+                    type: ActionTypes.RETRIEVED_ROLEMAPPINGSETTINGS,
+                    data: {
+                        roleMapping: data.RoleMapping
+                    }
+                });
+                if (callback) {
+                    callback(data);
+                }
+            });
+        };
+    },
+    getAvailableRoles(callback) {
+        return (dispatch) => {
+            ApplicationService.getAvailableRoles(data => {
+                dispatch({
+                    type: ActionTypes.RETRIEVED_AVAILABLEROLES,
+                    data: {
+                        roles: data
+                    }
+                });
+                if (callback) {
+                    callback(data);
+                }
+            });
+        };
+    },
+    roleMappingClientModified(parameter) {
+        return (dispatch) => {
+            dispatch({
+                type: ActionTypes.ROLEMAPPINGS_CLIENT_MODIFIED,
+                data: {
+                    roleMappingDetail: parameter,
+                    roleMappingClientModified: true
+                }
+            });
+        };
+    },
+    updateRoleMapping(payload, callback, failureCallback) {
+        return () => {
+            ApplicationService.updateRoleMapping(payload, data => {
+                if (callback) {
+                    callback(data);
+                }
+            }, data => {
+                if (failureCallback) {
+                    failureCallback(data);
+                }
+            });
+        };
+    },
+    deleteRoleMapping(payload, callback, failureCallback) {
+        return () => {
+            ApplicationService.deleteRoleMapping(payload, data => {
+                if (callback) {
+                    callback(data);
+                }
+            }, data => {
+                if (failureCallback) {
+                    failureCallback(data);
+                }
+            });
+        };
+    },
 };
 
 export default settingsActions;
