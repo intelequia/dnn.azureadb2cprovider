@@ -140,7 +140,6 @@ class UserMappings extends Component {
                             b2cPropertyName={item.B2cPropertyName}
                             Collapse={this.collapse.bind(this)}
                             onUpdate={this.onUpdateMapping.bind(this)}
-                            onValidate={this.onValidateMapping.bind(this)}
                             id={id}
                             openId={this.state.openId} />
                     </UserMappingRow>
