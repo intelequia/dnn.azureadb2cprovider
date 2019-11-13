@@ -139,6 +139,23 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
         [HttpGet]
         [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetUserMappingSettings()
+        {
+            try
+            {
+                var userMappings = UserMappings.GetUserMappings();
+
+                return Request.CreateResponse(HttpStatusCode.OK, userMappings);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
         public HttpResponseMessage GetAvailableRoles()
         {
             try
@@ -161,6 +178,35 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
         }
 
+        public class UpdateUserMappingInput
+        {
+            public UserMappingsUserMapping mappingDetail;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage UpdateUserMapping(UpdateUserMappingInput input)
+        {
+            try
+            {
+                // Get all the user mappings
+                var userMappings = UserMappings.GetUserMappings();
+
+                var itemFound = Array.Find(userMappings.UserMapping, item => item.DnnPropertyName == input.mappingDetail.DnnPropertyName);
+                if (itemFound != null)
+                {
+                    itemFound.DnnPropertyName = input.mappingDetail.DnnPropertyName;
+                    itemFound.B2cPropertyName = input.mappingDetail.B2cPropertyName;
+                    UserMappings.UpdateUserMappings(userMappings);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
         public class UpdateRoleMappingInput
         {

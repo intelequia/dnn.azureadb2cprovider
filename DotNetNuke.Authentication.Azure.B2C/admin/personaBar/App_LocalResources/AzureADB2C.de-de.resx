@@ -417,4 +417,28 @@
   <data name="lblB2cRoleName.Text" xml:space="preserve">
     <value>B2C Rolle*</value>
   </data>
+  <data name="B2cProperty.Header.Text" xml:space="preserve">
+    <value>B2C-Eigentum</value>
+  </data>
+  <data name="DnnProperty.Header.Text" xml:space="preserve">
+    <value>DNN-Eigentum</value>
+  </data>
+  <data name="InvalidB2cPropertyName.Text" xml:space="preserve">
+    <value>Falscher B2C-Eigenschaftsname</value>
+  </data>
+  <data name="lblB2cPropertyName.Help" xml:space="preserve">
+    <value>Dies ist die B2C-Eigenschaft, auf die die DNN-Eigenschaft abgebildet wird.</value>
+  </data>
+  <data name="lblB2cPropertyName.Text" xml:space="preserve">
+    <value>B2C-Eigenschaft</value>
+  </data>
+  <data name="lblDnnPropertyName.Help" xml:space="preserve">
+    <value>Dies ist die DNN-Eigenschaft, die auf eine B2C-Eigenschaft abgebildet werden soll.</value>
+  </data>
+  <data name="lblDnnPropertyName.Text" xml:space="preserve">
+    <value>DNN-Eigenschaft</value>
+  </data>
+  <data name="lblUsersMapping.Text" xml:space="preserve">
+    <value>ZUORDNUNGEN VON BENUTZEREIGENSCHAFTEN</value>
+  </data>
 </root>

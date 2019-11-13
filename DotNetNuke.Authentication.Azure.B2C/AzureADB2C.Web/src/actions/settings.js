@@ -269,6 +269,45 @@ const settingsActions = {
             });
         };
     },
+    getUserMappingSettings(callback) {
+        return (dispatch) => {
+            ApplicationService.getUserMappingSettings(data => {
+                dispatch({
+                    type: ActionTypes.RETRIEVED_USERMAPPINGSETTINGS,
+                    data: {
+                        userMapping: data.UserMapping
+                    }
+                });
+                if (callback) {
+                    callback(data);
+                }
+            });
+        };
+    },
+    updateUserMapping(payload, callback, failureCallback) {
+        return () => {
+            ApplicationService.updateUserMapping(payload, data => {
+                if (callback) {
+                    callback(data);
+                }
+            }, data => {
+                if (failureCallback) {
+                    failureCallback(data);
+                }
+            });
+        };
+    },
+    userMappingClientModified(parameter) {
+        return (dispatch) => {
+            dispatch({
+                type: ActionTypes.USERMAPPINGS_CLIENT_MODIFIED,
+                data: {
+                    userMappingDetail: parameter,
+                    userMappingClientModified: true
+                }
+            });
+        };
+    },
 };
 
 export default settingsActions;

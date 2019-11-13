@@ -417,4 +417,28 @@
   <data name="lblB2cRoleName.Text" xml:space="preserve">
     <value>Role B2C*</value>
   </data>
+  <data name="B2cProperty.Header.Text" xml:space="preserve">
+    <value>Propiedad B2C</value>
+  </data>
+  <data name="DnnProperty.Header.Text" xml:space="preserve">
+    <value>Propiedad DNN</value>
+  </data>
+  <data name="InvalidB2cPropertyName.Text" xml:space="preserve">
+    <value>Nombre de propiedad B2C incorrecto</value>
+  </data>
+  <data name="lblB2cPropertyName.Help" xml:space="preserve">
+    <value>Esta es la propiedad B2C contra la que se va a mapear la propiedad DNN</value>
+  </data>
+  <data name="lblB2cPropertyName.Text" xml:space="preserve">
+    <value>Propiedad B2C</value>
+  </data>
+  <data name="lblDnnPropertyName.Help" xml:space="preserve">
+    <value>Esta es la propiedad DNN que va a ser mapeada contra una propiedad B2C</value>
+  </data>
+  <data name="lblDnnPropertyName.Text" xml:space="preserve">
+    <value>Propiedad DNN</value>
+  </data>
+  <data name="lblUsersMapping.Text" xml:space="preserve">
+    <value>MAPEO DE PROPIEDADES DE USUARIOS</value>
+  </data>
 </root>

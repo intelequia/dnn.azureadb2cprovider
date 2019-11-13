@@ -93,6 +93,15 @@ export default function settings(state = {
             return { ...state,
                 roleProperties: action.data.roleProperties
             };    
+        case ActionTypes.RETRIEVED_USERMAPPINGSETTINGS:
+            return { ...state,
+                userMapping: action.data.userMapping
+            };
+        case ActionTypes.USERMAPPINGS_CLIENT_MODIFIED:
+            return { ...state,
+                userMappingDetail: action.data.userMappingDetail,
+                userMappingClientModified: action.data.userMappingClientModified
+            };    
         default:
             return { ...state
             };

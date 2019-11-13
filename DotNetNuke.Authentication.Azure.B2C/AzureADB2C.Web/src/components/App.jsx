@@ -6,7 +6,7 @@ import SettingsActions from "../actions/settings";
 import GeneralSettings from "./general";
 import SyncSettings from "./sync";
 import ProfileMappings from "./profileMappings";
-// import UserMappings from "./userMappings";
+import UserMappings from "./userMappings";
 import RoleMappings from "./roleMappings";
 import resx from "../resources";
 
@@ -45,8 +45,7 @@ class App extends Component {
                                     resx.get("TabUserProfileMappings"),
                                     resx.get("TabRoleMappings")]}
                                 type="secondary">
-                                {/* <UserMappings /> */}
-                                <ProfileMappings />
+                                <UserMappings />
                                 <ProfileMappings />
                                 <RoleMappings />
                             </Tabs>;

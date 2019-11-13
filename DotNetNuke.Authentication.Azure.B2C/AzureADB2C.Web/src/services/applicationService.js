@@ -60,6 +60,15 @@ class ApplicationService {
         sf.post("DeleteRoleMapping", payload, failureCallback, callback);
     }
 
+    getUserMappingSettings(callback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.get("GetUserMappingSettings", {}, callback);
+    }
+
+    updateUserMapping(payload, callback, failureCallback) {
+        const sf = this.getServiceFramework("AzureADB2C");        
+        sf.post("UpdateUserMapping", payload, failureCallback, callback);
+    }
 }
 const applicationService = new ApplicationService();
 export default applicationService;
