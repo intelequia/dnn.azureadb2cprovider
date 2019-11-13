@@ -79,6 +79,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             return result;
         }
 
+        public static UserMappingsUserMapping GetFieldUserMapping(string fieldName)
+        {
+            return GetFieldUserMapping(HttpContext.Current.Server.MapPath(DefaultUserMappingsFilePath), fieldName);
+        }
+
         public static UserMappingsUserMapping GetFieldUserMapping(string filePath, string fieldName)
         {
             return GetUserMappings(filePath).UserMapping.FirstOrDefault(x => x.DnnPropertyName == fieldName);

@@ -178,15 +178,15 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var portalProfileMapping = ProfileMappings.GetFieldProfileMapping(System.Web.Hosting.HostingEnvironment.MapPath(ProfileMappings.DefaultProfileMappingsFilePath), "PortalId");
+                var portalUserMapping = UserMappings.GetFieldUserMapping("PortalId");
 
                 // Validate permissions
                 var user = graphClient.GetUser(parameters.user.ObjectId);
                 // Check user is from current portal, if PortalId is an extension name
-                if (portalProfileMapping != null)
+                if (portalUserMapping != null)
                 {
-                    if (!user.AdditionalData.ContainsKey(portalProfileMapping.B2cExtensionName)
-                        || (int) (long) user.AdditionalData[portalProfileMapping.B2cExtensionName] != PortalSettings.PortalId)
+                    if (!user.AdditionalData.ContainsKey(portalUserMapping.B2cPropertyName)
+                        || (int) (long) user.AdditionalData[portalUserMapping.B2cPropertyName] != PortalSettings.PortalId)
                     {
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
                     }

@@ -378,7 +378,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 {
                     result.Add(item.PropertyName);
                 }
-                result.Add("PortalId");
 
                 result.Sort();
 

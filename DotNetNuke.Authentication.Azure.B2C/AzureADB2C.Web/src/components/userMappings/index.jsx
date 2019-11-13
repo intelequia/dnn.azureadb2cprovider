@@ -4,9 +4,7 @@ import { connect } from "react-redux";
 import SettingsActions from "../../actions/settings";
 import UserMappingRow from "./userMappingRow";
 import UserMappingEditor from "./userMappingEditor";
-import { Collapsible } from "@dnnsoftware/dnn-react-common";
 import "./style.less";
-import { SvgIcons } from "@dnnsoftware/dnn-react-common";
 import utils from "../../utils";
 import resx from "../../resources";
 
@@ -35,35 +33,8 @@ class UserMappings extends Component {
         state.error["mapping"] = (nextProps.mapping === null);
     }
 
-    onValidateMapping(mappingDetail, newDnnRoleName) {
-        // let originalRoleName = null;
-        // if (mappingDetail.MappingId) {
-        //     originalRoleName = mappingDetail.MappingId.split("-")[0];
-        // }
-        // if (originalRoleName !== newDnnRoleName) {
-        //     // The ItemName of this row has changed. Let's see if that property has already been mapped
-        //     if (this.props.mapping.find(p => p.DnnRoleName === newDnnRoleName) !== undefined) {
-        //         return false; // Not valid; it's already in the list
-        //     }
-        //     else {
-        //         return true;
-        //     }
-        // }
-        // else {
-        //     return true;
-        // }
-    }
     onUpdateMapping(mappingDetail) {
         const {props} = this;
-
-        // let originalRoleName = mappingDetail.MappingId ? mappingDetail.MappingId.split("-")[0] : null;
-        // if (originalRoleName !== mappingDetail.DnnRoleName) {
-        //     // The RoleName of this row has changed. Let's see if that property has already been mapped
-        //     if (this.props.mapping.find(p => p.DnnRoleName === mappingDetail.DnnRoleName) !== undefined) {
-        //         utils.utilities.notifyError(resx.get("ErrorMappingDuplicated"));
-        //         return;
-        //     }
-        // }
 
         let payload = {
             mappingDetail: mappingDetail
@@ -180,16 +151,11 @@ class UserMappings extends Component {
 
     /* eslint-disable react/no-danger */
     render() {
-        let opened = (this.state.openId === "add");
         return (
             <div className="dnn-azuread-b2c-userMappingSettings">
                 <div className="items">
                     <div className="AddItemRow">
                         <div className="sectionTitle">{resx.get("lblUsersMapping")}</div>
-                        {/* <div className={opened ? "AddItemBox-active" : "AddItemBox"} onClick={this.toggle.bind(this, opened ? "" : "add")}>
-                            <div className="add-icon" dangerouslySetInnerHTML={{ __html: SvgIcons.AddIcon }}>
-                            </div> {resx.get("cmdAddRoleMapping")}
-                        </div> */}
                     </div>
                     <div className="items-grid">
                         {this.renderHeader()}

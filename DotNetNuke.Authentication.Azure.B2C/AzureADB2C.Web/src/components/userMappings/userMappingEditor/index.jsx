@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import "./style.less";
-import { SingleLineInput, SingleLineInputWithError, GridSystem, Button, InputGroup } from "@dnnsoftware/dnn-react-common";
+import { SingleLineInputWithError, GridSystem, Button, InputGroup } from "@dnnsoftware/dnn-react-common";
 import SettingsActions from "../../../actions/settings";
 import util from "../../../utils";
 import resx from "../../../resources";
@@ -175,8 +175,6 @@ UserMappingEditor.propTypes = {
 
 function mapStateToProps() {
     return {
-        // profileMappingDetail: state.siteBehavior.aliasDetail,
-        // profileMappingClientModified: state.siteBehavior.siteAliasClientModified
     };
 }
 
