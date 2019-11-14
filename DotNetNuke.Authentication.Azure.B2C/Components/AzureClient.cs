@@ -413,7 +413,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     var portalIdClaim = JwtIdToken.Claims.FirstOrDefault(x => x.Type == claimName)?.Value;
                     if (string.IsNullOrEmpty(portalIdClaim))
                     {
-                        throw new SecurityTokenException("The user has no portalId claim and portalId profile mapping is setup. The B2C user can't login to any portal until the portalId attribute has been setup for the user");
+                        throw new SecurityTokenException("The user has no portalId claim and portalId profile mapping is setup. The B2C user can't login to any portal until the portalId attribute has been setup for the user. Ensure that the PortalId claim has been setup and included on the policy being used.");
                     }
                     if (int.TryParse(portalIdClaim, out int portalId) && portalId != portalSettings.PortalId)
                     {
