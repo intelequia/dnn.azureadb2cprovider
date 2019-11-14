@@ -14,11 +14,11 @@ class UserMappingEditor extends Component {
         this.state = {
             mappingDetail: {
                 DnnPropertyName: "",
-                B2cPropertyName: ""
+                B2cClaimName: ""
             },
             error: {
                 dnnPropertyName: false,
-                b2cPropertyName: false
+                b2cClaimName: false
             },
             triedToSubmit: false
         };
@@ -30,10 +30,10 @@ class UserMappingEditor extends Component {
 
         state.mappingDetail["MappingId"] = props.mappingId;
         state.mappingDetail["DnnPropertyName"] = props.dnnPropertyName;
-        state.mappingDetail["B2cPropertyName"] = props.b2cPropertyName;
+        state.mappingDetail["B2cClaimName"] = props.b2cClaimName;
 
         state.error["dnnPropertyName"] = (props.dnnPropertyName === null);
-        state.error["b2cPropertyName"] = (props.b2cPropertyName === null);
+        state.error["b2cClaimName"] = (props.b2cClaimName === null);
     }
 
     /* eslint-disable react/no-did-update-set-state */
@@ -63,11 +63,11 @@ class UserMappingEditor extends Component {
             state.error["dnnPropertyName"] = !props.onValidate(mappingDetail, event.value);
         }
 
-        if (mappingDetail[key] === "" && key === "B2cPropertyName") {
-            state.error["b2cPropertyName"] = true;
+        if (mappingDetail[key] === "" && key === "B2cClaimName") {
+            state.error["b2cClaimName"] = true;
         }
-        else if (mappingDetail[key] !== "" && key === "B2cPropertyName") {
-            state.error["b2cPropertyName"] = false;
+        else if (mappingDetail[key] !== "" && key === "B2cClaimName") {
+            state.error["b2cClaimName"] = false;
         }
 
         mappingDetail[key] = typeof (event) === "object" ? event.target.value : event;
@@ -86,7 +86,7 @@ class UserMappingEditor extends Component {
         this.setState({
             triedToSubmit: true
         });
-        if (state.error.dnnPropertyName || state.error.b2cPropertyName) {
+        if (state.error.dnnPropertyName || state.error.b2cClaimName) {
             return;
         }
 
@@ -127,13 +127,13 @@ class UserMappingEditor extends Component {
                 <InputGroup>
                     <SingleLineInputWithError
                         withLabel={true}
-                        label={resx.get("lblB2cPropertyName")}
-                        tooltipMessage={resx.get("lblB2cPropertyName.Help")}
+                        label={resx.get("lblB2cClaimName")}
+                        tooltipMessage={resx.get("lblB2cClaimName.Help")}
                         inputStyle={{ margin: "0" }}
-                        error={this.state.error.b2cPropertyName}
-                        errorMessage={resx.get("InvalidB2cPropertyName")}
-                        value={this.state.mappingDetail.B2cPropertyName}
-                        onChange={this.onSettingChange.bind(this, "B2cPropertyName")}
+                        error={this.state.error.b2cClaimName}
+                        errorMessage={resx.get("InvalidB2cClaimName")}
+                        value={this.state.mappingDetail.B2cClaimName}
+                        onChange={this.onSettingChange.bind(this, "B2cClaimName")}
                     />
                 </InputGroup>
             </div>;
@@ -165,7 +165,7 @@ UserMappingEditor.propTypes = {
     mappingDetail: PropTypes.object,
     mappingId: PropTypes.string,
     dnnPropertyName: PropTypes.string,
-    b2cPropertyName: PropTypes.string,
+    b2cClaimName: PropTypes.string,
     Collapse: PropTypes.func,
     onUpdate: PropTypes.func,
     id: PropTypes.string,

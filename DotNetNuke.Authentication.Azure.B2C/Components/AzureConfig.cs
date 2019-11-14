@@ -145,6 +145,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_JwtAuthEnabled", config.JwtAuthEnabled.ToString());
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_APIResource", config.APIResource);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_Scopes", config.Scopes);
+            UpdateB2CApplicationId(config);
 
             UpdateConfig((OAuthConfigBase)config);
         }
@@ -157,5 +158,26 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 PortalController.UpdatePortalSetting(portalId, key, value, true); // BUG: DNN 9.3.2 not storing IsSecure column on DB (see UpdatePortalSetting stored procedure) https://github.com/dnnsoftware/Dnn.Platform/issues/2874
         }
 
+        internal static string GetScopedSetting(bool useGlobalSettings, int portalId, string key, string defaultValue)
+        {
+            return useGlobalSettings 
+                ? HostController.Instance.GetString(key, defaultValue)
+                : PortalController.GetPortalSetting(key, portalId, defaultValue); // BUG: DNN 9.3.2 not storing IsSecure column on DB (see UpdatePortalSetting stored procedure) https://github.com/dnnsoftware/Dnn.Platform/issues/2874
+        }
+
+        private static void UpdateB2CApplicationId(AzureConfig config)
+        {
+            var b2cApplicationId = "";
+            if (!string.IsNullOrEmpty(config.AADApplicationId)
+                && !string.IsNullOrEmpty(config.AADApplicationKey)
+                && !string.IsNullOrEmpty(config.TenantId))
+            {
+                var graphClient = new Graph.GraphClient(config.AADApplicationId, config.AADApplicationKey, config.TenantId);
+                var extensionApp = graphClient.GetB2CExtensionApplication();
+                b2cApplicationId = extensionApp?.ObjectId;
+            }
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_B2CApplicationId", b2cApplicationId);
+
+        }
     }
 }

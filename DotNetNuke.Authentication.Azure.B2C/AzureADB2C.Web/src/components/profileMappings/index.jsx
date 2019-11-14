@@ -111,7 +111,6 @@ class ProfileMappings extends Component {
             if (tableFields.length === 0) {
                 tableFields.push({ "name": resx.get("DnnProfileProperty.Header"), "id": "DnnProfileProperty" });
                 tableFields.push({ "name": resx.get("B2cClaim.Header"), "id": "B2cClaim" });
-                tableFields.push({ "name": resx.get("B2cExtension.Header"), "id": "B2cExtension" });
             }
             this.setState({tableFields});
         }
@@ -152,13 +151,12 @@ class ProfileMappings extends Component {
         if (this.props.profileMapping) {
             return this.props.profileMapping.map((item, index) => {
                 let id = "row-" + i++;
-                let profileMappingId = item.DnnProfilePropertyName + "-" + item.B2cClaimName + "-" + item.B2cExtensionName;
+                let profileMappingId = item.DnnProfilePropertyName + "-" + item.B2cClaimName;
                 return (
                     <ProfileMappingRow
                         profileMappingId={profileMappingId}
                         dnnProfilePropertyName={item.DnnProfilePropertyName}
                         b2cClaimName={item.B2cClaimName}
-                        b2cExtensionName={item.B2cExtensionName}
                         index={index}
                         key={"profile-" + index}
                         closeOnClick={true}
@@ -172,7 +170,6 @@ class ProfileMappings extends Component {
                             profileMappingId={profileMappingId}
                             dnnProfilePropertyName={item.DnnProfilePropertyName}
                             b2cClaimName={item.B2cClaimName}
-                            b2cExtensionName={item.B2cExtensionName}
                             Collapse={this.collapse.bind(this)}
                             onUpdate={this.onUpdateProfileMapping.bind(this)}
                             onValidate={this.onValidateProfileMapping.bind(this)}
@@ -203,7 +200,6 @@ class ProfileMappings extends Component {
                             <ProfileMappingRow
                                 dnnProfilePropertyName={"-"}
                                 b2cClaimName={"-"}
-                                b2cExtensionName={"-"}
                                 deletable={false}
                                 editable={false}
                                 index={"add"}

@@ -32,7 +32,7 @@ class UserMappingRow extends Component {
                         <div title={props.name} className="property-item item-row-dnnproperty">
                             {props.dnnPropertyName}</div>
                         <div className="property-item item-row-b2cproperty">
-                            {props.b2cPropertyName}</div>
+                            {props.b2cClaimName}</div>
                         <div className="property-item item-row-actionButtons">
                             {props.deletable &&
                                 <div className={opened ? "delete-icon-hidden" : "delete-icon"} dangerouslySetInnerHTML={{ __html: SvgIcons.TrashIcon }} onClick={props.onDelete.bind(this)}></div>
@@ -52,7 +52,7 @@ class UserMappingRow extends Component {
 UserMappingRow.propTypes = {
     mappingId: PropTypes.string,
     dnnPropertyName: PropTypes.string,
-    b2cPropertyName: PropTypes.string,
+    b2cClaimName: PropTypes.string,
     deletable: PropTypes.bool,
     editable: PropTypes.bool,
     OpenCollapse: PropTypes.func,

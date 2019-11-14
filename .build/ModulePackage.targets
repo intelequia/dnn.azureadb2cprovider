@@ -22,8 +22,7 @@
       <InstallInclude Include="**\*.txt;**\*.ascx;**\*.css;**\*.js"  Exclude="**\obj\**;**\_ReSharper*\**;packages\**;**\node_modules\**;**\admin\personaBar\**" />
       <InstallInclude Include="**\images\*.png" Exclude="**\admin\personaBar\**" />
       <InstallInclude Include="**\App_LocalResources\*.resx" Exclude="**\admin\personaBar\**" />
-      <InstallInclude Include="**\DnnProfileMappings.config" Exclude="**\admin\personaBar\**" />
-      <InstallInclude Include="**\DnnRoleMappings.config" Exclude="**\admin\personaBar\**" />
+      <InstallInclude Include="**\Dnn*Mappings.config" Exclude="**\admin\personaBar\**" />
     </ItemGroup>
 
     <ItemGroup>

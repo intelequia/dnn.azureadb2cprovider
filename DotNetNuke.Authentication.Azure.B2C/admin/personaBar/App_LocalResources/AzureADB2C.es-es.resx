@@ -319,7 +319,7 @@
     <value>URL de Retorno</value>
   </data>
   <data name="B2cClaim.Header.Text" xml:space="preserve">
-    <value>B2C Claim</value>
+    <value>Claim B2C</value>
   </data>
   <data name="B2cExtension.Header.Text" xml:space="preserve">
     <value>Extensión B2C</value>
@@ -418,7 +418,7 @@
     <value>Role B2C*</value>
   </data>
   <data name="B2cProperty.Header.Text" xml:space="preserve">
-    <value>Propiedad B2C</value>
+    <value>Claim B2C</value>
   </data>
   <data name="DnnProperty.Header.Text" xml:space="preserve">
     <value>Propiedad DNN</value>

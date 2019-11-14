@@ -402,9 +402,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 // Check if portalId profile mapping exists
                 var portalUserMapping = UserMappings.GetFieldUserMapping("PortalId");
-                if (!string.IsNullOrEmpty(portalUserMapping?.B2cPropertyName))
+                if (!string.IsNullOrEmpty(portalUserMapping?.B2cClaimName))
                 {
-                    var claimName = portalUserMapping?.B2cPropertyName;
+                    var claimName = portalUserMapping?.B2cClaimName;
                     if (!claimName.StartsWith("extension_"))
                     {
                         claimName = $"extension_{claimName}";

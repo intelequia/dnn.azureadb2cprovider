@@ -120,12 +120,12 @@ class UserMappings extends Component {
         if (this.props.mapping) {
             return this.props.mapping.map((item, index) => {
                 let id = "row-" + i++;
-                let mappingId = item.DnnPropertyName + "-" + item.B2cPropertyName;
+                let mappingId = item.DnnPropertyName + "-" + item.B2cClaimName;
                 return (
                     <UserMappingRow
                         mappingId={mappingId}
                         dnnPropertyName={item.DnnPropertyName}
-                        b2cPropertyName={item.B2cPropertyName}
+                        b2cClaimName={item.B2cClaimName}
                         index={index}
                         key={"role-" + index}
                         closeOnClick={true}
@@ -137,7 +137,7 @@ class UserMappings extends Component {
                         <UserMappingEditor
                             mappingId={mappingId}
                             dnnPropertyName={item.DnnPropertyName}
-                            b2cPropertyName={item.B2cPropertyName}
+                            b2cClaimName={item.B2cClaimName}
                             Collapse={this.collapse.bind(this)}
                             onUpdate={this.onUpdateMapping.bind(this)}
                             id={id}

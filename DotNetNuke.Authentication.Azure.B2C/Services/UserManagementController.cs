@@ -139,11 +139,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 newUser.Mail = null;
 
                 // Add custom extension claim PortalId if configured
-                var profileMapping = ProfileMappings.GetProfileMappings(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath))
-                    .ProfileMapping.FirstOrDefault(x => x.DnnProfilePropertyName == "PortalId");
-                if (profileMapping != null)
+                var userMapping = UserMappings.GetFieldUserMapping("PortalId");
+                if (userMapping != null)
                 {
-                    newUser.AdditionalData.Add(profileMapping.B2cExtensionName, PortalSettings.PortalId);
+                    newUser.AdditionalData.Add(userMapping.B2cExtensionName, PortalSettings.PortalId);
                 }
 
                 var user = graphClient.AddUser(newUser);
@@ -185,8 +184,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 // Check user is from current portal, if PortalId is an extension name
                 if (portalUserMapping != null)
                 {
-                    if (!user.AdditionalData.ContainsKey(portalUserMapping.B2cPropertyName)
-                        || (int) (long) user.AdditionalData[portalUserMapping.B2cPropertyName] != PortalSettings.PortalId)
+                    if (!user.AdditionalData.ContainsKey(portalUserMapping.B2cClaimName)
+                        || (int) (long) user.AdditionalData[portalUserMapping.B2cClaimName] != PortalSettings.PortalId)
                     {
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
                     }

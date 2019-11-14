@@ -102,38 +102,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
         }
 
-        public static void UpdateProfileMappingsExtensionNames(string filePath, int portalId)
-        {
-            var config = new AzureConfig("AzureB2C", portalId);
-
-            if (string.IsNullOrEmpty(config.AADApplicationId)
-                || string.IsNullOrEmpty(config.AADApplicationKey)
-                || string.IsNullOrEmpty(config.TenantId))
-                return;
-
-            var graphClient = new GraphClient(config.AADApplicationId, config.AADApplicationKey, config.TenantId);
-
-            var extensionApp = graphClient.GetB2CExtensionApplication();
-            var extensions = graphClient.GetExtensions(extensionApp.ObjectId);
-
-            var profileMappings = GetProfileMappings(filePath);
-            var changedFlag = false; ;
-            foreach (var extension in extensions.Values)
-            {
-                var mapping = profileMappings.ProfileMapping.FirstOrDefault(x =>
-                                    extension.Name.ToLowerInvariant().EndsWith("_" + x.B2cClaimName.ToLowerInvariant()));
-                if (mapping != null)
-                {
-                    changedFlag = true;
-                    mapping.B2cExtensionName = extension.Name;
-                }
-            }
-
-            if (changedFlag)
-            {
-                UpdateProfileMappings(filePath, profileMappings);
-            }
-        }
     }
 
     [Serializable]

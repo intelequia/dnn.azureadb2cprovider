@@ -195,7 +195,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 if (itemFound != null)
                 {
                     itemFound.DnnPropertyName = input.mappingDetail.DnnPropertyName;
-                    itemFound.B2cPropertyName = input.mappingDetail.B2cPropertyName;
+                    itemFound.B2cClaimName = input.mappingDetail.B2cClaimName;
                     UserMappings.UpdateUserMappings(userMappings);
                 }
 
@@ -425,7 +425,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
                 }
                 AzureADB2CProviderSettings.SaveAdvancedSettings("AzureB2C", PortalId, settings);
-                ProfileMappings.UpdateProfileMappingsExtensionNames(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath), PortalId);
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)

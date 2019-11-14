@@ -14,8 +14,7 @@ class ProfileMappingEditor extends Component {
         this.state = {
             profileMappingDetail: {
                 DnnProfilePropertyName: "",
-                B2cClaimName: "",
-                B2cExtensionName: ""
+                B2cClaimName: ""
             },
             error: {
                 dnnProfilePropertyName: false,
@@ -32,7 +31,6 @@ class ProfileMappingEditor extends Component {
         state.profileMappingDetail["ProfileMappingId"] = props.profileMappingId;
         state.profileMappingDetail["DnnProfilePropertyName"] = props.dnnProfilePropertyName;
         state.profileMappingDetail["B2cClaimName"] = props.b2cClaimName;
-        state.profileMappingDetail["B2cExtensionName"] = props.b2cExtensionName;
 
         state.error["dnnProfilePropertyName"] = (props.dnnProfilePropertyName === null);
         state.error["b2cClaimName"] = (props.b2cClaimName === null);
@@ -142,15 +140,6 @@ class ProfileMappingEditor extends Component {
                         onSelect={this.onSettingChange.bind(this, "DnnProfilePropertyName")}
                     />
                 </InputGroup>
-                <InputGroup>
-                    <SingleLineInputWithError
-                        withLabel={true}
-                        label={resx.get("lblB2cExtensionName")}
-                        tooltipMessage={resx.get("lblB2cExtensionName.Help")}
-                        value={this.state.profileMappingDetail.B2cExtensionName}
-                        onChange={this.onSettingChange.bind(this, "B2cExtensionName")}
-                    />
-                </InputGroup>
             </div>;
             const columnTwo = <div key="column-two" className="right-column">
                 <InputGroup>
@@ -195,7 +184,6 @@ ProfileMappingEditor.propTypes = {
     profileMappingId: PropTypes.string,
     dnnProfilePropertyName: PropTypes.string,
     b2cClaimName: PropTypes.string,
-    b2cExtensionName: PropTypes.string,
     Collapse: PropTypes.func,
     onUpdate: PropTypes.func,
     id: PropTypes.string,

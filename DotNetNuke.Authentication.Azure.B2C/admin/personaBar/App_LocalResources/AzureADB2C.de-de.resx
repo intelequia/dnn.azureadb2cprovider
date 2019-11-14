@@ -418,7 +418,7 @@
     <value>B2C Rolle*</value>
   </data>
   <data name="B2cProperty.Header.Text" xml:space="preserve">
-    <value>B2C-Eigentum</value>
+    <value>B2C Claim</value>
   </data>
   <data name="DnnProperty.Header.Text" xml:space="preserve">
     <value>DNN-Eigentum</value>

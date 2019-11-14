@@ -33,8 +33,6 @@ class ProfileMappingRow extends Component {
                             {props.dnnProfilePropertyName}</div>
                         <div className="profile-item item-row-b2cprofile">
                             {props.b2cClaimName}</div>
-                        <div className="profile-item item-row-b2cextension">
-                            {props.b2cExtensionName}&nbsp;</div>
                         <div className="profile-item item-row-actionButtons">
                             {props.deletable &&
                                 <div className={opened ? "delete-icon-hidden" : "delete-icon"} dangerouslySetInnerHTML={{ __html: SvgIcons.TrashIcon }} onClick={props.onDelete.bind(this)}></div>
@@ -45,7 +43,7 @@ class ProfileMappingRow extends Component {
                         </div>
                     </div>
                 </div>
-                <Collapsible fixedHeight={320} keepContent={true} isOpened={opened} style={{ float: "left", width: "100%", overflow: "inherit" }}>{opened && props.children}</Collapsible>
+                <Collapsible fixedHeight={205} keepContent={true} isOpened={opened} style={{ float: "left", width: "100%", overflow: "inherit" }}>{opened && props.children}</Collapsible>
             </div>
         );
     }
@@ -55,7 +53,6 @@ ProfileMappingRow.propTypes = {
     profileMappingId: PropTypes.string,
     dnnProfilePropertyName: PropTypes.string,
     b2cClaimName: PropTypes.string,
-    b2cExtensionName: PropTypes.string,
     deletable: PropTypes.bool,
     editable: PropTypes.bool,
     OpenCollapse: PropTypes.func,
