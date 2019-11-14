@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -35,9 +36,11 @@ using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Definitions;
 using DotNetNuke.Entities.Portals;
+using DotNetNuke.Entities.Profile;
 using DotNetNuke.Entities.Tabs;
 using DotNetNuke.Instrumentation;
 using DotNetNuke.Security.Permissions;
+using DotNetNuke.Security.Roles;
 using DotNetNuke.Services.Exceptions;
 using DotNetNuke.Services.Upgrade;
 using DotNetNuke.Web.Api;
@@ -91,6 +94,309 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 AzureADB2CProviderSettings.SaveGeneralSettings("AzureB2C", PortalId, settings);
                 AddUserProfilePage(PortalId, settings.Enabled && !string.IsNullOrEmpty(settings.ProfilePolicy));
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetProfileSettings()
+        {
+            try
+            {
+                var profileSettings = ProfileMappings.GetProfileMappings();
+                
+                return Request.CreateResponse(HttpStatusCode.OK, profileSettings);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetRoleMappingSettings()
+        {
+            try
+            {
+                var roleMappings = RoleMappings.GetRoleMappings();
+
+                return Request.CreateResponse(HttpStatusCode.OK, roleMappings);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetUserMappingSettings()
+        {
+            try
+            {
+                var userMappings = UserMappings.GetUserMappings();
+
+                return Request.CreateResponse(HttpStatusCode.OK, userMappings);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetAvailableRoles()
+        {
+            try
+            {
+                var availableRoles = RoleController.Instance.GetRoles(PortalId);
+                var result = new List<string>();
+                foreach (var availableRole in availableRoles)
+                {
+                    result.Add(availableRole.RoleName);
+                }
+
+                result.Sort();
+
+                return Request.CreateResponse(HttpStatusCode.OK, result);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        public class UpdateUserMappingInput
+        {
+            public UserMappingsUserMapping mappingDetail;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage UpdateUserMapping(UpdateUserMappingInput input)
+        {
+            try
+            {
+                // Get all the user mappings
+                var userMappings = UserMappings.GetUserMappings();
+
+                var itemFound = Array.Find(userMappings.UserMapping, item => item.DnnPropertyName == input.mappingDetail.DnnPropertyName);
+                if (itemFound != null)
+                {
+                    itemFound.DnnPropertyName = input.mappingDetail.DnnPropertyName;
+                    itemFound.B2cPropertyName = input.mappingDetail.B2cPropertyName;
+                    UserMappings.UpdateUserMappings(userMappings);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        public class UpdateRoleMappingInput
+        {
+            public string originalDnnRoleName;
+            public RoleMappingsRoleMapping mappingDetail;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage UpdateRoleMapping(UpdateRoleMappingInput input)
+        {
+            try
+            {
+                // Get all the role mappings
+                var roleMappings = RoleMappings.GetRoleMappings();
+                // Find the one with DnnRoleName = input.originalDnnRoleName
+                var itemFound = Array.Find(roleMappings.RoleMapping, item => item.DnnRoleName == input.originalDnnRoleName);
+                if (itemFound == null)
+                {
+                    // The item is not in the list, so it's new
+                    var list = new List<RoleMappingsRoleMapping>(roleMappings.RoleMapping);
+                    itemFound = new RoleMappingsRoleMapping
+                    {
+                        DnnRoleName = input.mappingDetail.DnnRoleName,
+                        B2cRoleName = input.mappingDetail.B2cRoleName
+                    };
+
+                    list.Add(itemFound);
+
+                    roleMappings.RoleMapping = list.OrderBy(e => e.DnnRoleName).ToArray();
+                }
+                else
+                {
+                    itemFound.DnnRoleName = input.mappingDetail.DnnRoleName;
+                    itemFound.B2cRoleName = input.mappingDetail.B2cRoleName;
+                }
+
+                RoleMappings.UpdateRoleMappings(roleMappings);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        public class DeleteRoleMappingInput
+        {
+            public string dnnRoleName;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage DeleteRoleMapping(DeleteRoleMappingInput input)
+        {
+            try
+            {
+                var roleMappings = RoleMappings.GetRoleMappings();
+                var list = new List<RoleMappingsRoleMapping>(roleMappings.RoleMapping);
+                var itemToRemove = list.Find(item => item.DnnRoleName == input.dnnRoleName);
+                if (itemToRemove != null)
+                {
+                    list.Remove(itemToRemove);
+                    roleMappings.RoleMapping = list.ToArray();
+
+                    RoleMappings.UpdateRoleMappings(roleMappings);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        public class UpdateProfileMappingInput
+        {
+            public string originalDnnPropertyName;
+            public ProfileMappingsProfileMapping profileMappingDetail;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage UpdateProfileMapping(UpdateProfileMappingInput input)
+        {
+            try
+            {
+                // Get all the profile mappings
+                var profileMappings = ProfileMappings.GetProfileMappings();
+                // Find the one with DnnPropertyName = input.originalDnnPropertyName
+                var itemFound = Array.Find(profileMappings.ProfileMapping, item => item.DnnProfilePropertyName == input.originalDnnPropertyName);
+                if (itemFound == null)
+                {
+                    // The item is not in the list, so it's new
+                    var list = new List<ProfileMappingsProfileMapping>(profileMappings.ProfileMapping);
+                    itemFound = new ProfileMappingsProfileMapping
+                    {
+                        DnnProfilePropertyName = input.profileMappingDetail.DnnProfilePropertyName,
+                        B2cClaimName = input.profileMappingDetail.B2cClaimName,
+                        B2cExtensionName = input.profileMappingDetail.B2cExtensionName
+                    };
+
+                    list.Add(itemFound);
+
+                    profileMappings.ProfileMapping = list.OrderBy(e => e.DnnProfilePropertyName).ToArray();
+                }
+                else
+                {
+                    itemFound.DnnProfilePropertyName = input.profileMappingDetail.DnnProfilePropertyName;
+                    itemFound.B2cClaimName = input.profileMappingDetail.B2cClaimName;
+                    itemFound.B2cExtensionName = input.profileMappingDetail.B2cExtensionName;
+                }
+
+                ProfileMappings.UpdateProfileMappings(profileMappings);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        public class DeleteProfileMappingInput
+        {
+            public string dnnProfilePropertyName;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage DeleteProfileMapping(DeleteProfileMappingInput input)
+        {
+            try
+            {
+                var profileMappings = ProfileMappings.GetProfileMappings();
+                var list = new List<ProfileMappingsProfileMapping>(profileMappings.ProfileMapping);
+                var itemToRemove = list.Find(item => item.DnnProfilePropertyName == input.dnnProfilePropertyName);
+                if (itemToRemove != null)
+                {
+                    list.Remove(itemToRemove);
+                    profileMappings.ProfileMapping = list.ToArray();
+
+                    ProfileMappings.UpdateProfileMappings(profileMappings);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage GetProfileProperties()
+        {
+            try
+            {
+                var profileProperties = ProfileController.GetPropertyDefinitionsByPortal(0, false, false).Cast<ProfilePropertyDefinition>().Select(v => new
+                {
+                    v.PropertyName
+                });
+                
+                var result = new List<string>();
+                foreach (var item in profileProperties)
+                {
+                    result.Add(item.PropertyName);
+                }
+
+                result.Sort();
+
+                return Request.CreateResponse(HttpStatusCode.OK, result);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage UpdateProfileSettings(ProfileMappings profileMappings)
+        {
+            try
+            {
+                ProfileMappings.UpdateProfileMappings(profileMappings);
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)

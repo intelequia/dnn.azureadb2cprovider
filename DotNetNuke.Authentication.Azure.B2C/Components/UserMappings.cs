@@ -30,73 +30,78 @@ using System.Xml.Serialization;
 
 /// <summary>
 /// XML example that this class can read:
-///     <RoleMappings>
-///         <RoleMapping dnnRoleName = "Registered Users"
-///                         b2cRoleName="Users" />
-///         <RoleMapping dnnRoleName = "Administrators"
-///                         b2cRoleName="Administrators" />
-///     </RoleMappings>
+///       <UserMappings>
+///         <userMapping dnnPropertyName = "PortalId"
+///                      b2cPropertyName = "PortalId" />
+///         <userMapping dnnPropertyName = "username"
+///                      b2cPropertyName = "sub" />
+///       </UserMappings>
 /// </summary>
 namespace DotNetNuke.Authentication.Azure.B2C.Components
 {
     [Serializable]
     [XmlRoot]
     [DataContract]
-    public class RoleMappings
+    public class UserMappings
     {
-        public const string DefaultRoleMappingsFilePath = "~/DesktopModules/AuthenticationServices/AzureB2C/DnnRoleMappings.config";
+        public const string DefaultUserMappingsFilePath = "~/DesktopModules/AuthenticationServices/AzureB2C/DnnUserMappings.config";
 
-        [XmlElement("roleMapping")]
+        [XmlElement("userMapping")]
         [DataMember]
-        public RoleMappingsRoleMapping[] RoleMapping { get; set; }
+        public UserMappingsUserMapping[] UserMapping { get; set; }
 
-        public static RoleMappings GetRoleMappings()
+        public static UserMappings GetUserMappings()
         {
-            return GetRoleMappings(HttpContext.Current.Server.MapPath(DefaultRoleMappingsFilePath));
+            return GetUserMappings(HttpContext.Current.Server.MapPath(DefaultUserMappingsFilePath));
         }
 
-        public static RoleMappings GetRoleMappings(string filePath)
+        public static UserMappings GetUserMappings(string filePath)
         {
-            RoleMappings result;
+            UserMappings result;
             if (!File.Exists(filePath))
             {
-                result = new RoleMappings();
+                result = new UserMappings();
             }
             else
             {
-                var serializer = new XmlSerializer(typeof(RoleMappings));
+                var serializer = new XmlSerializer(typeof(UserMappings));
                 using (var fileStream = new FileStream(filePath, FileMode.Open))
                 {
-                    result = (RoleMappings)serializer.Deserialize(fileStream);
+                    result = (UserMappings)serializer.Deserialize(fileStream);
                 }
             }
 
-            if (result.RoleMapping == null)
+            if (result.UserMapping == null)
             {
-                result.RoleMapping = new RoleMappingsRoleMapping[0];
+                result.UserMapping = new UserMappingsUserMapping[0];
             }
 
             return result;
         }
 
-        public static RoleMappingsRoleMapping GetFieldRoleMapping(string filePath, string fieldName)
+        public static UserMappingsUserMapping GetFieldUserMapping(string fieldName)
         {
-            return GetRoleMappings(filePath).RoleMapping.FirstOrDefault(x => x.DnnRoleName == fieldName);
+            return GetFieldUserMapping(HttpContext.Current.Server.MapPath(DefaultUserMappingsFilePath), fieldName);
         }
 
-        public static void UpdateRoleMappings(RoleMappings roleMappings)
+        public static UserMappingsUserMapping GetFieldUserMapping(string filePath, string fieldName)
         {
-            UpdateRoleMappings(HttpContext.Current.Server.MapPath(DefaultRoleMappingsFilePath), roleMappings);
+            return GetUserMappings(filePath).UserMapping.FirstOrDefault(x => x.DnnPropertyName == fieldName);
         }
-        public static void UpdateRoleMappings(string filePath, RoleMappings roleMappings)
+
+        public static void UpdateUserMappings(UserMappings userMappings)
         {
-            var serializer = new XmlSerializer(typeof(RoleMappings));
+            UpdateUserMappings(HttpContext.Current.Server.MapPath(DefaultUserMappingsFilePath), userMappings);
+        }
+        public static void UpdateUserMappings(string filePath, UserMappings userMappings)
+        {
+            var serializer = new XmlSerializer(typeof(UserMappings));
             var ns = new XmlSerializerNamespaces();
             ns.Add("", "");  // This is to avoid the xmlns namespace in the xml elements
 
             using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
             {
-                serializer.Serialize(fileStream, roleMappings, ns);
+                serializer.Serialize(fileStream, userMappings, ns);
             }
         }
 
@@ -104,14 +109,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
     [Serializable]
     [DataContract]
-    public class RoleMappingsRoleMapping
+    public class UserMappingsUserMapping
     {
-        [XmlAttribute("dnnRoleName")]
+        [XmlAttribute("dnnPropertyName")]
         [DataMember]
-        public string DnnRoleName { get; set; }
+        public string DnnPropertyName { get; set; }
 
-        [XmlAttribute("b2cRoleName")]
+        [XmlAttribute("b2cPropertyName")]
         [DataMember]
-        public string B2cRoleName { get; set; }
+        public string B2cPropertyName { get; set; }
     }
 }

@@ -318,4 +318,127 @@
   <data name="lblRedirectUri.Text" xml:space="preserve">
     <value>URL de Retorno</value>
   </data>
+  <data name="B2cClaim.Header.Text" xml:space="preserve">
+    <value>B2C Claim</value>
+  </data>
+  <data name="B2cExtension.Header.Text" xml:space="preserve">
+    <value>Extensión B2C</value>
+  </data>
+  <data name="cmdAddProfileMapping.Text" xml:space="preserve">
+    <value>Añadir mapeo</value>
+  </data>
+  <data name="DnnProfileProperty.Header.Text" xml:space="preserve">
+    <value>Propiedad de perfil DNN</value>
+  </data>
+  <data name="lblProfilePropertiesMapping.Text" xml:space="preserve">
+    <value>MAPEO DE PROPIEDADES DE PERFIL DE USUARIO</value>
+  </data>
+  <data name="InvalidB2cClaimName.Text" xml:space="preserve">
+    <value>Nombre de claim B2C incorrecto</value>
+  </data>
+  <data name="lblB2cClaimName.Text" xml:space="preserve">
+    <value>Claim B2C*</value>
+  </data>
+  <data name="lblB2cExtensionName.Text" xml:space="preserve">
+    <value>Extensión B2C</value>
+  </data>
+  <data name="lblDnnProfilePropertyName" xml:space="preserve">
+    <value>Propiedad del perfil DNN*</value>
+  </data>
+  <data name="ProfileMappingDeletedWarning.Text" xml:space="preserve">
+    <value>¿Está seguro de borrar este mapeo?</value>
+  </data>
+  <data name="ErrorProfileMappingDuplicated.Text" xml:space="preserve">
+    <value>Esta propiedad ya está mapeada</value>
+  </data>
+  <data name="lblB2cClaimName.Help" xml:space="preserve">
+    <value>El nombre del claim B2C</value>
+  </data>
+  <data name="lblB2cExtensionName.Help" xml:space="preserve">
+    <value>El nombre de la extensión B2C</value>
+  </data>
+  <data name="lblDnnProfilePropertyName.Help" xml:space="preserve">
+    <value>La propiedad del perfil de DNN que desea asignar con un claim de B2C</value>
+  </data>
+  <data name="MappingUpdateSuccess.Text" xml:space="preserve">
+    <value>Mapping guardado correctamente</value>
+  </data>
+  <data name="MappingDeleteSuccess.Text" xml:space="preserve">
+    <value>Mapeado borrado satisfactoriamente</value>
+  </data>
+  <data name="ErrorMappingDuplicated.Text" xml:space="preserve">
+    <value>Este ítem ya está mapeado</value>
+  </data>
+  <data name="ErrorUserMappingDuplicated.Text" xml:space="preserve">
+    <value>Esta propiedad ya está mapeada</value>
+  </data>
+  <data name="lblDnnUserPropertyName.Help" xml:space="preserve">
+    <value>La propiedad del usuario de DNN que desea asignar con un claim de B2C</value>
+  </data>
+  <data name="lblDnnUserPropertyName.Text" xml:space="preserve">
+    <value>Propiedad del usuario DNN*</value>
+  </data>
+  <data name="lblPortalId.Text" xml:space="preserve">
+    <value>PortalId</value>
+  </data>
+  <data name="MappingDeletedWarning.Text" xml:space="preserve">
+    <value>¿Está seguro de borrar este mapeo?</value>
+  </data>
+  <data name="TabRoleMappings.Text" xml:space="preserve">
+    <value>Mapeo roles</value>
+  </data>
+  <data name="TabUserMappings.Text" xml:space="preserve">
+    <value>Mapeo usuarios</value>
+  </data>
+  <data name="TabUserProfileMappings.Text" xml:space="preserve">
+    <value>Mapeo perfil usuarios</value>
+  </data>
+  <data name="cmdAddRoleMapping.Text" xml:space="preserve">
+    <value>Añadir mapeo</value>
+  </data>
+  <data name="InvalidB2cRoleName.Text" xml:space="preserve">
+    <value>Nombre de rol B2C incorrecto</value>
+  </data>
+  <data name="lblDnnRoleName.Help" xml:space="preserve">
+    <value>El rol de DNN que quieres mapear contra un rol B2C</value>
+  </data>
+  <data name="lblDnnRoleName.Text" xml:space="preserve">
+    <value>Role DNN*</value>
+  </data>
+  <data name="lblRolesMapping.Text" xml:space="preserve">
+    <value>MAPEO DE ROLES</value>
+  </data>
+  <data name="B2cRole.Header.Text" xml:space="preserve">
+    <value>Role B2C</value>
+  </data>
+  <data name="DnnRole.Header.Text" xml:space="preserve">
+    <value>Role DNN</value>
+  </data>
+  <data name="lblB2cRoleName.Text" xml:space="preserve">
+    <value>Role B2C*</value>
+  </data>
+  <data name="B2cProperty.Header.Text" xml:space="preserve">
+    <value>Propiedad B2C</value>
+  </data>
+  <data name="DnnProperty.Header.Text" xml:space="preserve">
+    <value>Propiedad DNN</value>
+  </data>
+  <data name="InvalidB2cPropertyName.Text" xml:space="preserve">
+    <value>Nombre de propiedad B2C incorrecto</value>
+  </data>
+  <data name="lblB2cPropertyName.Help" xml:space="preserve">
+    <value>Esta es la propiedad B2C contra la que se va a mapear la propiedad DNN</value>
+  </data>
+  <data name="lblB2cPropertyName.Text" xml:space="preserve">
+    <value>Propiedad B2C</value>
+  </data>
+  <data name="lblDnnPropertyName.Help" xml:space="preserve">
+    <value>Esta es la propiedad DNN que va a ser mapeada contra una propiedad B2C</value>
+  </data>
+  <data name="lblDnnPropertyName.Text" xml:space="preserve">
+    <value>Propiedad DNN</value>
+  </data>
+  <data name="lblUsersMapping.Text" xml:space="preserve">
+    <value>MAPEO DE PROPIEDADES DE USUARIOS</value>
+  </data>
 </root>

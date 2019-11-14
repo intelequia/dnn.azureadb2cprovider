@@ -401,10 +401,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (IsCurrentUserAuthorized() && JwtIdToken != null)
             {
                 // Check if portalId profile mapping exists
-                var portalProfileMapping = ProfileMappings.GetFieldProfileMapping(System.Web.Hosting.HostingEnvironment.MapPath(ProfileMappings.DefaultProfileMappingsFilePath), "PortalId");
-                if (!string.IsNullOrEmpty(portalProfileMapping?.B2cClaimName))
+                var portalUserMapping = UserMappings.GetFieldUserMapping("PortalId");
+                if (!string.IsNullOrEmpty(portalUserMapping?.B2cPropertyName))
                 {
-                    var claimName = portalProfileMapping?.B2cClaimName;
+                    var claimName = portalUserMapping?.B2cPropertyName;
                     if (!claimName.StartsWith("extension_"))
                     {
                         claimName = $"extension_{claimName}";

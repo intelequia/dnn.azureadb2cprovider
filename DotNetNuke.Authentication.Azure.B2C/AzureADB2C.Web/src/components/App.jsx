@@ -5,6 +5,10 @@ import {PersonaBarPage, PersonaBarPageHeader, PersonaBarPageBody, DnnTabs as Tab
 import SettingsActions from "../actions/settings";
 import GeneralSettings from "./general";
 import SyncSettings from "./sync";
+import ProfileMappings from "./profileMappings";
+import UserMappings from "./userMappings";
+import RoleMappings from "./roleMappings";
+import resx from "../resources";
 
 import "./style.less";
 
@@ -13,10 +17,15 @@ class App extends Component {
     constructor() {
         super();
         this.onSelectTab = this.onSelectTab.bind(this);
+        this.onSelectSubTab = this.onSelectSubTab.bind(this);
     }
     onSelectTab(index) {
         this.props.dispatch(SettingsActions.switchTab(index));
     }
+    onSelectSubTab(index) {
+        this.props.dispatch(SettingsActions.switchMappingSubTab(index));
+    }
+
     render() {
         return (
             <div id="AzureADAppContainer">
@@ -27,9 +36,19 @@ class App extends Component {
                         <Tabs
                             onSelect={this.onSelectTab.bind(this)}
                             selectedIndex={this.props.selectedTab}
-                            tabHeaders={["General Settings","Advanced Settings"]}>
+                            tabHeaders={["General Settings","Advanced Settings", "Mappings"]}>
                             <GeneralSettings />
                             <SyncSettings />
+                            <Tabs onSelect={this.onSelectSubTab.bind(this) }
+                                selectedIndex={this.props.selectedMappingSubTab}
+                                tabHeaders={[resx.get("TabUserMappings"),
+                                    resx.get("TabUserProfileMappings"),
+                                    resx.get("TabRoleMappings")]}
+                                type="secondary">
+                                <UserMappings />
+                                <ProfileMappings />
+                                <RoleMappings />
+                            </Tabs>;
                         </Tabs>  
                     </PersonaBarPageBody>
                 </PersonaBarPage>
@@ -40,13 +59,15 @@ class App extends Component {
 
 App.propTypes = {
     dispatch: PropTypes.func.isRequired,
-    selectedTab: PropTypes.number    
+    selectedTab: PropTypes.number,
+    selectedMappingSubTab: PropTypes.number
 };
 
 
 function mapStateToProps(state) {
     return {
-        selectedTab: state.settings.selectedTab
+        selectedTab: state.settings.selectedTab,
+        selectedMappingSubTab: state.settings.selectedMappingSubTab
     };
 }
 

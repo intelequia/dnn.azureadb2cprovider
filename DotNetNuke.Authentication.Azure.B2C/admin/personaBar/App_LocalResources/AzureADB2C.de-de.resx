@@ -318,4 +318,127 @@
   <data name="lblRedirectUri.Text" xml:space="preserve">
     <value>Leiten Sie Uri um</value>
   </data>
+  <data name="B2cClaim.Header.Text" xml:space="preserve">
+    <value>B2C Claim</value>
+  </data>
+  <data name="B2cExtension.Header.Text" xml:space="preserve">
+    <value>B2C Erweiterung</value>
+  </data>
+  <data name="cmdAddProfileMapping.Text" xml:space="preserve">
+    <value>Zuordnung hinzufügen</value>
+  </data>
+  <data name="DnnProfileProperty.Header.Text" xml:space="preserve">
+    <value>DNN-Profileigenschaft</value>
+  </data>
+  <data name="lblProfilePropertiesMapping.Text" xml:space="preserve">
+    <value>ZUORDNUNG VON BENUTZERPROFILEIGENSCHAFTEN</value>
+  </data>
+  <data name="InvalidB2cClaimName.Text" xml:space="preserve">
+    <value>Sie müssen einen gültigen B2C-Anspruchsnamen eingeben.</value>
+  </data>
+  <data name="lblB2cClaimName.Text" xml:space="preserve">
+    <value>B2C Claim*</value>
+  </data>
+  <data name="lblB2cExtensionName.Text" xml:space="preserve">
+    <value>B2C Erweiterung</value>
+  </data>
+  <data name="lblDnnProfilePropertyName.Text" xml:space="preserve">
+    <value>DNN-Profileigenschaft*</value>
+  </data>
+  <data name="ProfileMappingDeletedWarning.Text" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie dieses Mapping löschen möchten?</value>
+  </data>
+  <data name="ErrorProfileMappingDuplicated.Text" xml:space="preserve">
+    <value>Diese Eigenschaft ist bereits zugeordnet.</value>
+  </data>
+  <data name="lblB2cClaimName.Help" xml:space="preserve">
+    <value>Der B2C-Anspruchsname</value>
+  </data>
+  <data name="lblB2cExtensionName.Help" xml:space="preserve">
+    <value>Der Name der B2C-Erweiterung</value>
+  </data>
+  <data name="lblDnnProfilePropertyName.Help" xml:space="preserve">
+    <value>Die DNN-Profileigenschaft, die Sie mit einem B2C-Claim abbilden möchten.</value>
+  </data>
+  <data name="MappingUpdateSuccess.Text" xml:space="preserve">
+    <value>Zuordnung erfolgreich gespeichert</value>
+  </data>
+  <data name="MappingDeleteSuccess.Text" xml:space="preserve">
+    <value>Zuordnung erfolgreich entfernt</value>
+  </data>
+  <data name="ErrorMappingDuplicated.Text" xml:space="preserve">
+    <value>Dieses Element ist bereits zugeordnet.</value>
+  </data>
+  <data name="ErrorUserMappingDuplicated.Text" xml:space="preserve">
+    <value>Diese Eigenschaft ist bereits zugeordnet.</value>
+  </data>
+  <data name="lblDnnUserPropertyName.Help" xml:space="preserve">
+    <value>Die DNN-Benutzereigenschaft, die Sie mit einem B2C-Claim abbilden möchten.</value>
+  </data>
+  <data name="lblDnnUserPropertyName.Text" xml:space="preserve">
+    <value>DNN-Benutzereigenschaft*</value>
+  </data>
+  <data name="lblPortalId.Text" xml:space="preserve">
+    <value>PortalId</value>
+  </data>
+  <data name="MappingDeletedWarning.Text" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie dieses Mapping löschen möchten?</value>
+  </data>
+  <data name="TabRoleMappings.Text" xml:space="preserve">
+    <value>Role Mappings</value>
+  </data>
+  <data name="TabUserMappings.Text" xml:space="preserve">
+    <value>User Mappings</value>
+  </data>
+  <data name="TabUserProfileMappings.Text" xml:space="preserve">
+    <value>User Profile Mappings</value>
+  </data>
+  <data name="cmdAddRoleMapping.Text" xml:space="preserve">
+    <value>Zuordnung hinzufügen</value>
+  </data>
+  <data name="InvalidB2cRoleName.Text" xml:space="preserve">
+    <value>Falscher B2C-Rollenname</value>
+  </data>
+  <data name="lblDnnRoleName.Help" xml:space="preserve">
+    <value>Die DNN-Rolle, die Sie mit einer B2C-Rolle abbilden möchten.</value>
+  </data>
+  <data name="lblDnnRoleName.Text" xml:space="preserve">
+    <value>DNN Rolle*</value>
+  </data>
+  <data name="lblRolesMapping.Text" xml:space="preserve">
+    <value>ROLLENZUORDNUNG</value>
+  </data>
+  <data name="B2cRole.Header.Text" xml:space="preserve">
+    <value>B2C Rolle</value>
+  </data>
+  <data name="DnnRole.Header.Text" xml:space="preserve">
+    <value>DNN Rolle</value>
+  </data>
+  <data name="lblB2cRoleName.Text" xml:space="preserve">
+    <value>B2C Rolle*</value>
+  </data>
+  <data name="B2cProperty.Header.Text" xml:space="preserve">
+    <value>B2C-Eigentum</value>
+  </data>
+  <data name="DnnProperty.Header.Text" xml:space="preserve">
+    <value>DNN-Eigentum</value>
+  </data>
+  <data name="InvalidB2cPropertyName.Text" xml:space="preserve">
+    <value>Falscher B2C-Eigenschaftsname</value>
+  </data>
+  <data name="lblB2cPropertyName.Help" xml:space="preserve">
+    <value>Dies ist die B2C-Eigenschaft, auf die die DNN-Eigenschaft abgebildet wird.</value>
+  </data>
+  <data name="lblB2cPropertyName.Text" xml:space="preserve">
+    <value>B2C-Eigenschaft</value>
+  </data>
+  <data name="lblDnnPropertyName.Help" xml:space="preserve">
+    <value>Dies ist die DNN-Eigenschaft, die auf eine B2C-Eigenschaft abgebildet werden soll.</value>
+  </data>
+  <data name="lblDnnPropertyName.Text" xml:space="preserve">
+    <value>DNN-Eigenschaft</value>
+  </data>
+  <data name="lblUsersMapping.Text" xml:space="preserve">
+    <value>ZUORDNUNGEN VON BENUTZEREIGENSCHAFTEN</value>
+  </data>
 </root>
