@@ -57,7 +57,7 @@ class RoleMappings extends Component {
     onUpdateMapping(mappingDetail) {
         const {props} = this;
 
-        let originalRoleName = mappingDetail.MappingId ? mappingDetail.MappingId.split("-")[0] : null;
+        let originalRoleName = mappingDetail.MappingId ? mappingDetail.MappingId.split("|")[0] : null;
         if (originalRoleName !== mappingDetail.DnnRoleName) {
             // The RoleName of this row has changed. Let's see if that property has already been mapped
             if (this.props.mapping.find(p => p.DnnRoleName === mappingDetail.DnnRoleName) !== undefined) {
@@ -151,7 +151,7 @@ class RoleMappings extends Component {
         if (this.props.mapping) {
             return this.props.mapping.map((item, index) => {
                 let id = "row-" + i++;
-                let mappingId = item.DnnRoleName + "-" + item.B2cRoleName;
+                let mappingId = item.DnnRoleName + "|" + item.B2cRoleName;
                 return (
                     <RoleMappingRow
                         mappingId={mappingId}
