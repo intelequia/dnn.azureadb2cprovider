@@ -119,11 +119,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         [DataMember]
         public string B2cClaimName { get; set; }
 
-        public string B2cExtensionName { 
-            get
-            {
-                return "";
-            } 
-        }
+        public string GetB2cExtensionName(int portalId)
+        {
+            var settings = new AzureConfig("AzureB2C", portalId);
+            return string.IsNullOrEmpty(settings.B2cApplicationId) || string.IsNullOrEmpty(B2cClaimName)
+                ? ""
+                : $"extension_{settings.B2cApplicationId}_{B2cClaimName}";
+        } 
     }
 }

@@ -63,11 +63,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var query = "";
-                var profileMapping = ProfileMappings.GetProfileMappings(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath))
-                    .ProfileMapping.FirstOrDefault(x => x.DnnProfilePropertyName == "PortalId");
-                if (profileMapping != null)
+                var userMapping = UserMappings.GetUserMappings().UserMapping.FirstOrDefault(x => x.DnnPropertyName == "PortalId");
+                if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cExtensionName(PortalSettings.PortalId)))
                 {
-                    query = $"$filter={profileMapping.B2cExtensionName} eq {PortalSettings.PortalId}";
+                    query = $"$filter={userMapping.GetB2cExtensionName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
                 }
 
                 var users = graphClient.GetAllUsers(query);
@@ -87,13 +86,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var profileMapping = ProfileMappings.GetProfileMappings(HttpContext.Current.Server.MapPath(ProfileMappings.DefaultProfileMappingsFilePath))
-                    .ProfileMapping.FirstOrDefault(x => x.DnnProfilePropertyName == "PortalId");
+                var userMapping = UserMappings.GetUserMappings().UserMapping.FirstOrDefault(x => x.DnnPropertyName == "PortalId");
                 var user = graphClient.GetUser(objectId);
-                if (profileMapping != null)
+                if (userMapping != null)
                 {
-                    if (user?.AdditionalData == null || !user.AdditionalData.ContainsKey(profileMapping.B2cExtensionName)
-                        || (int)(long)user.AdditionalData[profileMapping.B2cExtensionName] != PortalSettings.PortalId)
+                    var b2cExtensionName = userMapping.GetB2cExtensionName(PortalSettings.PortalId);
+                    if (string.IsNullOrEmpty(b2cExtensionName) 
+                        && (user?.AdditionalData == null || !user.AdditionalData.ContainsKey(b2cExtensionName)
+                        || (int)(long)user.AdditionalData[b2cExtensionName] != PortalSettings.PortalId))
                     {
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
                     }
@@ -142,7 +142,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var userMapping = UserMappings.GetFieldUserMapping("PortalId");
                 if (userMapping != null)
                 {
-                    newUser.AdditionalData.Add(userMapping.B2cExtensionName, PortalSettings.PortalId);
+                    var b2cExtensionName = userMapping.GetB2cExtensionName(PortalSettings.PortalId);
+                    if (!string.IsNullOrEmpty(b2cExtensionName))
+                    {
+                        newUser.AdditionalData.Add(b2cExtensionName, PortalSettings.PortalId);
+                    }
                 }
 
                 var user = graphClient.AddUser(newUser);

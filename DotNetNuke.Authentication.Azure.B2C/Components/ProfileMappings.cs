@@ -115,9 +115,5 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         [XmlAttribute("b2cClaimName")]
         [DataMember]
         public string B2cClaimName { get; set; }
-
-        [XmlAttribute("b2cExtensionName")]
-        [DataMember]
-        public string B2cExtensionName { get; set; }
     }
 }
