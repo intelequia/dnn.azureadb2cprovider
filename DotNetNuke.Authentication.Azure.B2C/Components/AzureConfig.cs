@@ -148,6 +148,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             UpdateB2CApplicationId(config);
 
             UpdateConfig((OAuthConfigBase)config);
+
+            // Clear config after update
+            DataCache.RemoveCache(GetCacheKey(config.Service, config.PortalID));
         }
 
         internal static void UpdateScopedSetting(bool useGlobalSettings, int portalId, string key, string value)
