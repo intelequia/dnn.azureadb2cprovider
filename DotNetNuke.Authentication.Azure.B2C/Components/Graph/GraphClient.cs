@@ -157,11 +157,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             return JsonConvert.DeserializeObject<GraphList<Models.Application>>(result);
         }
 
-        public GraphList<Extension> RegisterExtension(string appObjectId, Extension extension)
+        public Extension RegisterExtension(string appObjectId, Extension extension)
         {
             var body = JsonConvert.SerializeObject(extension);
             var result = SendAADGraphRequest("/applications/" + appObjectId + "/extensionProperties", body: body, httpMethod: HttpMethod.Post);
-            return JsonConvert.DeserializeObject<GraphList<Extension>>(result);
+            return JsonConvert.DeserializeObject<Extension>(result);
         }
 
         public void UnregisterExtension(string appObjectId, string extensionObjectId)

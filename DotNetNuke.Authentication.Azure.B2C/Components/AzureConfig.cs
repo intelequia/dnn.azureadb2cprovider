@@ -26,6 +26,8 @@ using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.UI.WebControls;
+using System.Configuration;
+using System.Linq;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Components
 {
@@ -180,7 +182,40 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 var graphClient = new Graph.GraphClient(config.AADApplicationId, config.AADApplicationKey, config.TenantId);
                 var extensionApp = graphClient.GetB2CExtensionApplication();
-                b2cApplicationId = extensionApp?.ObjectId;
+                b2cApplicationId = extensionApp?.AppId;                
+                if (string.IsNullOrEmpty(b2cApplicationId))
+                {
+                    throw new ConfigurationErrorsException("Can't find B2C Application on current tenant. Ensure the application 'b2c-extensions-app' exists.");
+                }
+
+                /*var extensions = graphClient.GetExtensions(extensionApp?.ObjectId);                
+                var portalIdExtension = extensions.Values.FirstOrDefault(x => x.Name.ToLowerInvariant() == $"extension_{b2cApplicationId.Replace("-", "")}_portalid");
+                //if (portalIdExtension != null)
+                //    graphClient.UnregisterExtension(extensionApp?.ObjectId, portalIdExtension.ObjectId);
+                if (portalIdExtension == null)
+                {
+                    portalIdExtension = new Graph.Models.Extension()
+                    {
+                        ODataType = "Microsoft.DirectoryServices.ExtensionProperty",
+                        ObjectType = "ExtensionProperty",
+                        Name = "portalId",
+                        DataType = "Integer",
+                        TargetObjects = new string[] { "User" }
+                    };
+                    graphClient.RegisterExtension(extensionApp?.ObjectId, portalIdExtension);
+
+                    var users = graphClient.GetAllUsers("").Values;
+                    var extensionName = $"extension_{b2cApplicationId.Replace("-", "")}_portalId";
+                    foreach (var user in users)
+                    {
+                        if (!user.AdditionalData.ContainsKey(extensionName))
+                        {
+                            user.AdditionalData.Clear();
+                            user.AdditionalData.Add(extensionName, config.PortalID);
+                            graphClient.UpdateUser(user);
+                        }
+                    }
+                }    */            
             }
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_B2CApplicationId", b2cApplicationId);
             return b2cApplicationId;
