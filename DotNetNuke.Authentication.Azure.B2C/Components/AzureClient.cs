@@ -109,6 +109,33 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
         }
 
+        private UserMappings _customUserMappings;
+        public UserMappings CustomUserMappings
+        {
+            get
+            {
+                if (_customUserMappings == null)
+                {
+                    _customUserMappings = UserMappings.GetUserMappings();
+                }
+                return _customUserMappings;
+            }
+        }
+
+        private string _userIdClaim;
+        private string UserIdClaim
+        {
+            get
+            {
+                if (_userIdClaim == null)
+                {
+                    var usernameMapping = CustomUserMappings.UserMapping.FirstOrDefault(m => m.DnnPropertyName == "Id");
+                    _userIdClaim = (usernameMapping != null) ? usernameMapping.B2cClaimName : "sub";
+                }
+                return _userIdClaim;
+            }
+        }
+
         public PolicyEnum Policy { get; set; }
 
         public string PolicyName
@@ -229,14 +256,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             EnsureClaimExists(claims, JwtRegisteredClaimNames.GivenName);
             EnsureClaimExists(claims, JwtRegisteredClaimNames.FamilyName);
             EnsureClaimExists(claims, "emails");
-            EnsureClaimExists(claims, "sub");
+            EnsureClaimExists(claims, UserIdClaim);
 
             var user = new AzureUserData()
             {
                 AzureFirstName = claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.GivenName)?.Value,
                 AzureLastName = claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.FamilyName)?.Value,
                 Email = claims.FirstOrDefault(x => x.Type == "emails")?.Value,
-                Id = claims.FirstOrDefault(x => x.Type == "sub").Value
+                Id = claims.FirstOrDefault(x => x.Type == UserIdClaim).Value
             };
             user.AzureDisplayName = $"{user.AzureFirstName} {user.AzureLastName}";
             return user;
@@ -264,7 +291,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 switch (claim.Type) {
                     case "emails":
-                        properties.Set("Email", claim.Value);
+                        if (properties["Email"] == null)
+                            properties.Set("Email", claim.Value);
                         break;
                     case "city":
                         properties.Set("City", claim.Value);
