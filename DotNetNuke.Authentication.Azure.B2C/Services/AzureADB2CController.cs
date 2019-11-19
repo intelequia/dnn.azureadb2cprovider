@@ -306,8 +306,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     itemFound = new ProfileMappingsProfileMapping
                     {
                         DnnProfilePropertyName = input.profileMappingDetail.DnnProfilePropertyName,
-                        B2cClaimName = input.profileMappingDetail.B2cClaimName,
-                        B2cExtensionName = input.profileMappingDetail.B2cExtensionName
+                        B2cClaimName = input.profileMappingDetail.B2cClaimName
                     };
 
                     list.Add(itemFound);
@@ -318,7 +317,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 {
                     itemFound.DnnProfilePropertyName = input.profileMappingDetail.DnnProfilePropertyName;
                     itemFound.B2cClaimName = input.profileMappingDetail.B2cClaimName;
-                    itemFound.B2cExtensionName = input.profileMappingDetail.B2cExtensionName;
                 }
 
                 ProfileMappings.UpdateProfileMappings(profileMappings);

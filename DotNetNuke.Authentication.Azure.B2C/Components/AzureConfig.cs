@@ -59,6 +59,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             JwtAuthEnabled = bool.Parse(GetScopedSetting(Service + "_JwtAuthEnabled", portalId, "false"));
             APIResource = GetScopedSetting(Service + "_APIResource", portalId, "");
             Scopes = GetScopedSetting(Service + "_Scopes", portalId, "");
+            B2cApplicationId = GetScopedSetting(Service + "_B2CApplicationId", portalId, "");
         }
 
         internal string GetScopedSetting(string key, int portalId, string defaultValue)
@@ -102,6 +103,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public bool UseGlobalSettings { get; set; }
         [SortOrder(15)]
         public string RedirectUri { get; set; }
+        [SortOrder(16)]
+        public string B2cApplicationId { get; set; }
 
 
 
@@ -145,9 +148,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_JwtAuthEnabled", config.JwtAuthEnabled.ToString());
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_APIResource", config.APIResource);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_Scopes", config.Scopes);
-            UpdateB2CApplicationId(config);
+            config.B2cApplicationId = UpdateB2CApplicationId(config);
 
             UpdateConfig((OAuthConfigBase)config);
+
+            // Clear config after update
+            DataCache.RemoveCache(GetCacheKey(config.Service, config.PortalID));
         }
 
         internal static void UpdateScopedSetting(bool useGlobalSettings, int portalId, string key, string value)
@@ -165,7 +171,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 : PortalController.GetPortalSetting(key, portalId, defaultValue); // BUG: DNN 9.3.2 not storing IsSecure column on DB (see UpdatePortalSetting stored procedure) https://github.com/dnnsoftware/Dnn.Platform/issues/2874
         }
 
-        private static void UpdateB2CApplicationId(AzureConfig config)
+        private static string UpdateB2CApplicationId(AzureConfig config)
         {
             var b2cApplicationId = "";
             if (!string.IsNullOrEmpty(config.AADApplicationId)
@@ -177,6 +183,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 b2cApplicationId = extensionApp?.ObjectId;
             }
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_B2CApplicationId", b2cApplicationId);
+            return b2cApplicationId;
 
         }
     }
