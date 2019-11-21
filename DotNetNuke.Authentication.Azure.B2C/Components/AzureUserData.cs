@@ -65,7 +65,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         [DataMember(Name = "name")]
         public string AzureDisplayName { get; set; }
 
-        public UserInfo ToUserInfo()
+        public UserInfo ToUserInfo(bool usernamePrefixEnabled)
         {
             return new UserInfo()
             {
@@ -73,7 +73,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 FirstName = this.FirstName,
                 LastName = this.LastName,
                 Email = this.Email,
-                Username = "AzureB2C-" + this.Id
+                Username = usernamePrefixEnabled ? $"AzureB2C-{this.Id}" : this.Id
             };
         }
 

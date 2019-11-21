@@ -33,7 +33,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
 {
     public partial class Settings : OAuthSettingsBase
     {
-        protected override string AuthSystemApplicationName => "AzureB2C";
+        protected override string AuthSystemApplicationName => AzureConfig.ServiceName;
 
         public override void UpdateSettings()
         {

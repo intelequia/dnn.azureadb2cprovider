@@ -25,7 +25,10 @@ export default function settings(state = {
                 jwtAuthEnabled: action.data.jwtAuthEnabled,
                 apiResource: action.data.apiResource,
                 scopes: action.data.scopes,
-                clientModified: action.data.clientModified
+                clientModified: action.data.clientModified,
+                usernamePrefixEnabled: action.data.usernamePrefixEnabled,
+                groupNamePrefixEnabled: action.data.groupNamePrefixEnabled
+
             };
         case ActionTypes.SETTINGS_CLIENT_MODIFIED:
             return { ...state,
@@ -48,7 +51,9 @@ export default function settings(state = {
                 jwtAuthEnabled: action.data.jwtAuthEnabled,
                 apiResource: action.data.apiResource,
                 scopes: action.data.scopes,
-                clientModified: action.data.clientModified
+                clientModified: action.data.clientModified,
+                usernamePrefixEnabled: action.data.usernamePrefixEnabled,
+                groupNamePrefixEnabled: action.data.groupNamePrefixEnabled
             };
         case ActionTypes.UPDATED_SETTINGS:
             return { ...state,

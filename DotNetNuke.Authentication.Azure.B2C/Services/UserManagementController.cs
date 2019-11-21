@@ -41,7 +41,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var query = "";
 
@@ -60,7 +60,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var query = "";
                 var userMapping = UserMappings.GetUserMappings().UserMapping.FirstOrDefault(x => x.DnnPropertyName == "PortalId");
@@ -84,7 +84,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var userMapping = UserMappings.GetUserMappings().UserMapping.FirstOrDefault(x => x.DnnPropertyName == "PortalId");
                 var user = graphClient.GetUser(objectId);
@@ -122,7 +122,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
 
                 var newUser = new NewUser(parameters.user);
@@ -179,7 +179,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var portalUserMapping = UserMappings.GetFieldUserMapping("PortalId");
 
@@ -233,13 +233,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = new AzureConfig("AzureB2C", PortalSettings.PortalId);
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
 
                 graphClient.DeleteUser(parameters.objectId);
 
                 // Delete user if exist locally
-                var userInfo = UserController.GetUserByName(PortalSettings.PortalId, $"AzureB2C-{parameters.objectId}");
+                var usernamePrefix = settings.UsernamePrefixEnabled ? "AzureB2C-" : "";
+                var userInfo = UserController.GetUserByName(PortalSettings.PortalId, $"{usernamePrefix}{parameters.objectId}");
                 if (userInfo != null)
                 {                    
                     UserController.DeleteUser(ref userInfo, false, true);

@@ -49,6 +49,8 @@ const settingsActions = {
                         jwtAuthEnabled: data.jwtAuthEnabled,
                         apiResource: data.apiResource,
                         scopes: data.scopes,
+                        usernamePrefixEnabled: data.usernamePrefixEnabled,
+                        groupNamePrefixEnabled: data.groupNamePrefixEnabled,
                         clientModified: false
                     }
                 });
@@ -120,6 +122,8 @@ const settingsActions = {
                     jwtAuthEnabled: settings.jwtAuthEnabled,
                     apiResource: settings.apiResource,
                     scopes: settings.scopes,
+                    usernamePrefixEnabled: settings.usernamePrefixEnabled,
+                    groupNamePrefixEnabled: settings.groupNamePrefixEnabled,
                     clientModified: true
                 }
             });

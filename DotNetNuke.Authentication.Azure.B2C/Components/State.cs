@@ -6,7 +6,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
     {
         public State()
         {
-            Service = "AzureB2C";
+            Service = AzureConfig.ServiceName;
             PortalId = -1;
             Culture = "";
             RedirectUrl = "";

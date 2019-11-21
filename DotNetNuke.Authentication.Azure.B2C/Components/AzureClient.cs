@@ -136,6 +136,24 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
         }
 
+        private bool _prefixServiceToUserName;
+        public override bool PrefixServiceToUserName
+        {
+            get
+            {
+                return _prefixServiceToUserName;
+            }
+        }
+
+        private bool _prefixServiceToGroupName;
+        public bool PrefixServiceToGroupName
+        {
+            get
+            {
+                return _prefixServiceToGroupName;
+            }
+        }
+
         public PolicyEnum Policy { get; set; }
 
         public string PolicyName
@@ -171,9 +189,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
 
         public AzureClient(int portalId, AuthMode mode) 
-            : base(portalId, mode, "AzureB2C")
+            : base(portalId, mode, AzureConfig.ServiceName)
         {
-            Settings = new AzureConfig("AzureB2C", portalId);
+            Settings = new AzureConfig(AzureConfig.ServiceName, portalId);
 
             TokenMethod = HttpMethod.POST;
             
@@ -210,6 +228,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             LoadTokenCookie(string.Empty);
             JwtIdToken = null;
             Policy = PolicyEnum.SignUpPolicy;
+
+            _prefixServiceToUserName = Settings.UsernamePrefixEnabled;
+            _prefixServiceToGroupName = Settings.GroupNamePrefixEnabled;
         }
 
         #endregion
@@ -256,6 +277,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             EnsureClaimExists(claims, JwtRegisteredClaimNames.GivenName);
             EnsureClaimExists(claims, JwtRegisteredClaimNames.FamilyName);
             EnsureClaimExists(claims, "emails");
+            EnsureClaimExists(claims, "sub");       // we need this claim to make calls to AAD Graph
             EnsureClaimExists(claims, UserIdClaim);
 
             var user = new AzureUserData()
@@ -355,7 +377,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
             var user = GetCurrentUserInternal(pToken);
             // Update user
-            var userInfo = UserController.GetUserByEmail(PortalSettings.Current.PortalId, user.Email);
+            var userInfo = UserController.GetUserByName(PortalSettings.Current.PortalId, user.UserName);
 
             userInfo.FirstName = user.FirstName;
             userInfo.LastName = user.LastName;
@@ -457,9 +479,21 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     }
                 }
             }
+            
+            var userIdClaim = Utils.GetUserIdClaim();
+            var userClaim = JwtIdToken.Claims.FirstOrDefault(x => x.Type == userIdClaim);
+            if (userClaim == null)
+            {
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.Error($"Can't find '{userIdClaim}' claim on token");
+                }
+                throw new MissingFieldException($"Can't find '{userIdClaim}' claim on token, needed to identify the user");
+            }
 
-
-            var userInfo = UserController.GetUserByEmail(portalSettings.PortalId, user.Email);
+            var usernamePrefixEnabled = bool.Parse(AzureConfig.GetSetting(AzureConfig.ServiceName, "UsernamePrefixEnabled", portalSettings.PortalId, "true"));
+            var usernameToFind = usernamePrefixEnabled ? $"azureb2c-{userClaim.Value}" : userClaim.Value;
+            var userInfo = UserController.GetUserByName(portalSettings.PortalId, usernameToFind);
             // If user doesn't exist on current portal, AuthenticateUser() will create it. 
             // Otherwise, AuthenticateUser will perform a Response.Redirect, so we have to sinchronize the roles before that, to avoid the ThreadAbortException caused by the Response.Redirect
             if (userInfo == null)
@@ -467,10 +501,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 base.AuthenticateUser(user, portalSettings, IPAddress, addCustomProperties, onAuthenticated);
                 if (IsCurrentUserAuthorized())
                 {
-                    userInfo = UserController.GetUserByEmail(portalSettings.PortalId, user.Email);
+                    userInfo = UserController.GetUserByName(portalSettings.PortalId, usernameToFind);
                     if (userInfo == null)
                     {
-                        throw new SecurityTokenException($"The logged in user {user.Email} does not belong to PortalId {portalSettings.PortalId}");
+                        throw new SecurityTokenException($"The logged in user {usernameToFind} does not belong to PortalId {portalSettings.PortalId}");
                     }
                     UpdateUserAndRoles(userInfo);
                 }
@@ -570,7 +604,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
                 if (aadGroups != null && aadGroups.Values != null)
                 {
-                    var groupPrefix = $"{Service}-";
+                    var groupPrefix = PrefixServiceToGroupName ? $"{Service}-" : "";
                     var groups = aadGroups.Values;
                     if (CustomRoleMappings.RoleMapping != null && CustomRoleMappings.RoleMapping.Length > 0)
                     {

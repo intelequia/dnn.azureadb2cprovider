@@ -177,7 +177,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             try
             {
                 var portalSettings = PortalController.Instance.GetCurrentPortalSettings();
-                var azureB2cConfig = new AzureConfig("AzureB2C", portalSettings.PortalId);
+                var azureB2cConfig = new AzureConfig(AzureConfig.ServiceName, portalSettings.PortalId);
                 if (portalSettings == null)
                 {
                     if (Logger.IsDebugEnabled) Logger.Debug("Unable to retrieve portal settings");
@@ -189,10 +189,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     return null;
                 }
 
-                var userClaim = jwt.Claims.FirstOrDefault(x => x.Type == "sub");
+                var userIdClaim = Utils.GetUserIdClaim();
+                var userClaim = jwt.Claims.FirstOrDefault(x => x.Type == userIdClaim);
                 if (userClaim == null)
                 {
-                    if (Logger.IsDebugEnabled) Logger.Debug("Can't find 'sub' claim on token");
+                    if (Logger.IsDebugEnabled) Logger.Debug($"Can't find '{userIdClaim}' claim on token");
                 }
 
                 var userInfo = GetOrCreateCachedUserInfo(jwt, portalSettings, userClaim);
@@ -226,7 +227,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         private static UserInfo GetOrCreateCachedUserInfo(JwtSecurityToken jwt, PortalSettings portalSettings, System.Security.Claims.Claim userClaim)
         {
-            var userInfo = UserController.GetUserByName(portalSettings.PortalId, $"azureb2c-{userClaim.Value}");
+            var usernamePrefixEnabled = bool.Parse(AzureConfig.GetSetting(AzureConfig.ServiceName, "UsernamePrefixEnabled", portalSettings.PortalId, "true"));
+            var usernameToFind = usernamePrefixEnabled ? $"azureb2c-{userClaim.Value}" : userClaim.Value;
+            var userInfo = UserController.GetUserByName(portalSettings.PortalId, usernameToFind);
             var tokenKey = ComputeSha256Hash(jwt.RawData);
             var cache = DotNetNuke.Services.Cache.CachingProvider.Instance();
             if (string.IsNullOrEmpty((string)cache.GetItem($"SyncB2CToken|{tokenKey}")))
@@ -241,7 +244,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 if (userInfo == null)
                 {
                     // If user doesn't exist, create the user
-                    userInfo = userData.ToUserInfo();
+                    userInfo = userData.ToUserInfo(usernamePrefixEnabled);
                     userInfo.PortalID = portalSettings.PortalId;
                     userInfo.Membership.Password = UserController.GeneratePassword();
                     var result = UserController.CreateUser(ref userInfo);
@@ -318,7 +321,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
 
             var portalSettings = PortalController.Instance.GetCurrentPortalSettings();
-            var azureB2cConfig = new AzureConfig("AzureB2C", portalSettings.PortalId);
+            var azureB2cConfig = new AzureConfig(AzureConfig.ServiceName, portalSettings.PortalId);
             if (portalSettings == null)
             {
                 if (Logger.IsDebugEnabled) Logger.Debug("Unable to retrieve portal settings");

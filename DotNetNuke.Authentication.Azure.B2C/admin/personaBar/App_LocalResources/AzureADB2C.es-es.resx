@@ -441,4 +441,25 @@
   <data name="lblUsersMapping.Text" xml:space="preserve">
     <value>MAPEO DE PROPIEDADES DE USUARIOS</value>
   </data>
+  <data name="lblGroupNamePrefixEnabled.Help" xml:space="preserve">
+    <value>Enables the addition of the prefix "AzureB2C-" to all group names coming from B2C.</value>
+  </data>
+  <data name="lblGroupNamePrefixEnabled.Text" xml:space="preserve">
+    <value>Prefijar nombres de grupo</value>
+  </data>
+  <data name="lblNamePrefixes.Help" xml:space="preserve">
+    <value>Por defecto, todos los usuarios y grupos procedentes de B2C tendrán el prefijo "AzureB2C-". Las siguientes dos opciones le permiten desactivar la adición de ese prefijo</value>
+  </data>
+  <data name="lblNamePrefixes.Text" xml:space="preserve">
+    <value>Prefijo de nombres</value>
+  </data>
+  <data name="lblUsernamePrefixEnabled.Help" xml:space="preserve">
+    <value>Habilita la adición del prefijo "azureb2c-" a todos los nombres de usuario procedentes de B2C.</value>
+  </data>
+  <data name="lblUsernamePrefixEnabled.Text" xml:space="preserve">
+    <value>Prefijar nombres de usuario</value>
+  </data>
+  <data name="NamePrefixesWarningMessage.Text" xml:space="preserve">
+    <value>Advertencia: Si estos ajustes cambian, todos los usuarios que ya han sido sincronizados serán sincronizados de nuevo con sus nuevos nombres de usuario tras el siguiente login, dejando los antiguos en el sistema.</value>
+  </data>
 </root>

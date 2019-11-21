@@ -441,4 +441,25 @@
   <data name="lblUsersMapping.Text" xml:space="preserve">
     <value>ZUORDNUNGEN VON BENUTZEREIGENSCHAFTEN</value>
   </data>
+  <data name="lblGroupNamePrefixEnabled.Help" xml:space="preserve">
+    <value>Ermöglicht das Hinzufügen des Präfixes "AzureB2C-" zu allen Gruppennamen aus dem B2C.</value>
+  </data>
+  <data name="lblGroupNamePrefixEnabled.Text" xml:space="preserve">
+    <value>Präfix-Gruppennamen</value>
+  </data>
+  <data name="lblNamePrefixes.Help" xml:space="preserve">
+    <value>Standardmäßig enthalten alle Benutzer und Gruppen, die von B2C kommen, das Präfix "AzureB2C-". Mit den folgenden zwei Optionen können Sie das Hinzufügen dieses Präfixes deaktivieren</value>
+  </data>
+  <data name="lblNamePrefixes.Text" xml:space="preserve">
+    <value>Namenspräfixe</value>
+  </data>
+  <data name="lblUsernamePrefixEnabled.Help" xml:space="preserve">
+    <value>Ermöglicht das Hinzufügen des Präfixes "azureb2c"- zu allen Benutzernamen aus dem B2C.</value>
+  </data>
+  <data name="lblUsernamePrefixEnabled.Text" xml:space="preserve">
+    <value>Präfixe Benutzernamen</value>
+  </data>
+  <data name="NamePrefixesWarningMessage.Text" xml:space="preserve">
+    <value>Hinweis: Wenn sich diese Einstellungen ändern, werden alle bereits synchronisierten Benutzer nach der nächsten Anmeldung wieder mit ihren neuen Benutzernamen synchronisiert, wobei die alten im System bleiben.</value>
+  </data>
 </root>

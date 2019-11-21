@@ -24,7 +24,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     return Request.CreateResponse(HttpStatusCode.BadRequest, "No state was specified");
                 }
                 var state = new State(stateKey.Value.Value.ToString());
-                if (state.Service != "AzureB2C")
+                if (state.Service != AzureConfig.ServiceName)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest, "State not build for Azure AD B2C");
                 }

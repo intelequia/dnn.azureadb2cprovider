@@ -7,6 +7,9 @@ import resx from "../../resources";
 import "./syncSettings.less";
 import utils from "../../utils";
 
+/*eslint-disable quotes*/
+const warningIcon = require(`!raw-loader!./../svg/error.svg`).default;
+
 class SyncSettings extends Component {
 
     constructor() {
@@ -45,6 +48,8 @@ class SyncSettings extends Component {
             jwtAuthEnabled: (key === "jwtAuthEnabled") ? !props.jwtAuthEnabled : props.jwtAuthEnabled,
             apiResource: (key === "apiResource") ? event.target.value : props.apiResource,
             scopes: (key === "scopes") ? event.target.value : props.scopes,
+            usernamePrefixEnabled: (key === "usernamePrefixEnabled") ? !props.usernamePrefixEnabled : props.usernamePrefixEnabled,
+            groupNamePrefixEnabled: (key === "groupNamePrefixEnabled") ? !props.groupNamePrefixEnabled : props.groupNamePrefixEnabled
         }));
     }    
 
@@ -64,7 +69,9 @@ class SyncSettings extends Component {
             profileSyncEnabled: props.profileSyncEnabled,
             jwtAuthEnabled: props.jwtAuthEnabled,
             apiResource: props.apiResource,
-            scopes: props.scopes
+            scopes: props.scopes,
+            usernamePrefixEnabled: props.usernamePrefixEnabled,
+            groupNamePrefixEnabled: props.groupNamePrefixEnabled
         }, () => {
             utils.utilities.notify(resx.get("SettingsUpdateSuccess"));
             this.setState({
@@ -75,7 +82,7 @@ class SyncSettings extends Component {
         }));
     }
     
-    
+    /* eslint-disable react/no-danger */
     render() {
         return (
             <div className="dnn-azuread-b2c-syncSettings">
@@ -121,9 +128,30 @@ class SyncSettings extends Component {
                         </GridCell>                         
                     </GridSystem>
                 </InputGroup>
-
                 <InputGroup>
-                    <h1 className={"sectionLabel"}>{resx.get("lblTokenValidation")}</h1>
+                    <h1 className={"sectionLabel"}>{resx.get("lblNamePrefixes")}</h1>
+                    <p>{resx.get("lblNamePrefixes.Help")}</p>
+                    <GridSystem  numberOfColumns={2}>
+                        <GridCell columnSize={90}>
+                            <Switch label={resx.get("lblUsernamePrefixEnabled")} onText="" offText=""
+                                tooltipMessage={resx.get("lblUsernamePrefixEnabled.Help")}
+                                value={this.props.usernamePrefixEnabled}
+                                onChange={this.onSettingChange.bind(this, "usernamePrefixEnabled")} />                                                  
+                            <Switch label={resx.get("lblGroupNamePrefixEnabled")} onText="" offText=""
+                                tooltipMessage={resx.get("lblGroupNamePrefixEnabled.Help")}
+                                value={this.props.groupNamePrefixEnabled}
+                                onChange={this.onSettingChange.bind(this, "groupNamePrefixEnabled")} />
+                        </GridCell>
+                        <GridCell columnSize={100}>
+                            <div className="warning-container">
+                                <div className="warning-icon" dangerouslySetInnerHTML={{ __html: warningIcon }} />
+                                <div className="warning-msg">{resx.get("NamePrefixesWarningMessage")}</div>
+                            </div>
+                        </GridCell> 
+                    </GridSystem>
+                </InputGroup>
+                <InputGroup>
+                    <h1 className={"sectionLabel spacer"}>{resx.get("lblTokenValidation")}</h1>
                     <p>{resx.get("lblTokenValidation.Help")}</p>                                                 
                     <GridSystem  numberOfColumns={2}>
                         <GridCell columnSize={90}>
@@ -204,7 +232,9 @@ SyncSettings.propTypes = {
     profileSyncEnabled: PropTypes.bool,
     jwtAuthEnabled: PropTypes.bool,
     apiResource: PropTypes.string,
-    scopes: PropTypes.string
+    scopes: PropTypes.string,
+    usernamePrefixEnabled: PropTypes.bool,
+    groupNamePrefixEnabled: PropTypes.bool
 };
 
 
@@ -217,7 +247,9 @@ function mapStateToProps(state) {
         profileSyncEnabled: state.settings.profileSyncEnabled,
         jwtAuthEnabled: state.settings.jwtAuthEnabled,
         apiResource: state.settings.apiResource,
-        scopes: state.settings.scopes
+        scopes: state.settings.scopes,
+        usernamePrefixEnabled: state.settings.usernamePrefixEnabled,
+        groupNamePrefixEnabled: state.settings.groupNamePrefixEnabled
     };
 }
 export default connect(mapStateToProps)(SyncSettings);

@@ -441,4 +441,25 @@
   <data name="lblUsersMapping.Text" xml:space="preserve">
     <value>USER PROPERTIES MAPPINGS</value>
   </data>
+  <data name="lblGroupNamePrefixEnabled.Help" xml:space="preserve">
+    <value>Enables the addition of the prefix "AzureB2C-" to all group names coming from B2C.</value>
+  </data>
+  <data name="lblGroupNamePrefixEnabled.Text" xml:space="preserve">
+    <value>Prefix group names</value>
+  </data>
+  <data name="lblNamePrefixes.Help" xml:space="preserve">
+    <value>By default, all users and groups coming from B2C will contain the prefix "AzureB2C-". The following two options allow you to disable the addition of that prefix</value>
+  </data>
+  <data name="lblNamePrefixes.Text" xml:space="preserve">
+    <value>Name prefixes</value>
+  </data>
+  <data name="lblUsernamePrefixEnabled.Help" xml:space="preserve">
+    <value>Enables the addition of the prefix "azureb2c-" to all user names coming from B2C.</value>
+  </data>
+  <data name="lblUsernamePrefixEnabled.Text" xml:space="preserve">
+    <value>Prefix user names</value>
+  </data>
+  <data name="NamePrefixesWarningMessage.Text" xml:space="preserve">
+    <value>Warning: If these settings change, all users who have already been synchronized will be synchronized again with their new usernames after the next login, leaving the old ones in the system.</value>
+  </data>
 </root>

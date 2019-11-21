@@ -45,7 +45,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
     public partial class Login : OAuthLoginBase
     {
         private ILog _logger = LogManager.GetLogger(typeof(Login));
-        protected override string AuthSystemApplicationName => "AzureB2C";
+        protected override string AuthSystemApplicationName => AzureConfig.ServiceName;
 
         public override bool SupportsRegistration => true;
 
@@ -72,7 +72,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
             registerItem.Visible = (Mode == AuthMode.Register);
 
 
-            var config = new AzureConfig("AzureB2C", PortalId);
+            var config = new AzureConfig(AzureConfig.ServiceName, PortalId);
             if (config.AutoRedirect && Request["legacy"] != "1")
                 loginButton_Click(null, null);
         }

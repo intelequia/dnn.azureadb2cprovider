@@ -121,7 +121,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         public string GetB2cExtensionName(int portalId)
         {
-            var settings = new AzureConfig("AzureB2C", portalId);
+            var settings = new AzureConfig(AzureConfig.ServiceName, portalId);
             return string.IsNullOrEmpty(settings.B2cApplicationId) || string.IsNullOrEmpty(B2cClaimName)
                 ? ""
                 : $"extension_{settings.B2cApplicationId}_{B2cClaimName}";

@@ -39,7 +39,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 var portals = PortalController.Instance.GetPortalList(Null.NullString);
                 foreach (var portal in portals)
                 {
-                    var settings = new AzureConfig("AzureB2C", portal.PortalID);
+                    var settings = new AzureConfig(AzureConfig.ServiceName, portal.PortalID);
                     if (settings.Enabled && settings.RoleSyncEnabled)
                     {
                         var message = SyncRoles(portal.PortalID, settings);
@@ -77,7 +77,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 var aadGroups = graphClient.GetAllGroups("");
                 if (aadGroups != null && aadGroups.Values != null)
                 {
-                    var groupPrefix = "AzureB2C-";
+                    var groupPrefix = settings.GroupNamePrefixEnabled ? "AzureB2C-" : "";
                     var groups = aadGroups.Values;
                     if (CustomRoleMappings.RoleMapping != null && CustomRoleMappings.RoleMapping.Length > 0)
                     { 
@@ -106,17 +106,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                     }
                 }
 
-                // Remove roles no longer exists on AAD B2C (but only if no role mappings are configured)
-                if (CustomRoleMappings.RoleMapping == null || CustomRoleMappings.RoleMapping.Length == 0)
+                // Remove roles no longer exists on AAD B2C (but only when the name prefix is enabled and no role mappings are configured)
+                if (settings.GroupNamePrefixEnabled)
                 {
-                    var dnnRoles = Security.Roles.RoleController.Instance.GetRoles(portalId, x => x.RoleName.StartsWith($"AzureB2C-"));
-                    foreach (var dnnRole in dnnRoles)
+                    if (CustomRoleMappings.RoleMapping == null || CustomRoleMappings.RoleMapping.Length == 0)
                     {
-                        if (aadGroups == null
-                            || aadGroups.Values == null
-                            || aadGroups.Values.FirstOrDefault(x => x.DisplayName == dnnRole.RoleName.Substring($"AzureB2C-".Length)) == null)
+                        var dnnRoles = Security.Roles.RoleController.Instance.GetRoles(portalId, x => x.RoleName.StartsWith($"AzureB2C-"));
+                        foreach (var dnnRole in dnnRoles)
                         {
-                            Security.Roles.RoleController.Instance.DeleteRole(dnnRole);
+                            if (aadGroups == null
+                                || aadGroups.Values == null
+                                || aadGroups.Values.FirstOrDefault(x => x.DisplayName == dnnRole.RoleName.Substring($"AzureB2C-".Length)) == null)
+                            {
+                                Security.Roles.RoleController.Instance.DeleteRole(dnnRole);
+                            }
                         }
                     }
                 }

@@ -31,6 +31,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 {
     public class AzureConfig : OAuthConfigBase
     {
+        public const string ServiceName = "AzureB2C";
+
         private const string _cacheKey = "Authentication";
         
         private AzureConfig() : base("", 0)
@@ -60,6 +62,17 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             APIResource = GetScopedSetting(Service + "_APIResource", portalId, "");
             Scopes = GetScopedSetting(Service + "_Scopes", portalId, "");
             B2cApplicationId = GetScopedSetting(Service + "_B2CApplicationId", portalId, "");
+            UsernamePrefixEnabled = bool.Parse(GetScopedSetting(Service + "_UsernamePrefixEnabled", portalId, "true"));
+            GroupNamePrefixEnabled = bool.Parse(GetScopedSetting(Service + "_GroupNamePrefixEnabled", portalId, "true"));
+
+        }
+
+        public static string GetSetting(string service, string key, int portalId, string defaultValue)
+        {
+            var useGlobalSettings = bool.Parse(HostController.Instance.GetString(service + "_UseGlobalSettings", "false"));
+            if (useGlobalSettings)
+                return HostController.Instance.GetString($"{service}_{key}", defaultValue);
+            return PortalController.GetPortalSetting($"{service}_{key}", portalId, defaultValue);
         }
 
         internal string GetScopedSetting(string key, int portalId, string defaultValue)
@@ -106,8 +119,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         [SortOrder(16)]
         public string B2cApplicationId { get; set; }
 
-
-
+        [SortOrder(17)]
+        public bool UsernamePrefixEnabled { get; set; }
+        [SortOrder(18)]
+        public bool GroupNamePrefixEnabled { get; set; }
 
         private static string GetCacheKey(string service, int portalId)
         {
@@ -148,6 +163,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_JwtAuthEnabled", config.JwtAuthEnabled.ToString());
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_APIResource", config.APIResource);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_Scopes", config.Scopes);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_UsernamePrefixEnabled", config.UsernamePrefixEnabled.ToString());
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_GroupNamePrefixEnabled", config.GroupNamePrefixEnabled.ToString());
+
             config.B2cApplicationId = UpdateB2CApplicationId(config);
 
             UpdateConfig((OAuthConfigBase)config);

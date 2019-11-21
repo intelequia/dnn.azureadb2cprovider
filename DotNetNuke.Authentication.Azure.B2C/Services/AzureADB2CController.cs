@@ -63,7 +63,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = AzureADB2CProviderSettings.LoadSettings("AzureB2C", PortalId);
+                var settings = AzureADB2CProviderSettings.LoadSettings(AzureConfig.ServiceName, PortalId);
                 return Request.CreateResponse(HttpStatusCode.OK, settings);
             }
             catch (Exception ex)
@@ -87,12 +87,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 if (!UserInfo.IsSuperUser)
                 {
-                    var config = new AzureConfig("AzureB2C", PortalId);
+                    var config = new AzureConfig(AzureConfig.ServiceName, PortalId);
                     if (config.UseGlobalSettings || config.UseGlobalSettings != settings.UseGlobalSettings)
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
                 }
 
-                AzureADB2CProviderSettings.SaveGeneralSettings("AzureB2C", PortalId, settings);
+                AzureADB2CProviderSettings.SaveGeneralSettings(AzureConfig.ServiceName, PortalId, settings);
                 AddUserProfilePage(PortalId, settings.Enabled && !string.IsNullOrEmpty(settings.ProfilePolicy));
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
@@ -418,11 +418,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 if (!UserInfo.IsSuperUser)
                 {
-                    var config = new AzureConfig("AzureB2C", PortalId);
+                    var config = new AzureConfig(AzureConfig.ServiceName, PortalId);
                     if (config.UseGlobalSettings || config.UseGlobalSettings != settings.UseGlobalSettings)
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
                 }
-                AzureADB2CProviderSettings.SaveAdvancedSettings("AzureB2C", PortalId, settings);
+                AzureADB2CProviderSettings.SaveAdvancedSettings(AzureConfig.ServiceName, PortalId, settings);
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)

@@ -67,7 +67,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public string ApiResource { get; set; }
         [DataMember(Name = "scopes")]
         public string Scopes { get; set; }
-
+        [DataMember(Name = "usernamePrefixEnabled")]
+        public bool UsernamePrefixEnabled { get; set; }
+        [DataMember(Name = "groupNamePrefixEnabled")]
+        public bool GroupNamePrefixEnabled { get; set; }
 
         public static AzureADB2CProviderSettings LoadSettings(string service, int portalId)
         {
@@ -92,7 +95,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 ProfileSyncEnabled = config.ProfileSyncEnabled,
                 JwtAuthEnabled = config.JwtAuthEnabled,
                 ApiResource = config.APIResource,
-                Scopes = config.Scopes
+                Scopes = config.Scopes,
+                UsernamePrefixEnabled = config.UsernamePrefixEnabled,
+                GroupNamePrefixEnabled = config.GroupNamePrefixEnabled
             };
         }
 
@@ -127,7 +132,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 ProfileSyncEnabled = settings.ProfileSyncEnabled,
                 JwtAuthEnabled = settings.JwtAuthEnabled,
                 APIResource = settings.ApiResource + (!string.IsNullOrEmpty(settings.ApiResource.Trim()) && !settings.ApiResource.EndsWith("/") ? "/" : ""),
-                Scopes = settings.Scopes
+                Scopes = settings.Scopes,
+                UsernamePrefixEnabled = settings.UsernamePrefixEnabled,
+                GroupNamePrefixEnabled = settings.GroupNamePrefixEnabled
             };
 
             AzureConfig.UpdateConfig(config);
