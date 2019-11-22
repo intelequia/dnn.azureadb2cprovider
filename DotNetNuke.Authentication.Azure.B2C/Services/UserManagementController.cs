@@ -1,6 +1,7 @@
 ﻿using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models;
+using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Controllers;
@@ -63,7 +64,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var query = "";
-                var userMapping = UserMappings.GetUserMappings().UserMapping.FirstOrDefault(x => x.DnnPropertyName == "PortalId");
+                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cExtensionName(PortalSettings.PortalId)))
                 {
                     query = $"$filter={userMapping.GetB2cExtensionName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
@@ -86,7 +87,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var userMapping = UserMappings.GetUserMappings().UserMapping.FirstOrDefault(x => x.DnnPropertyName == "PortalId");
+                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 var user = graphClient.GetUser(objectId);
                 if (userMapping != null)
                 {
@@ -139,7 +140,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 newUser.Mail = null;
 
                 // Add custom extension claim PortalId if configured
-                var userMapping = UserMappings.GetFieldUserMapping("PortalId");
+                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null)
                 {
                     var b2cExtensionName = userMapping.GetB2cExtensionName(PortalSettings.PortalId);
@@ -181,7 +182,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var portalUserMapping = UserMappings.GetFieldUserMapping("PortalId");
+                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
 
                 // Validate permissions
                 var user = graphClient.GetUser(parameters.user.ObjectId);

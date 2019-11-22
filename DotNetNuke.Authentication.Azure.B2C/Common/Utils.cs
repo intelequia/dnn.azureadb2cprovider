@@ -22,6 +22,7 @@
 #endregion
 
 using DotNetNuke.Authentication.Azure.B2C.Components;
+using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Portals;
@@ -143,9 +144,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Common
             return uriBuilder.ToString();
         }
 
-        public static string GetUserIdClaim()
+        public static string GetUserIdClaim(int portalId)
         {
-            var usernameMapping = UserMappings.GetFieldUserMapping("Id");
+            var usernameMapping = UserMappingsRepository.Instance.GetUserMapping("Id", portalId);
 
             return (usernameMapping != null) ? usernameMapping.B2cClaimName : "sub";
         }

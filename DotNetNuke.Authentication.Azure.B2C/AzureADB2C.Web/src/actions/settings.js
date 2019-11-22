@@ -279,7 +279,7 @@ const settingsActions = {
                 dispatch({
                     type: ActionTypes.RETRIEVED_USERMAPPINGSETTINGS,
                     data: {
-                        userMapping: data.UserMapping
+                        userMapping: data
                     }
                 });
                 if (callback) {

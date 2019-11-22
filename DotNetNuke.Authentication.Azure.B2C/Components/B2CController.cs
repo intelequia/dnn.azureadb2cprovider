@@ -189,7 +189,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     return null;
                 }
 
-                var userIdClaim = Utils.GetUserIdClaim();
+                var userIdClaim = Utils.GetUserIdClaim(azureB2cConfig.UseGlobalSettings ? -1 : portalSettings.PortalId);
                 var userClaim = jwt.Claims.FirstOrDefault(x => x.Type == userIdClaim);
                 if (userClaim == null)
                 {

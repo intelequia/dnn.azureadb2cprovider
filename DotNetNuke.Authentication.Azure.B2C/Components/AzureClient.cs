@@ -25,6 +25,8 @@
 
 using DotNetNuke.Authentication.Azure.B2C.Common;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
+using DotNetNuke.Authentication.Azure.B2C.Components.Models;
+using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Users;
@@ -109,14 +111,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
         }
 
-        private UserMappings _customUserMappings;
-        public UserMappings CustomUserMappings
+        private List<UserMapping> _customUserMappings;
+        public List<UserMapping> CustomUserMappings
         {
             get
             {
                 if (_customUserMappings == null)
                 {
-                    _customUserMappings = UserMappings.GetUserMappings();
+                    _customUserMappings = UserMappingsRepository.Instance.GetUserMappings(Settings.UseGlobalSettings ? -1 : PortalSettings.Current.PortalId).ToList();
                 }
                 return _customUserMappings;
             }
@@ -129,7 +131,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 if (_userIdClaim == null)
                 {
-                    var usernameMapping = CustomUserMappings.UserMapping.FirstOrDefault(m => m.DnnPropertyName == "Id");
+                    
+                    var usernameMapping = UserMappingsRepository.Instance.GetUserMapping("Id", Settings.UseGlobalSettings ? -1 : PortalSettings.Current.PortalId);
                     _userIdClaim = (usernameMapping != null) ? usernameMapping.B2cClaimName : "sub";
                 }
                 return _userIdClaim;
@@ -451,7 +454,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (IsCurrentUserAuthorized() && JwtIdToken != null)
             {
                 // Check if portalId profile mapping exists
-                var portalUserMapping = UserMappings.GetFieldUserMapping("PortalId");
+                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", Settings.UseGlobalSettings ? -1 : portalSettings.PortalId);
                 if (!string.IsNullOrEmpty(portalUserMapping?.B2cClaimName))
                 {
                     var claimName = portalUserMapping?.B2cClaimName;
@@ -480,7 +483,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 }
             }
             
-            var userIdClaim = Utils.GetUserIdClaim();
+            var userIdClaim = Utils.GetUserIdClaim(Settings.UseGlobalSettings ? -1 : portalSettings.PortalId);
             var userClaim = JwtIdToken.Claims.FirstOrDefault(x => x.Type == userIdClaim);
             if (userClaim == null)
             {

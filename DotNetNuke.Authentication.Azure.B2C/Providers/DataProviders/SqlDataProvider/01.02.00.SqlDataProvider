@@ -1,0 +1,33 @@
+﻿IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureB2C_UserMappings]', N'U') IS NULL
+BEGIN
+	CREATE TABLE {databaseOwner}[{objectQualifier}AzureB2C_UserMappings](
+		[UserMappingId] [int] NOT NULL IDENTITY (1, 1),
+		[DnnPropertyName] [nvarchar](50) NOT NULL,
+		[B2cClaimName] [nvarchar](100) NULL,
+		[PortalId] [int] NULL,
+		[CreatedByUserId] [int] NULL,
+		[CreatedOnDate] [datetime] NULL,
+		[LastModifiedByUserId] [int] NULL,
+		[LastModifiedOnDate] [datetime] NULL,
+	 CONSTRAINT [PK_AzureB2C_UserMappings] PRIMARY KEY CLUSTERED 
+		(
+			[UserMappingId] ASC
+		) ON [PRIMARY]
+	) ON [PRIMARY]
+
+	-- Insert default values:
+	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
+		 VALUES ('PortalId', 'portalId', -1, -1, GETDATE(), -1, GETDATE())
+
+	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
+		 VALUES ('Id', 'sub', -1, -1, GETDATE(), -1, GETDATE())
+
+	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
+		 VALUES ('FirstName', 'givenName', -1, -1, GETDATE(), -1, GETDATE())
+
+	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
+		 VALUES ('LastName', 'surname', -1, -1, GETDATE(), -1, GETDATE())
+
+	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
+		 VALUES ('Email', 'emails', -1, -1, GETDATE(), -1, GETDATE())
+END

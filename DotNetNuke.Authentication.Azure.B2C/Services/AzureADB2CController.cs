@@ -32,6 +32,7 @@ using Dnn.PersonaBar.Library;
 using Dnn.PersonaBar.Library.Attributes;
 using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
+using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Definitions;
@@ -73,6 +74,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
         }
 
+        private void PrepareUserMappingsForCurrentPortal()
+        {
+            var userMappings = UserMappingsRepository.Instance.GetUserMappings(PortalId);
+            if (userMappings.Count() == 0)
+            {
+                userMappings = UserMappingsRepository.Instance.GetUserMappings(-1);
+                foreach (var userMapping in userMappings)
+                {
+                    UserMappingsRepository.Instance.InsertUserMapping(userMapping.DnnPropertyName, userMapping.B2cClaimName, PortalId);
+                }
+            }
+        }
+
         // POST: api/RedisCaching/UpdateGeneralSettings
         /// <summary>
         /// Updates the general settings
@@ -85,15 +99,22 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                var config = new AzureConfig(AzureConfig.ServiceName, PortalId);
                 if (!UserInfo.IsSuperUser)
                 {
-                    var config = new AzureConfig(AzureConfig.ServiceName, PortalId);
                     if (config.UseGlobalSettings || config.UseGlobalSettings != settings.UseGlobalSettings)
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
                 }
 
                 AzureADB2CProviderSettings.SaveGeneralSettings(AzureConfig.ServiceName, PortalId, settings);
                 AddUserProfilePage(PortalId, settings.Enabled && !string.IsNullOrEmpty(settings.ProfilePolicy));
+
+                // If UseGlobalSettigns was set to false, we have to create mappings if there're no mappings for the current portal
+                if (config.UseGlobalSettings != settings.UseGlobalSettings && settings.UseGlobalSettings == false)
+                {
+                    PrepareUserMappingsForCurrentPortal();
+                }
+
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
@@ -143,7 +164,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var userMappings = UserMappings.GetUserMappings();
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalId);
+                var userMappings = UserMappingsRepository.Instance.GetUserMappings(settings.UseGlobalSettings ? -1 : PortalId)
+                    .Select((mapping, index) => new { 
+                                                        mapping.DnnPropertyName,
+                                                        mapping.B2cClaimName
+                                                    }
+                            );
 
                 return Request.CreateResponse(HttpStatusCode.OK, userMappings);
             }
@@ -180,7 +207,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
         public class UpdateUserMappingInput
         {
-            public UserMappingsUserMapping mappingDetail;
+            public string DnnPropertyName;
+            public string B2cClaimName;
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -188,16 +216,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                // Get all the user mappings
-                var userMappings = UserMappings.GetUserMappings();
-
-                var itemFound = Array.Find(userMappings.UserMapping, item => item.DnnPropertyName == input.mappingDetail.DnnPropertyName);
-                if (itemFound != null)
-                {
-                    itemFound.DnnPropertyName = input.mappingDetail.DnnPropertyName;
-                    itemFound.B2cClaimName = input.mappingDetail.B2cClaimName;
-                    UserMappings.UpdateUserMappings(userMappings);
-                }
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalId);
+                UserMappingsRepository.Instance.UpdateUserMapping(input.DnnPropertyName, input.B2cClaimName, settings.UseGlobalSettings ? -1 : PortalId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }

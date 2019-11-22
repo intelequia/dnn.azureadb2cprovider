@@ -177,10 +177,12 @@
     <Compile Include="Components\Graph\Models\User.cs" />
     <Compile Include="Components\IB2CController.cs" />
     <Compile Include="Components\MenuController.cs" />
+    <Compile Include="Components\Models\UserMapping.cs" />
     <Compile Include="Components\ProfileMappings.cs" />
     <Compile Include="Components\RoleMappings.cs" />
     <Compile Include="Components\State.cs" />
-    <Compile Include="Components\UserMappings.cs" />
+    <Compile Include="Data\IUserMappingsRepository.cs" />
+    <Compile Include="Data\UserMappingsRepository.cs" />
     <Compile Include="ScheduledTasks\SyncSchedule.cs" />
     <Compile Include="Services\AuthorizationController.cs" />
     <Compile Include="Services\HelloController.cs" />
@@ -230,7 +232,7 @@
     <Content Include="packages.config" />
     <None Include="DnnProfileMappings.config" />
     <None Include="DnnRoleMappings.config" />
-    <None Include="DnnUserMappings.config" />
+    <None Include="Providers\DataProviders\SqlDataProvider\01.02.00.SqlDataProvider" />
     <None Include="Providers\DataProviders\SqlDataProvider\01.00.00.SqlDataProvider" />
     <None Include="Providers\DataProviders\SqlDataProvider\uninstall.SqlDataProvider" />
   </ItemGroup>

@@ -37,7 +37,8 @@ class UserMappings extends Component {
         const {props} = this;
 
         let payload = {
-            mappingDetail: mappingDetail
+            DnnPropertyName: mappingDetail.DnnPropertyName,
+            B2cClaimName: mappingDetail.B2cClaimName
         };
         props.dispatch(SettingsActions.updateUserMapping(payload, () => {
             utils.utilities.notify(resx.get("MappingUpdateSuccess"));
