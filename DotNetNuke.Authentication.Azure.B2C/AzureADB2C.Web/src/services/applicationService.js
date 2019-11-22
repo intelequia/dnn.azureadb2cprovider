@@ -13,22 +13,22 @@ class ApplicationService {
 
     updateGeneralSettings(payload, callback, failureCallback) {
         const sf = this.getServiceFramework("AzureADB2C");        
-        sf.post("UpdateGeneralSettings", payload, failureCallback, callback);
+        sf.post("UpdateGeneralSettings", payload, callback, failureCallback);
     }    
 
     updateAdvancedSettings(payload, callback, failureCallback) {
         const sf = this.getServiceFramework("AzureADB2C");        
-        sf.post("UpdateAdvancedSettings", payload, failureCallback, callback);
+        sf.post("UpdateAdvancedSettings", payload, callback, failureCallback);
     }
 
     updateProfileMapping(payload, callback, failureCallback) {
         const sf = this.getServiceFramework("AzureADB2C");        
-        sf.post("UpdateProfileMapping", payload, failureCallback, callback);
+        sf.post("UpdateProfileMapping", payload, callback, failureCallback);
     }
 
     deleteProfileMapping(payload, callback, failureCallback) {
         const sf = this.getServiceFramework("AzureADB2C");        
-        sf.post("DeleteProfileMapping", payload, failureCallback, callback);
+        sf.post("DeleteProfileMapping", payload, callback, failureCallback);
     }
     getProfileSettings(callback) {
         const sf = this.getServiceFramework("AzureADB2C");        
@@ -52,12 +52,12 @@ class ApplicationService {
 
     updateRoleMapping(payload, callback, failureCallback) {
         const sf = this.getServiceFramework("AzureADB2C");        
-        sf.post("UpdateRoleMapping", payload, failureCallback, callback);
+        sf.post("UpdateRoleMapping", payload, callback, failureCallback);
     }
 
     deleteRoleMapping(payload, callback, failureCallback) {
         const sf = this.getServiceFramework("AzureADB2C");        
-        sf.post("DeleteRoleMapping", payload, failureCallback, callback);
+        sf.post("DeleteRoleMapping", payload, callback, failureCallback);
     }
 
     getUserMappingSettings(callback) {
@@ -67,7 +67,7 @@ class ApplicationService {
 
     updateUserMapping(payload, callback, failureCallback) {
         const sf = this.getServiceFramework("AzureADB2C");        
-        sf.post("UpdateUserMapping", payload, failureCallback, callback);
+        sf.post("UpdateUserMapping", payload, callback, failureCallback);
     }
 }
 const applicationService = new ApplicationService();

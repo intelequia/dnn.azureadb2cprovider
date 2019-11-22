@@ -94,7 +94,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 AzureADB2CProviderSettings.SaveGeneralSettings(AzureConfig.ServiceName, PortalId, settings);
                 AddUserProfilePage(PortalId, settings.Enabled && !string.IsNullOrEmpty(settings.ProfilePolicy));
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
             {
@@ -199,7 +199,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     UserMappings.UpdateUserMappings(userMappings);
                 }
 
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
             {
@@ -245,7 +245,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 RoleMappings.UpdateRoleMappings(roleMappings);
 
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
             {
@@ -275,7 +275,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     RoleMappings.UpdateRoleMappings(roleMappings);
                 }
 
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
             {
@@ -321,7 +321,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 ProfileMappings.UpdateProfileMappings(profileMappings);
 
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
             {
@@ -351,7 +351,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     ProfileMappings.UpdateProfileMappings(profileMappings);
                 }
 
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
             {
@@ -395,7 +395,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             try
             {
                 ProfileMappings.UpdateProfileMappings(profileMappings);
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
             {
@@ -423,7 +423,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
                 }
                 AzureADB2CProviderSettings.SaveAdvancedSettings(AzureConfig.ServiceName, PortalId, settings);
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
             {
