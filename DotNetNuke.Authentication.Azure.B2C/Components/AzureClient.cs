@@ -87,12 +87,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         private readonly AzureConfig Settings;
 
-        private ProfileMappings _customClaimsMappings;
-        public ProfileMappings CustomClaimsMappings {
+        private List<ProfileMapping> _customClaimsMappings;
+        public List<ProfileMapping> CustomClaimsMappings {
             get {
                 if (_customClaimsMappings == null)
                 {
-                    _customClaimsMappings = ProfileMappings.GetProfileMappings(System.Web.Hosting.HostingEnvironment.MapPath(ProfileMappings.DefaultProfileMappingsFilePath));
+                    _customClaimsMappings = ProfileMappingsRepository.Instance.GetProfileMappings(GetCalculatedPortalId()).ToList();
                 }
                 return _customClaimsMappings;
             }
@@ -118,7 +118,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 if (_customUserMappings == null)
                 {
-                    _customUserMappings = UserMappingsRepository.Instance.GetUserMappings(Settings.UseGlobalSettings ? -1 : PortalSettings.Current.PortalId).ToList();
+                    _customUserMappings = UserMappingsRepository.Instance.GetUserMappings(GetCalculatedPortalId()).ToList();
                 }
                 return _customUserMappings;
             }
@@ -132,7 +132,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 if (_userIdClaim == null)
                 {
                     
-                    var usernameMapping = UserMappingsRepository.Instance.GetUserMapping("Id", Settings.UseGlobalSettings ? -1 : PortalSettings.Current.PortalId);
+                    var usernameMapping = UserMappingsRepository.Instance.GetUserMapping("Id", GetCalculatedPortalId());
                     _userIdClaim = (usernameMapping != null) ? usernameMapping.B2cClaimName : "sub";
                 }
                 return _userIdClaim;
@@ -190,6 +190,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             _autoMatchExistingUsers = value;
         }
 
+        private int GetCalculatedPortalId()
+        {
+            return Settings.UseGlobalSettings ? -1 : PortalSettings.Current.PortalId;
+        }
 
         public AzureClient(int portalId, AuthMode mode) 
             : base(portalId, mode, AzureConfig.ServiceName)
@@ -358,7 +362,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     default:
                         // If we're here, "claim" is not a B2C built-in claim
                         // So, we have to map this custom claim to a DNN profile property
-                        var mapping = CustomClaimsMappings.ProfileMapping.FirstOrDefault(c => $"extension_{c.B2cClaimName.ToLower()}" == claim.Type.ToLower());
+                        var mapping = CustomClaimsMappings.FirstOrDefault(c => $"extension_{c.B2cClaimName.ToLower()}" == claim.Type.ToLower());
                         if (mapping != null)
                         {
                             properties.Add(mapping.DnnProfilePropertyName, claim.Value);
@@ -454,7 +458,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (IsCurrentUserAuthorized() && JwtIdToken != null)
             {
                 // Check if portalId profile mapping exists
-                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", Settings.UseGlobalSettings ? -1 : portalSettings.PortalId);
+                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", GetCalculatedPortalId());
                 if (!string.IsNullOrEmpty(portalUserMapping?.B2cClaimName))
                 {
                     var claimName = portalUserMapping?.B2cClaimName;
@@ -483,7 +487,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 }
             }
             
-            var userIdClaim = Utils.GetUserIdClaim(Settings.UseGlobalSettings ? -1 : portalSettings.PortalId);
+            var userIdClaim = Utils.GetUserIdClaim(GetCalculatedPortalId());
             var userClaim = JwtIdToken.Claims.FirstOrDefault(x => x.Type == userIdClaim);
             if (userClaim == null)
             {

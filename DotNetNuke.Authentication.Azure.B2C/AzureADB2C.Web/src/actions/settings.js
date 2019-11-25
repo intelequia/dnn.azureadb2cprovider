@@ -135,7 +135,7 @@ const settingsActions = {
                 dispatch({
                     type: ActionTypes.RETRIEVED_PROFILESETTINGS,
                     data: {
-                        profileMapping: data.ProfileMapping
+                        profileMapping: data
                     }
                 });
                 if (callback) {

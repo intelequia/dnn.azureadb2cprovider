@@ -32,6 +32,7 @@ using Dnn.PersonaBar.Library;
 using Dnn.PersonaBar.Library.Attributes;
 using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
+using DotNetNuke.Authentication.Azure.B2C.Components.Models;
 using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Modules;
@@ -79,10 +80,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             var userMappings = UserMappingsRepository.Instance.GetUserMappings(PortalId);
             if (userMappings.Count() == 0)
             {
-                userMappings = UserMappingsRepository.Instance.GetUserMappings(-1);
+                userMappings = UserMappingsRepository.Instance.GetUserMappings(-1); // Let's create user mappings based on Portal -1
                 foreach (var userMapping in userMappings)
                 {
                     UserMappingsRepository.Instance.InsertUserMapping(userMapping.DnnPropertyName, userMapping.B2cClaimName, PortalId);
+                }
+            }
+
+            var profileMappings = ProfileMappingsRepository.Instance.GetProfileMappings(PortalId);
+            if (profileMappings.Count() == 0)
+            {
+                profileMappings = ProfileMappingsRepository.Instance.GetProfileMappings(-1);
+                foreach (var profileMapping in profileMappings)
+                {
+                    ProfileMappingsRepository.Instance.InsertProfileMapping(profileMapping.DnnProfilePropertyName, profileMapping.B2cClaimName, PortalId);
                 }
             }
         }
@@ -124,14 +135,25 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
         }
 
+        private int GetCalculatedPortalId()
+        {
+            var settings = new AzureConfig(AzureConfig.ServiceName, PortalId);
+            return settings.UseGlobalSettings ? -1 : PortalId;
+        }
+
         [HttpGet]
         [ValidateAntiForgeryToken]
         public HttpResponseMessage GetProfileSettings()
         {
             try
             {
-                var profileSettings = ProfileMappings.GetProfileMappings();
-                
+                var profileSettings = ProfileMappingsRepository.Instance.GetProfileMappings(GetCalculatedPortalId())
+                                        .Select((mapping, index) => new {
+                                            mapping.DnnProfilePropertyName,
+                                            mapping.B2cClaimName
+                                        }
+                            );
+
                 return Request.CreateResponse(HttpStatusCode.OK, profileSettings);
             }
             catch (Exception ex)
@@ -164,8 +186,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = new AzureConfig(AzureConfig.ServiceName, PortalId);
-                var userMappings = UserMappingsRepository.Instance.GetUserMappings(settings.UseGlobalSettings ? -1 : PortalId)
+                var userMappings = UserMappingsRepository.Instance.GetUserMappings(GetCalculatedPortalId())
                     .Select((mapping, index) => new { 
                                                         mapping.DnnPropertyName,
                                                         mapping.B2cClaimName
@@ -216,8 +237,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = new AzureConfig(AzureConfig.ServiceName, PortalId);
-                UserMappingsRepository.Instance.UpdateUserMapping(input.DnnPropertyName, input.B2cClaimName, settings.UseGlobalSettings ? -1 : PortalId);
+                UserMappingsRepository.Instance.UpdateUserMapping(input.DnnPropertyName, input.B2cClaimName, GetCalculatedPortalId());
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
@@ -306,8 +326,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
         public class UpdateProfileMappingInput
         {
+            public class ProfileMappingDetail
+            {
+                public string DnnProfilePropertyName;
+                public string B2cClaimName;
+            }
             public string originalDnnPropertyName;
-            public ProfileMappingsProfileMapping profileMappingDetail;
+            public ProfileMappingDetail profileMappingDetail;
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -315,31 +340,23 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                // Get all the profile mappings
-                var profileMappings = ProfileMappings.GetProfileMappings();
-                // Find the one with DnnPropertyName = input.originalDnnPropertyName
-                var itemFound = Array.Find(profileMappings.ProfileMapping, item => item.DnnProfilePropertyName == input.originalDnnPropertyName);
-                if (itemFound == null)
+                if (string.IsNullOrEmpty(input.originalDnnPropertyName))
                 {
-                    // The item is not in the list, so it's new
-                    var list = new List<ProfileMappingsProfileMapping>(profileMappings.ProfileMapping);
-                    itemFound = new ProfileMappingsProfileMapping
-                    {
-                        DnnProfilePropertyName = input.profileMappingDetail.DnnProfilePropertyName,
-                        B2cClaimName = input.profileMappingDetail.B2cClaimName
-                    };
-
-                    list.Add(itemFound);
-
-                    profileMappings.ProfileMapping = list.OrderBy(e => e.DnnProfilePropertyName).ToArray();
+                    // It doesn't exist, let's create it
+                    ProfileMappingsRepository.Instance.InsertProfileMapping(input.profileMappingDetail.DnnProfilePropertyName, input.profileMappingDetail.B2cClaimName, GetCalculatedPortalId());
                 }
                 else
                 {
-                    itemFound.DnnProfilePropertyName = input.profileMappingDetail.DnnProfilePropertyName;
-                    itemFound.B2cClaimName = input.profileMappingDetail.B2cClaimName;
+                    var profileMapping = ProfileMappingsRepository.Instance.GetProfileMapping(input.originalDnnPropertyName, GetCalculatedPortalId());
+                    if (profileMapping != null)
+                    {
+                        ProfileMappingsRepository.Instance.UpdateProfileMapping(profileMapping.DnnProfilePropertyName, input.profileMappingDetail.B2cClaimName, GetCalculatedPortalId());
+                    }                    
+                    else
+                    {
+                        throw new ArgumentException($"Profile mapping not found: {input.originalDnnPropertyName}");
+                    }
                 }
-
-                ProfileMappings.UpdateProfileMappings(profileMappings);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
@@ -360,16 +377,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var profileMappings = ProfileMappings.GetProfileMappings();
-                var list = new List<ProfileMappingsProfileMapping>(profileMappings.ProfileMapping);
-                var itemToRemove = list.Find(item => item.DnnProfilePropertyName == input.dnnProfilePropertyName);
-                if (itemToRemove != null)
-                {
-                    list.Remove(itemToRemove);
-                    profileMappings.ProfileMapping = list.ToArray();
-
-                    ProfileMappings.UpdateProfileMappings(profileMappings);
-                }
+                ProfileMappingsRepository.Instance.DeleteProfileMapping(input.dnnProfilePropertyName, GetCalculatedPortalId());
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
@@ -400,22 +408,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 result.Sort();
 
                 return Request.CreateResponse(HttpStatusCode.OK, result);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public HttpResponseMessage UpdateProfileSettings(ProfileMappings profileMappings)
-        {
-            try
-            {
-                ProfileMappings.UpdateProfileMappings(profileMappings);
-                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (Exception ex)
             {
