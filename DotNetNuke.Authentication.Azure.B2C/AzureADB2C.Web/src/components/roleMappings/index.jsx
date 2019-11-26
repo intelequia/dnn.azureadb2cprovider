@@ -83,7 +83,7 @@ class RoleMappings extends Component {
     onDeleteMapping(mappingId) {
         const {props} = this;
         utils.utilities.confirm(resx.get("MappingDeletedWarning"), resx.get("Yes"), resx.get("No"), () => {
-            let originalRoleName = mappingId.split("-")[0];
+            let originalRoleName = mappingId.split("|")[0];
             
             let payload = {
                 dnnRoleName: originalRoleName

@@ -98,14 +98,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
         }
 
-        private RoleMappings _customRoleMappings;
-        public RoleMappings CustomRoleMappings
+        private List<RoleMapping> _customRoleMappings;
+        public List<RoleMapping> CustomRoleMappings
         {
             get
             {
                 if (_customRoleMappings == null)
                 {
-                    _customRoleMappings = RoleMappings.GetRoleMappings(System.Web.Hosting.HostingEnvironment.MapPath(RoleMappings.DefaultRoleMappingsFilePath));
+                    _customRoleMappings = RoleMappingsRepository.Instance.GetRoleMappings(GetCalculatedPortalId()).ToList();
                 }
                 return _customRoleMappings;
             }
@@ -136,6 +136,48 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     _userIdClaim = (usernameMapping != null) ? usernameMapping.B2cClaimName : "sub";
                 }
                 return _userIdClaim;
+            }
+        }
+
+        private string _firstNameClaimName;
+        private string FirstNameClaimName
+        {
+            get
+            {
+                if(_firstNameClaimName == null)
+                {
+                    var firstNameMapping = UserMappingsRepository.Instance.GetUserMapping("FirstName", GetCalculatedPortalId());
+                    _firstNameClaimName = (firstNameMapping != null) ? firstNameMapping.B2cClaimName : JwtRegisteredClaimNames.GivenName;
+                }
+                return _firstNameClaimName;
+            }
+        }
+
+        private string _lastNameClaimName;
+        private string LastNameClaimName
+        {
+            get
+            {
+                if (_lastNameClaimName == null)
+                {
+                    var lastNameMapping = UserMappingsRepository.Instance.GetUserMapping("LastName", GetCalculatedPortalId());
+                    _lastNameClaimName = (lastNameMapping != null) ? lastNameMapping.B2cClaimName : JwtRegisteredClaimNames.FamilyName;
+                }
+                return _lastNameClaimName;
+            }
+        }
+
+        private string _emailClaimName;
+        private string EmailClaimName
+        {
+            get
+            {
+                if (_emailClaimName == null)
+                {
+                    var emailMapping = UserMappingsRepository.Instance.GetUserMapping("Email", GetCalculatedPortalId());
+                    _emailClaimName = (emailMapping != null) ? emailMapping.B2cClaimName : "emails";
+                }
+                return _emailClaimName;
             }
         }
 
@@ -281,17 +323,17 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 return null;
             }
             var claims = JwtIdToken.Claims.ToArray();
-            EnsureClaimExists(claims, JwtRegisteredClaimNames.GivenName);
-            EnsureClaimExists(claims, JwtRegisteredClaimNames.FamilyName);
-            EnsureClaimExists(claims, "emails");
-            EnsureClaimExists(claims, "sub");       // we need this claim to make calls to AAD Graph
+            EnsureClaimExists(claims, FirstNameClaimName);
+            EnsureClaimExists(claims, LastNameClaimName);
+            EnsureClaimExists(claims, EmailClaimName);
             EnsureClaimExists(claims, UserIdClaim);
+            EnsureClaimExists(claims, "sub");       // we need this claim to make calls to AAD Graph
 
             var user = new AzureUserData()
             {
-                AzureFirstName = claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.GivenName)?.Value,
-                AzureLastName = claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.FamilyName)?.Value,
-                Email = claims.FirstOrDefault(x => x.Type == "emails")?.Value,
+                AzureFirstName = claims.FirstOrDefault(x => x.Type == FirstNameClaimName)?.Value,
+                AzureLastName = claims.FirstOrDefault(x => x.Type == LastNameClaimName)?.Value,
+                Email = claims.FirstOrDefault(x => x.Type == EmailClaimName)?.Value,
                 Id = claims.FirstOrDefault(x => x.Type == UserIdClaim).Value
             };
             user.AzureDisplayName = $"{user.AzureFirstName} {user.AzureLastName}";
@@ -613,10 +655,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 {
                     var groupPrefix = PrefixServiceToGroupName ? $"{Service}-" : "";
                     var groups = aadGroups.Values;
-                    if (CustomRoleMappings.RoleMapping != null && CustomRoleMappings.RoleMapping.Length > 0)
+                    if (CustomRoleMappings != null && CustomRoleMappings.Count > 0)
                     {
                         groupPrefix = "";
-                        var b2cRoles = CustomRoleMappings.RoleMapping.Select(rm => rm.B2cRoleName);
+                        var b2cRoles = CustomRoleMappings.Select(rm => rm.B2cRoleName);
                         groups.RemoveAll(x => b2cRoles.Contains(x.DisplayName));
                     }
 
@@ -627,7 +669,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     {
                         var aadGroupName = dnnUserRole;
                         var roleName = dnnUserRole;
-                        var mapping = CustomRoleMappings.RoleMapping?.FirstOrDefault(x => x.DnnRoleName == dnnUserRole);
+                        var mapping = CustomRoleMappings?.FirstOrDefault(x => x.DnnRoleName == dnnUserRole);
                         if (mapping != null)
                         {
                             aadGroupName = mapping.B2cRoleName;

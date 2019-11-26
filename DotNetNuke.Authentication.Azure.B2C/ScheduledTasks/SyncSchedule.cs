@@ -1,27 +1,39 @@
 ﻿using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
+using DotNetNuke.Authentication.Azure.B2C.Components.Models;
+using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Services.Scheduling;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
 {
     public class SyncSchedule : SchedulerClient
     {
-        private RoleMappings _customRoleMappings;
-        public RoleMappings CustomRoleMappings
+        private List<RoleMapping> _globalRoleMappings;
+        public List<RoleMapping> GlobalRoleMappings
         {
             get
             {
-                if (_customRoleMappings == null)
+                if (_globalRoleMappings == null)
                 {
-                    _customRoleMappings = RoleMappings.GetRoleMappings(System.Web.Hosting.HostingEnvironment.MapPath(RoleMappings.DefaultRoleMappingsFilePath));
+                    _globalRoleMappings = RoleMappingsRepository.Instance.GetRoleMappings(-1).ToList();
                 }
-                return _customRoleMappings;
+                return _globalRoleMappings;
             }
         }
+
+        public List<RoleMapping> GetRoleMappingsForPortal(int portalId, AzureConfig settings)
+        {
+            if (settings.UseGlobalSettings)
+                return GlobalRoleMappings;
+            else
+                return RoleMappingsRepository.Instance.GetRoleMappings(portalId).ToList();
+        }
+
         public SyncSchedule(ScheduleHistoryItem oItem) : base()
         {
             ScheduleHistoryItem = oItem;
@@ -66,6 +78,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
         {
             try
             {
+                var customRoleMappings = GetRoleMappingsForPortal(portalId, settings);
+
                 if (string.IsNullOrEmpty(settings.AADApplicationId) || string.IsNullOrEmpty(settings.AADApplicationKey))
                 {
                     throw new Exception($"AAD application ID or key are not valid on portal {portalId}");
@@ -79,10 +93,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 {
                     var groupPrefix = settings.GroupNamePrefixEnabled ? "AzureB2C-" : "";
                     var groups = aadGroups.Values;
-                    if (CustomRoleMappings.RoleMapping != null && CustomRoleMappings.RoleMapping.Length > 0)
+                    if (customRoleMappings != null && customRoleMappings.Count > 0)
                     { 
                         groupPrefix = "";
-                        var b2cRoles = CustomRoleMappings.RoleMapping.Select(rm => rm.B2cRoleName);
+                        var b2cRoles = customRoleMappings.Select(rm => rm.B2cRoleName);
                         groups.RemoveAll(x => b2cRoles.Contains(x.DisplayName));
                     }
 
@@ -109,7 +123,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 // Remove roles no longer exists on AAD B2C (but only when the name prefix is enabled and no role mappings are configured)
                 if (settings.GroupNamePrefixEnabled)
                 {
-                    if (CustomRoleMappings.RoleMapping == null || CustomRoleMappings.RoleMapping.Length == 0)
+                    if (customRoleMappings == null || customRoleMappings.Count == 0)
                     {
                         var dnnRoles = Security.Roles.RoleController.Instance.GetRoles(portalId, x => x.RoleName.StartsWith($"AzureB2C-"));
                         foreach (var dnnRole in dnnRoles)

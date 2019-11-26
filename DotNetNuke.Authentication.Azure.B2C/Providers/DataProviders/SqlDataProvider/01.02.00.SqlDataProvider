@@ -23,14 +23,15 @@ BEGIN
 		 VALUES ('Id', 'sub', -1, -1, GETDATE(), -1, GETDATE())
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('FirstName', 'givenName', -1, -1, GETDATE(), -1, GETDATE())
+		 VALUES ('FirstName', 'given_name', -1, -1, GETDATE(), -1, GETDATE())
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('LastName', 'surname', -1, -1, GETDATE(), -1, GETDATE())
+		 VALUES ('LastName', 'family_name', -1, -1, GETDATE(), -1, GETDATE())
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
 		 VALUES ('Email', 'emails', -1, -1, GETDATE(), -1, GETDATE())
 END
+GO
 
 IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings]', N'U') IS NULL
 BEGIN
@@ -104,3 +105,24 @@ BEGIN
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
 		 VALUES ('Website', 'Website', -1, -1, GETDATE(), -1, GETDATE())
 END
+GO
+
+IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureB2C_RoleMappings]', N'U') IS NULL
+BEGIN
+	CREATE TABLE {databaseOwner}[{objectQualifier}AzureB2C_RoleMappings](
+		[RoleMappingId] [int] NOT NULL IDENTITY (1, 1),
+		[DnnRoleName] [nvarchar](50) NOT NULL,
+		[B2cRoleName] [nvarchar](100) NULL,
+		[PortalId] [int] NULL,
+		[CreatedByUserId] [int] NULL,
+		[CreatedOnDate] [datetime] NULL,
+		[LastModifiedByUserId] [int] NULL,
+		[LastModifiedOnDate] [datetime] NULL,
+	 CONSTRAINT [PK_AzureB2C_RoleMappings] PRIMARY KEY CLUSTERED 
+		(
+			[RoleMappingId] ASC
+		) ON [PRIMARY]
+	) ON [PRIMARY]
+
+END
+GO

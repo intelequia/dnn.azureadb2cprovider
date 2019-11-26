@@ -96,6 +96,16 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     ProfileMappingsRepository.Instance.InsertProfileMapping(profileMapping.DnnProfilePropertyName, profileMapping.B2cClaimName, PortalId);
                 }
             }
+
+            var roleMappings = RoleMappingsRepository.Instance.GetRoleMappings(PortalId);
+            if (roleMappings.Count() == 0)
+            {
+                roleMappings = RoleMappingsRepository.Instance.GetRoleMappings(-1);
+                foreach (var roleMapping in roleMappings)
+                {
+                    RoleMappingsRepository.Instance.InsertRoleMapping(roleMapping.DnnRoleName, roleMapping.B2cRoleName, PortalId);
+                }
+            }
         }
 
         // POST: api/RedisCaching/UpdateGeneralSettings
@@ -169,7 +179,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var roleMappings = RoleMappings.GetRoleMappings();
+                var roleMappings = RoleMappingsRepository.Instance.GetRoleMappings(GetCalculatedPortalId())
+                        .Select((mapping, index) => new
+                            {
+                                mapping.DnnRoleName,
+                                mapping.B2cRoleName
+                            }
+                        );
 
                 return Request.CreateResponse(HttpStatusCode.OK, roleMappings);
             }
@@ -250,8 +266,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
         public class UpdateRoleMappingInput
         {
+            public class RoleMappingDetail
+            {
+                public string DnnRoleName;
+                public string B2cRoleName;
+            }
             public string originalDnnRoleName;
-            public RoleMappingsRoleMapping mappingDetail;
+            public RoleMappingDetail mappingDetail;
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -259,31 +280,23 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                // Get all the role mappings
-                var roleMappings = RoleMappings.GetRoleMappings();
-                // Find the one with DnnRoleName = input.originalDnnRoleName
-                var itemFound = Array.Find(roleMappings.RoleMapping, item => item.DnnRoleName == input.originalDnnRoleName);
-                if (itemFound == null)
+                if (string.IsNullOrEmpty(input.originalDnnRoleName))
                 {
-                    // The item is not in the list, so it's new
-                    var list = new List<RoleMappingsRoleMapping>(roleMappings.RoleMapping);
-                    itemFound = new RoleMappingsRoleMapping
-                    {
-                        DnnRoleName = input.mappingDetail.DnnRoleName,
-                        B2cRoleName = input.mappingDetail.B2cRoleName
-                    };
-
-                    list.Add(itemFound);
-
-                    roleMappings.RoleMapping = list.OrderBy(e => e.DnnRoleName).ToArray();
+                    // It doesn't exist, let's create it
+                    RoleMappingsRepository.Instance.InsertRoleMapping(input.mappingDetail.DnnRoleName, input.mappingDetail.B2cRoleName, GetCalculatedPortalId());
                 }
                 else
                 {
-                    itemFound.DnnRoleName = input.mappingDetail.DnnRoleName;
-                    itemFound.B2cRoleName = input.mappingDetail.B2cRoleName;
+                    var roleMapping = RoleMappingsRepository.Instance.GetRoleMapping(input.originalDnnRoleName, GetCalculatedPortalId());
+                    if (roleMapping != null)
+                    {
+                        RoleMappingsRepository.Instance.UpdateRoleMapping(roleMapping.DnnRoleName, input.mappingDetail.B2cRoleName, GetCalculatedPortalId());
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Role mapping not found: {input.originalDnnRoleName}");
+                    }
                 }
-
-                RoleMappings.UpdateRoleMappings(roleMappings);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
@@ -304,16 +317,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var roleMappings = RoleMappings.GetRoleMappings();
-                var list = new List<RoleMappingsRoleMapping>(roleMappings.RoleMapping);
-                var itemToRemove = list.Find(item => item.DnnRoleName == input.dnnRoleName);
-                if (itemToRemove != null)
-                {
-                    list.Remove(itemToRemove);
-                    roleMappings.RoleMapping = list.ToArray();
-
-                    RoleMappings.UpdateRoleMappings(roleMappings);
-                }
+                RoleMappingsRepository.Instance.DeleteRoleMapping(input.dnnRoleName, GetCalculatedPortalId());
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }

@@ -212,7 +212,7 @@ const settingsActions = {
                 dispatch({
                     type: ActionTypes.RETRIEVED_ROLEMAPPINGSETTINGS,
                     data: {
-                        roleMapping: data.RoleMapping
+                        roleMapping: data
                     }
                 });
                 if (callback) {
