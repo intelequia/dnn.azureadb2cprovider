@@ -424,9 +424,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (pToken != null) {
                 JwtIdToken = pToken;
             }
-            var user = GetCurrentUserInternal(pToken);
+            var user = GetCurrentUserInternal(pToken).ToUserInfo(Settings.GroupNamePrefixEnabled);
             // Update user
-            var userInfo = UserController.GetUserByName(PortalSettings.Current.PortalId, user.UserName);
+            var userInfo = UserController.GetUserByName(PortalSettings.Current.PortalId, user.Username);
 
             userInfo.FirstName = user.FirstName;
             userInfo.LastName = user.LastName;
