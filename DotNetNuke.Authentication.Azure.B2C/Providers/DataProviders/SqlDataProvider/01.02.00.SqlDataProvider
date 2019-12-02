@@ -17,19 +17,27 @@ BEGIN
 
 	-- Insert default values:
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('PortalId', 'portalId', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'PortalId', 'portalId', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
+
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Id', 'sub', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Id', 'sub', PortalID, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
+
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('FirstName', 'given_name', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'FirstName', 'given_name', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
+
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('LastName', 'family_name', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'LastName', 'family_name', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Email', 'emails', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Email', 'emails', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 END
 GO
 
@@ -52,58 +60,76 @@ BEGIN
 
 	-- Insert default values:
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Biography', 'Biography', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Biography', 'Biography', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Cell', 'Cell', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Cell', 'Cell', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('City', 'City', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'City', 'City', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Fax', 'Fax', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Fax', 'Fax', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('IM', 'IM', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'IM', 'IM', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('LinkedIn', 'LinkedIn', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'LinkedIn', 'LinkedIn', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('MiddleName', 'MiddleName', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'MiddleName', 'MiddleName', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Photo', 'Photo', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Photo', 'Photo', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('PreferredLocale', 'PreferredLocale', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'PreferredLocale', 'PreferredLocale', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('PreferredTimeZone', 'PreferredTimeZone', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'PreferredTimeZone', 'PreferredTimeZone', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Prefix', 'Prefix', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Prefix', 'Prefix', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Skype', 'Skype', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Skype', 'Skype', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Suffix', 'Suffix', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Suffix', 'Suffix', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Telephone', 'Telephone', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Telephone', 'Telephone', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('TimeZone', 'TimeZone', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'TimeZone', 'TimeZone', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Twitter', 'Twitter', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Twitter', 'Twitter', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Unit', 'Unit', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Unit', 'Unit', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings] ([DnnProfilePropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 VALUES ('Website', 'Website', -1, -1, GETDATE(), -1, GETDATE())
+		 SELECT 'Website', 'Website', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 END
 GO
 
