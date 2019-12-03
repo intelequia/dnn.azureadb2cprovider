@@ -31,6 +31,7 @@ using DotNetNuke.Common;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Users;
 using DotNetNuke.Instrumentation;
+using DotNetNuke.Security.Roles;
 using DotNetNuke.Services.Authentication;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.FileSystem;
@@ -59,6 +60,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             PasswordResetPolicy,
             ProfilePolicy
         }
+
+        public const string RoleSettingsB2cPropertyName = "IdentitySource";
+        public const string RoleSettingsB2cPropertyValue = "Azure-B2C";
 
         private const string TokenEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/token";
         private const string LogoutEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/logout?p={2}&post_logout_redirect_uri={3}";
@@ -640,6 +644,38 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             HttpContext.Current.Response.SetCookie(authTokenCookie);
         }
 
+        private List<string> GetDnnB2cRoles()
+        {
+            // This is the list of DNN roles coming from B2C
+            return RoleController.Instance.GetRoles(PortalSettings.Current.PortalId)
+                .Where(r => r.Settings.ContainsKey(RoleSettingsB2cPropertyName) && r.Settings[RoleSettingsB2cPropertyName] == RoleSettingsB2cPropertyValue)
+                .Select((roleInfo) => roleInfo.RoleName)
+                .ToList();
+        }
+
+        private int AddRole(string roleName, string roleDescription, bool isFromB2c)
+        {
+            var roleId = RoleController.Instance.AddRole(new RoleInfo
+            {
+                RoleName = roleName,
+                Description = roleDescription,
+                PortalID = PortalSettings.Current.PortalId,
+                Status = RoleStatus.Approved,
+                RoleGroupID = -1,
+                AutoAssignment = false,
+                IsPublic = false
+            });
+
+            if (isFromB2c)
+            {
+                var role = RoleController.Instance.GetRoleById(PortalSettings.Current.PortalId, roleId);
+                role.Settings.Add(RoleSettingsB2cPropertyName, RoleSettingsB2cPropertyValue);
+                RoleController.Instance.UpdateRoleSettings(role, true);
+            }
+
+            return roleId;
+        }
+
         private void UpdateUserRoles(string aadUserId, UserInfo userInfo)
         {
             if (!Settings.RoleSyncEnabled)
@@ -659,13 +695,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     {
                         groupPrefix = "";
                         var b2cRoles = CustomRoleMappings.Select(rm => rm.B2cRoleName);
-                        groups.RemoveAll(x => b2cRoles.Contains(x.DisplayName));
+                        groups.RemoveAll(x => !b2cRoles.Contains(x.DisplayName));
                     }
 
-
-                    // In DNN, remove user from roles where the user doesn't belong to in AAD (we'll take care only AAD B2C roles; 
-                    // the ones that starts with "AzureB2C-")
-                    foreach (var dnnUserRole in userInfo.Roles.Where(r => groupPrefix == "" || r.StartsWith(groupPrefix)))
+                    var dnnB2cRoles = GetDnnB2cRoles();
+                    // In DNN, remove user from roles where the user doesn't belong to in AAD (we'll take care only AAD B2C roles)
+                    foreach (var dnnUserRole in userInfo.Roles.Where(role => dnnB2cRoles.Contains(role)))
                     {
                         var aadGroupName = dnnUserRole;
                         var roleName = dnnUserRole;
@@ -677,49 +712,40 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                         }
                         if (groups.FirstOrDefault(aadGroup => $"{groupPrefix}{aadGroup.DisplayName}" == aadGroupName) == null)
                         {
-                            var role = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, roleName);
-                            Security.Roles.RoleController.DeleteUserRole(userInfo, role, PortalSettings.Current, false);
+                            var role = RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, roleName);
+                            RoleController.DeleteUserRole(userInfo, role, PortalSettings.Current, false);
                         }
                     }
 
                     foreach (var group in groups)
                     {
-                        var dnnRole = Security.Roles.RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, $"{groupPrefix}{group.DisplayName}");
+                        var dnnRole = RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, $"{groupPrefix}{group.DisplayName}");
                         if (dnnRole == null)
                         {
                             // Create role
-                            var roleId = Security.Roles.RoleController.Instance.AddRole(new Security.Roles.RoleInfo
-                            {
-                                RoleName = $"{groupPrefix}{group.DisplayName}",
-                                Description = group.Description,
-                                PortalID = PortalSettings.Current.PortalId,
-                                Status = Security.Roles.RoleStatus.Approved,
-                                RoleGroupID = -1,
-                                AutoAssignment = false,
-                                IsPublic = false
-                            });
-                            dnnRole = Security.Roles.RoleController.Instance.GetRoleById(PortalSettings.Current.PortalId, roleId);
+                            var roleId = AddRole($"{groupPrefix}{group.DisplayName}", group.Description, true);
+                            dnnRole = RoleController.Instance.GetRoleById(PortalSettings.Current.PortalId, roleId);
                             // Add user to Role
-                            Security.Roles.RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId,
-                                                                               userInfo.UserID,
-                                                                               roleId,
-                                                                               Security.Roles.RoleStatus.Approved,
-                                                                               false,
-                                                                               group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DotNetNuke.Common.Utilities.Null.NullDate,
-                                                                               DotNetNuke.Common.Utilities.Null.NullDate);
+                            RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId,
+                                                                userInfo.UserID,
+                                                                roleId,
+                                                                RoleStatus.Approved,
+                                                                false,
+                                                                group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DotNetNuke.Common.Utilities.Null.NullDate,
+                                                                DotNetNuke.Common.Utilities.Null.NullDate);
                         }
                         else
                         {
                             // If user doesn't belong to that DNN role, let's add it
                             if (!userInfo.Roles.Contains($"{groupPrefix}{group.DisplayName}"))
                             {
-                                Security.Roles.RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId, 
-                                    userInfo.UserID, 
-                                    dnnRole.RoleID, 
-                                    Security.Roles.RoleStatus.Approved, 
-                                    false, 
-                                    group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DateTime.Today,
-                                    DotNetNuke.Common.Utilities.Null.NullDate);
+                                RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId, 
+                                                                    userInfo.UserID, 
+                                                                    dnnRole.RoleID, 
+                                                                    Security.Roles.RoleStatus.Approved, 
+                                                                    false, 
+                                                                    group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DateTime.Today,
+                                                                    DotNetNuke.Common.Utilities.Null.NullDate);
                             }
                         }
                     }

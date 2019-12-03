@@ -4,6 +4,7 @@ using DotNetNuke.Authentication.Azure.B2C.Components.Models;
 using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Portals;
+using DotNetNuke.Security.Roles;
 using DotNetNuke.Services.Scheduling;
 using System;
 using System.Collections.Generic;
@@ -74,6 +75,37 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
             }
         }
 
+        private int AddRole(int portalId, string roleName, string roleDescription, bool isFromB2c)
+        {
+            var roleId = RoleController.Instance.AddRole(new RoleInfo
+            {
+                RoleName = roleName,
+                Description = roleDescription,
+                PortalID = portalId,
+                Status = RoleStatus.Approved,
+                RoleGroupID = -1,
+                AutoAssignment = false,
+                IsPublic = false
+            });
+
+            if (isFromB2c)
+            {
+                var role = RoleController.Instance.GetRoleById(portalId, roleId);
+                role.Settings.Add(AzureClient.RoleSettingsB2cPropertyName, AzureClient.RoleSettingsB2cPropertyValue);
+                RoleController.Instance.UpdateRoleSettings(role, true);
+            }
+
+            return roleId;
+        }
+
+        private List<RoleInfo> GetDnnB2cRoles(int portalId)
+        {
+            // This is the list of DNN roles coming from B2C
+            return RoleController.Instance.GetRoles(portalId)
+                .Where(r => r.Settings.ContainsKey(AzureClient.RoleSettingsB2cPropertyName) && r.Settings[AzureClient.RoleSettingsB2cPropertyName] == AzureClient.RoleSettingsB2cPropertyValue)
+                .ToList();
+        }
+
         internal string SyncRoles(int portalId, AzureConfig settings)
         {
             try
@@ -97,46 +129,43 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                     { 
                         groupPrefix = "";
                         var b2cRoles = customRoleMappings.Select(rm => rm.B2cRoleName);
-                        groups.RemoveAll(x => b2cRoles.Contains(x.DisplayName));
+                        groups.RemoveAll(x => !b2cRoles.Contains(x.DisplayName));
                     }
 
                     foreach (var aadGroup in groups)
                     {                        
-                        var dnnRole = Security.Roles.RoleController.Instance.GetRoleByName(portalId, $"{groupPrefix}{aadGroup.DisplayName}");
+                        var dnnRole = RoleController.Instance.GetRoleByName(portalId, $"{groupPrefix}{aadGroup.DisplayName}");
                         if (dnnRole == null)
                         {
                             // Create role
-                            var roleId = Security.Roles.RoleController.Instance.AddRole(new Security.Roles.RoleInfo
-                            {
-                                RoleName = $"{groupPrefix}{aadGroup.DisplayName}",
-                                Description = aadGroup.Description,
-                                PortalID = portalId,
-                                Status = Security.Roles.RoleStatus.Approved,
-                                RoleGroupID = -1,
-                                AutoAssignment = false,
-                                IsPublic = false
-                            });
+                            var roleId = AddRole(portalId, $"{groupPrefix}{aadGroup.DisplayName}", aadGroup.Description, true);
                         }
+                    }
+                }
+                // Let's remove DNN roles imported from B2C that no longer exists in B2C
+                var dnnB2cRoles = GetDnnB2cRoles(portalId);
+                // Let's exclude first the mapped roles (we won't remove mapped roles)
+                foreach (var role in customRoleMappings)
+                {
+                    var mappedRole = dnnB2cRoles.FirstOrDefault(ri => ri.RoleName == role.DnnRoleName);
+                    if (mappedRole != null)
+                    {
+                        dnnB2cRoles.Remove(mappedRole);
+                    }
+                }
+                // Remove roles no longer exists in AAD B2C (only the ones that are not mapped against a DNN role)
+                foreach (var dnnRole in dnnB2cRoles)
+                {
+                    if (aadGroups == null
+                        || aadGroups.Values == null
+                        || aadGroups.Values.FirstOrDefault(x => x.DisplayName == (dnnRole.RoleName.StartsWith("AzureB2C-") ? dnnRole.RoleName.Substring("AzureB2C-".Length) : dnnRole.RoleName)) == null)
+                    {
+                        RoleController.Instance.DeleteRole(dnnRole);
+                        // This is a workaround to a bug in DNN where RoleSettings is not deleted when a role is deleted
+                        DotNetNuke.Data.DataContext.Instance().Execute(System.Data.CommandType.Text, $"DELETE {DotNetNuke.Data.DataProvider.Instance().DatabaseOwner}{DotNetNuke.Data.DataProvider.Instance().ObjectQualifier}RoleSettings WHERE RoleID = @0", dnnRole.RoleID);
                     }
                 }
 
-                // Remove roles no longer exists on AAD B2C (but only when the name prefix is enabled and no role mappings are configured)
-                if (settings.GroupNamePrefixEnabled)
-                {
-                    if (customRoleMappings == null || customRoleMappings.Count == 0)
-                    {
-                        var dnnRoles = Security.Roles.RoleController.Instance.GetRoles(portalId, x => x.RoleName.StartsWith($"AzureB2C-"));
-                        foreach (var dnnRole in dnnRoles)
-                        {
-                            if (aadGroups == null
-                                || aadGroups.Values == null
-                                || aadGroups.Values.FirstOrDefault(x => x.DisplayName == dnnRole.RoleName.Substring($"AzureB2C-".Length)) == null)
-                            {
-                                Security.Roles.RoleController.Instance.DeleteRole(dnnRole);
-                            }
-                        }
-                    }
-                }
                 return $"Successfully synchronized portal {portalId}";
             }
             catch (Exception e)
