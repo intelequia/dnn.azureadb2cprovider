@@ -226,7 +226,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 var availableRoles = RoleController.Instance.GetRoles(PortalId);
                 var result = new List<string>();
-                foreach (var availableRole in availableRoles)
+                foreach (var availableRole in availableRoles.Where(r => !r.Settings.ContainsKey("IdentitySource") || (r.Settings.ContainsKey("IdentitySource") && r.Settings["IdentitySource"] != "Azure-B2C")))
                 {
                     result.Add(availableRole.RoleName);
                 }
