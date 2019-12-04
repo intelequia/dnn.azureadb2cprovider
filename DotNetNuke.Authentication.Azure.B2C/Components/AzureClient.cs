@@ -715,13 +715,15 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
             try
             {
+                var syncOnlyMappedRoles = (CustomRoleMappings != null && CustomRoleMappings.Count > 0);
+
                 var aadGroups = GraphClient.GetUserGroups(aadUserId);
 
                 if (aadGroups != null && aadGroups.Values != null)
                 {
                     var groupPrefix = PrefixServiceToGroupName ? $"{Service}-" : "";
                     var groups = aadGroups.Values;
-                    if (CustomRoleMappings != null && CustomRoleMappings.Count > 0)
+                    if (syncOnlyMappedRoles)
                     {
                         groupPrefix = "";
                         var b2cRoles = CustomRoleMappings.Select(rm => rm.B2cRoleName);
@@ -749,7 +751,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
                     foreach (var group in groups)
                     {
-                        var dnnRole = RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, $"{groupPrefix}{group.DisplayName}");
+                        var roleToAssign = syncOnlyMappedRoles ? CustomRoleMappings.Find(r => r.B2cRoleName == group.DisplayName).DnnRoleName : $"{groupPrefix}{group.DisplayName}";
+                        var dnnRole = RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, roleToAssign);
+
                         if (dnnRole == null)
                         {
                             // Create role
@@ -767,7 +771,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                         else
                         {
                             // If user doesn't belong to that DNN role, let's add it
-                            if (!userInfo.Roles.Contains($"{groupPrefix}{group.DisplayName}"))
+                            if (!userInfo.Roles.Contains(roleToAssign))
                             {
                                 RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId, 
                                                                     userInfo.UserID, 
