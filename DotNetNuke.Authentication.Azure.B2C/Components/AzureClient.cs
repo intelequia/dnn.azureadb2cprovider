@@ -28,7 +28,10 @@ using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Authentication.Azure.B2C.Components.Models;
 using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common;
+using DotNetNuke.Common.Lists;
+using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Portals;
+using DotNetNuke.Entities.Profile;
 using DotNetNuke.Entities.Users;
 using DotNetNuke.Instrumentation;
 using DotNetNuke.Security.Roles;
@@ -560,6 +563,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                         throw new SecurityTokenException($"The logged in user {usernameToFind} does not belong to PortalId {portalSettings.PortalId}");
                     }
                     UpdateUserAndRoles(userInfo);
+                    MarkUserAsB2c(userInfo);
                 }
             }
             else
@@ -572,6 +576,32 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
         }
 
+        private void MarkUserAsB2c(UserInfo user)
+        {
+            var def = ProfileController.GetPropertyDefinitionByName(user.PortalID, "IdentitySource");
+            if (def == null)
+            {
+                var dataTypes = (new ListController()).GetListEntryInfoDictionary("DataType");
+                var definition = new ProfilePropertyDefinition(user.PortalID)
+                {
+                    DataType = dataTypes["DataType:Text"].EntryID,
+                    DefaultValue = "Azure-B2C",
+                    DefaultVisibility = UserVisibilityMode.AdminOnly,
+                    PortalId = user.PortalID,
+                    ModuleDefId = Null.NullInteger,
+                    PropertyCategory = "Security",
+                    PropertyName = "IdentitySource",
+                    Required = false,
+                    Visible = false,
+                    ViewOrder = -1
+                };
+                ProfileController.AddPropertyDefinition(definition);
+            }
+            
+            user.Profile.SetProfileProperty("IdentitySource", "Azure-B2C");
+            Security.Profile.ProfileProvider.Instance().UpdateUserProfile(user);
+        }
+        
         private void UpdateUserAndRoles(UserInfo userInfo)
         {
             if (!userInfo.Membership.Approved && IsCurrentUserAuthorized())
