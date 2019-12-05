@@ -69,7 +69,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
             }
             else
             {
-                if (UserInfo != null && UserInfo.Username.ToLowerInvariant().StartsWith("azureb2c-"))
+                var identityProvider = UserInfo.Profile.ProfileProperties.GetByName("IdentitySource");
+                if (identityProvider != null && identityProvider.PropertyValue == "Azure-B2C")
                 {
                     var oauthClient = new AzureClient(PortalId, AuthMode.Login);
 
