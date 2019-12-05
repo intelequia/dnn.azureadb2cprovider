@@ -399,4 +399,7 @@ Thank you, we appreciate your support.
   <data name="UserGeneratedPassword.Text" xml:space="preserve">
     <value>Let me create the password</value>
   </data>
+  <data name="ForcePasswordReset.Text" xml:space="preserve">
+    <value>Force password reset</value>
+  </data>
 </root>

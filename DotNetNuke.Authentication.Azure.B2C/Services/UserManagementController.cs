@@ -65,9 +65,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var query = "";
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
-                if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cExtensionName(PortalSettings.PortalId)))
+                if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
                 {
-                    query = $"$filter={userMapping.GetB2cExtensionName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
+                    query = $"$filter={userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
                 }
 
                 var users = graphClient.GetAllUsers(query);
@@ -89,9 +89,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 var user = graphClient.GetUser(objectId);
-                if (userMapping != null)
+                if (!UserInfo.IsSuperUser && userMapping != null)
                 {
-                    var b2cExtensionName = userMapping.GetB2cExtensionName(PortalSettings.PortalId);
+                    var b2cExtensionName = userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId);
                     if (string.IsNullOrEmpty(b2cExtensionName) 
                         && (user?.AdditionalData == null || !user.AdditionalData.ContainsKey(b2cExtensionName)
                         || (int)(long)user.AdditionalData[b2cExtensionName] != PortalSettings.PortalId))
@@ -143,7 +143,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null)
                 {
-                    var b2cExtensionName = userMapping.GetB2cExtensionName(PortalSettings.PortalId);
+                    var b2cExtensionName = userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId);
                     if (!string.IsNullOrEmpty(b2cExtensionName))
                     {
                         newUser.AdditionalData.Add(b2cExtensionName, PortalSettings.PortalId);
@@ -187,10 +187,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 // Validate permissions
                 var user = graphClient.GetUser(parameters.user.ObjectId);
                 // Check user is from current portal, if PortalId is an extension name
-                if (portalUserMapping != null)
+                if (!UserInfo.IsSuperUser && portalUserMapping != null)
                 {
-                    if (!user.AdditionalData.ContainsKey(portalUserMapping.B2cClaimName)
-                        || (int) (long) user.AdditionalData[portalUserMapping.B2cClaimName] != PortalSettings.PortalId)
+                    if (!user.AdditionalData.ContainsKey(portalUserMapping.GetB2cCustomClaimName())
+                        || (int) (long) user.AdditionalData[portalUserMapping.GetB2cCustomClaimName()] != PortalSettings.PortalId)
                     {
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
                     }
@@ -223,6 +223,46 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
+        public class ForceChangePasswordParameters
+        {
+            public User user { get; set; }
+        }
+        [HttpPost]
+        [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
+        public HttpResponseMessage ForceChangePassword(ForceChangePasswordParameters parameters)
+        {
+            try
+            {
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+
+                // Validate permissions
+                var user = graphClient.GetUser(parameters.user.ObjectId);
+                // Check user is from current portal, if PortalId is an extension name
+                if (!UserInfo.IsSuperUser && portalUserMapping != null)
+                {
+                    if (!user.AdditionalData.ContainsKey(portalUserMapping.GetB2cCustomClaimName())
+                        || (int)(long)user.AdditionalData[portalUserMapping.GetB2cCustomClaimName()] != PortalSettings.PortalId)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
+                    }
+                }
+
+                // Update user
+                user.AdditionalData.Clear();
+                user.AdditionalData.Add($"extension_{settings.B2cApplicationId.Replace("-", "")}_mustResetPassword", true);
+                graphClient.UpdateUser(user);
+
+                return Request.CreateResponse(HttpStatusCode.OK, user);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
 
         public class RemoveParameters
         {

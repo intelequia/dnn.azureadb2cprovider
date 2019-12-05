@@ -155,6 +155,23 @@ dnn.extend(dnn.adb2c.UserManagement,
                 );
             };
 
+            this.forceChangePassword = function () {
+                that.userManagement.loading(true);
+                that.userManagement.ajax("ForceChangePassword", {
+                    user: {
+                        objectId: that.objectId()
+                    }
+                },
+                    function (data) {
+                        that.userManagement.loading(false);
+                        toastr.success("Force change password success. The user will need to change the password on next login.");
+                    },
+                    function (e) {
+                        that.userManagement.loading(false);
+                    }, null, "POST"
+                );
+            };
+
             this.update = function () {
                 that.userManagement.loading(true);
                 that.userManagement.ajax("UpdateUser", {
