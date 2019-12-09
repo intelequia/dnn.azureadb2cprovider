@@ -411,7 +411,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     default:
                         // If we're here, "claim" is not a B2C built-in claim
                         // So, we have to map this custom claim to a DNN profile property
-                        var mapping = CustomClaimsMappings.FirstOrDefault(c => $"extension_{c.B2cClaimName.ToLower()}" == claim.Type.ToLower());
+                        var mapping = CustomClaimsMappings.FirstOrDefault(c => c.GetB2cCustomClaimName().ToLower() == claim.Type.ToLower());
                         if (mapping != null)
                         {
                             properties.Add(mapping.DnnProfilePropertyName, claim.Value);
@@ -510,11 +510,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", GetCalculatedPortalId());
                 if (!string.IsNullOrEmpty(portalUserMapping?.B2cClaimName))
                 {
-                    var claimName = portalUserMapping?.B2cClaimName;
-                    if (!claimName.StartsWith("extension_"))
-                    {
-                        claimName = $"extension_{claimName}";
-                    }
+                    var claimName = portalUserMapping?.GetB2cCustomClaimName();
                     // Get PortalId from claim
                     var portalIdClaim = JwtIdToken.Claims.FirstOrDefault(x => x.Type == claimName)?.Value;
                     if (string.IsNullOrEmpty(portalIdClaim))

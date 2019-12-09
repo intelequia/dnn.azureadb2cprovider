@@ -20,5 +20,24 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Models
         public DateTime CreatedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public DateTime LastModifiedOnDate { get; set; }
+
+        public string GetB2cCustomClaimName()
+        {
+            if (B2cClaimName.StartsWith("extension_"))
+                return B2cClaimName;
+            return string.IsNullOrEmpty(B2cClaimName)
+                ? ""
+                : $"extension_{B2cClaimName}";
+        }
+
+        public string GetB2cCustomAttributeName(int portalId)
+        {
+            if (B2cClaimName.StartsWith("extension_"))
+                return B2cClaimName;
+            var settings = new AzureConfig(AzureConfig.ServiceName, portalId);
+            return string.IsNullOrEmpty(settings.B2cApplicationId) || string.IsNullOrEmpty(B2cClaimName)
+                ? ""
+                : $"extension_{settings.B2cApplicationId.Replace("-", "")}_{B2cClaimName}";
+        }
     }
 }

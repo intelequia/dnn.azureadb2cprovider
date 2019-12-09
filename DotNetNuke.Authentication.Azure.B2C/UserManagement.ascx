@@ -145,6 +145,12 @@
                         <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
                     </div>
                     <div class="dnnFormItem">
+                        <label><% =LocalizeString("PasswordSettings") %></label>
+                    </div>
+                    <div class="dnnFormItem">
+                        <a id="btnForcePasswordReset" class="dnnPrimaryAction" data-bind="click: forceChangePassword"><% = LocalizeString("ForcePasswordReset") %></a>
+                    </div>
+                    <div class="dnnFormItem">
                         <label for="cboGroups"><% = LocalizeString("lblGroups") %></label>
                         <select data-bind="options: $parent.groups, optionsText: 'displayName', value: $parent.selectedGroup, optionsCaption: '<% = LocalizeString("ChooseGroup") %>'"></select>
                         <a id="btnAddGroup" class="dnnPrimaryAction" data-bind="click: addGroup"><% = LocalizeString("AddGroup") %></a>
