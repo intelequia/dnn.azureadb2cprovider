@@ -291,6 +291,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         #endregion
 
+        public new bool IsCurrentService()
+        {
+            var state = HttpContext.Current.Request.Params["state"];
+            var oState = new State(state);
+            return oState.Service == Service;
+        }
+
         protected override TimeSpan GetExpiry(string responseText)
         {
             var jsonSerializer = new JavaScriptSerializer();
