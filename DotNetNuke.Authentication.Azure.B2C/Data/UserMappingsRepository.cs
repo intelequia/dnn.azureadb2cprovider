@@ -44,7 +44,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Data
         public void UpdateUserMapping(string dnnPropertyName, string b2cClaimName, int portalId)
         {
             Requires.NotNullOrEmpty("DnnPropertyName", dnnPropertyName);
-            Requires.NotNullOrEmpty("B2cClaimName", b2cClaimName);
 
             var userMapping = GetUserMapping(dnnPropertyName, portalId);
             if (userMapping == null)

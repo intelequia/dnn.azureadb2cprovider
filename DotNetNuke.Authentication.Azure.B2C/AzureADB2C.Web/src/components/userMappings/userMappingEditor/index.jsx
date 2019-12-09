@@ -63,7 +63,7 @@ class UserMappingEditor extends Component {
             state.error["dnnPropertyName"] = !props.onValidate(mappingDetail, event.value);
         }
 
-        if (mappingDetail[key] === "" && key === "B2cClaimName") {
+        if (mappingDetail[key] === "" && key === "B2cClaimName" && props.dnnPropertyName !== "PortalId") {
             state.error["b2cClaimName"] = true;
         }
         else if (mappingDetail[key] !== "" && key === "B2cClaimName") {
