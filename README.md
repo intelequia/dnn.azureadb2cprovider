@@ -11,6 +11,7 @@
     - [Step 1: Azure Active Directory B2C setup](#step-1-azure-active-directory-b2c-setup)
     - [Step 2: How to setup the Azure Active Directory application to support role and profile synchronization](#step-2-how-to-setup-the-azure-active-directory-application-to-support-role-and-profile-synchronization)
     - [Step 3: DNN provider installation and configuration](#step-3-dnn-provider-installation-and-configuration)
+    - [Step 4. (Optional) Setup the User Management module](#step-4-optional-setup-the-user-management-module)
 - [Samples](#samples)
 - [Building the solution](#building-the-solution)
     - [Requirements](#requirements-1)
@@ -146,6 +147,20 @@ In this section you can customize the claim mappings between Azure AD B2C claims
 * **Role mappings**: maps B2C roles with DNN roles by name. By default, this list is empty, so all B2C roles are synced with DNN. If there are one or more mappings, only the B2C roles on the list will be synced.
 
 ![AAD B2C mappings](docs/images/AzureAdB2C_05.png  "AAD B2C mappings")
+
+<a name="step-4-setup-user-management-module"></a>
+### Step 4. (Optional) Setup the User Management module
+If you want to manage the B2C users directly from the DNN portal, with operations such as creating/modifying/deleting users, changing their B2C roles, or even forcing the password reset, you can use the new Azure AD B2C User Management module. **The module needs that the Microsoft Graph Advanced settings have been setup**:
+* Create a page and call it "User Management"
+* Drop the "DNN Azure Active Directory B2C User Management" module to the page
+
+![AAD B2C User Management module](docs/images/AzureAdB2C_06.png  "AAD B2C User Management module")
+
+If everything is setup correctly, the current list of users appears, allowing to add new ones. Note that if the "portalId" claim mapping (user mappings tab) is specified, the list of users will be filtered by the current portal Id.
+
+![AAD B2C User Management module](docs/images/AzureAdB2C_07.png  "AAD B2C User Management module")
+
+
 
 <a name="samples"></a>
 # Samples
