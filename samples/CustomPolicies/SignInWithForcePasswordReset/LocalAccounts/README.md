@@ -22,8 +22,8 @@ To use the policy:
 	DeploymentMode="Development"
 	UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights"
 and completely removing the node "UserJourneyBehaviors". 
-6. Replace the 11111111-1111-1111-1111-111111111111 on the ForcePasswordReset_TrustFrameworkExtensions.xml file with the Application Object Id of the application that will be used for reading the attributes using the graph API
-7. Replace the 22222222-2222-2222-2222-222222222222 on the ForcePasswordReset_TrustFrameworkExtensions.xml file with the Client ID of the application that will be used for reading the attributes using the graph API
+6. Replace the 11111111-1111-1111-1111-111111111111 on the ForcePasswordReset_TrustFrameworkExtensions.xml file with the Application Object Id of the application that will be used for reading the attributes using the graph API (the app called "b2c-extensions-app. Do not modify. Used by AADB2C for storing user data.")
+7. Replace the 22222222-2222-2222-2222-222222222222 on the ForcePasswordReset_TrustFrameworkExtensions.xml file with the Client ID of the application that will be used for reading the attributes using the graph API (the app called "b2c-extensions-app. Do not modify. Used by AADB2C for storing user data.")
 8. Replace the 33333333-3333-3333-3333-333333333333 on the ForcePasswordReset_TrustFrameworkExtensions.xml file with the Client ID of the ProxyIdentityExperienceFramework application
 9. Replace the 44444444-4444-4444-4444-444444444444 on the ForcePasswordReset_TrustFrameworkExtensions.xml file with the Client ID of the IdentityExperienceFramework application
 10. If you want to enable the "signup" link, on the TrustFrameworkBase.xml file look for the technical profile "SelfAsserted-LocalAccountSignin-Email" and change the metadata child element value "setting.showSignupLink" to "true"

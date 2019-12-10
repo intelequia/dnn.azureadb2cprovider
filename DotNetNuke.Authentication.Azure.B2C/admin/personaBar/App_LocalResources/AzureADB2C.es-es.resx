@@ -382,7 +382,7 @@
     <value>PortalId</value>
   </data>
   <data name="MappingDeletedWarning.Text" xml:space="preserve">
-    <value>¿Está seguro de borrar este mapeo?</value>
+    <value>¿Está seguro de borrar este mapeo?&lt;br/&gt;Los usuarios B2C permanecerán en el rol de DNN</value>
   </data>
   <data name="TabRoleMappings.Text" xml:space="preserve">
     <value>Mapeo roles</value>

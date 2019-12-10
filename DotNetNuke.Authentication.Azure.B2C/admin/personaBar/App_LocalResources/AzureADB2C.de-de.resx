@@ -382,7 +382,7 @@
     <value>PortalId</value>
   </data>
   <data name="MappingDeletedWarning.Text" xml:space="preserve">
-    <value>Sind Sie sicher, dass Sie dieses Mapping löschen möchten?</value>
+    <value>Sind Sie sicher, dass Sie dieses Mapping löschen möchten?&lt;br/&gt;B2C-Nutzer bleiben in der DNN-Rolle.</value>
   </data>
   <data name="TabRoleMappings.Text" xml:space="preserve">
     <value>Role Mappings</value>
