@@ -73,7 +73,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
 
 
             var config = new AzureConfig(AzureConfig.ServiceName, PortalId);
-            if (config.AutoRedirect && Request["legacy"] != "1")
+            var hasVerificationCode = ((AzureClient)OAuthClient).IsCurrentService() && OAuthClient.HaveVerificationCode();
+            if ((config.AutoRedirect && Request["legacy"] != "1") || hasVerificationCode)
                 loginButton_Click(null, null);
         }
 
@@ -100,18 +101,14 @@ namespace DotNetNuke.Authentication.Azure.B2C
             }           
             else
             {
-                var hasVerificationCode = OAuthClient.IsCurrentService() && OAuthClient.HaveVerificationCode();
-                if (!hasVerificationCode)
+                if (Request["error_description"]?.IndexOf("AADB2C90118") > -1)
                 {
-                    if (Request["error_description"]?.IndexOf("AADB2C90118") > -1)
-                    {
-                        ((AzureClient)OAuthClient).Policy = AzureClient.PolicyEnum.PasswordResetPolicy;
-                    }
-                    AuthorisationResult result = OAuthClient.Authorize();
-                    if (result == AuthorisationResult.Denied)
-                    {
-                        UI.Skins.Skin.AddModuleMessage(this, Localization.GetString("PrivateConfirmationMessage", Localization.SharedResourceFile), ModuleMessage.ModuleMessageType.YellowWarning);
-                    }
+                    ((AzureClient)OAuthClient).Policy = AzureClient.PolicyEnum.PasswordResetPolicy;
+                }
+                AuthorisationResult result = OAuthClient.Authorize();
+                if (result == AuthorisationResult.Denied)
+                {
+                    UI.Skins.Skin.AddModuleMessage(this, Localization.GetString("PrivateConfirmationMessage", Localization.SharedResourceFile), ModuleMessage.ModuleMessageType.YellowWarning);
                 }
             }
         }
