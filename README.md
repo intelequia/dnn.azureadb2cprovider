@@ -2,15 +2,23 @@
 [![Latest release](docs/images/BadgeRelease.svg)](https://github.com/intelequia/dnn.azureadb2cprovider/releases) [![Build Status](https://intelequia.visualstudio.com/DNN%20Azure%20AD%20B2C/_apis/build/status/DNN%20Azure%20AD%20B2C-%20CI?branchName=master)](https://intelequia.visualstudio.com/DNN%20Azure%20AD%20B2C/_build/latest?definitionId=27&branchName=master)
 
 ## Contents
-- [Overview](#overview)
-- [Requirements](#requirements)
-- [Features](#features)
-- [Installation and configuration guide](#installation-and-configuration-guide)
-  - [Azure Active Directory setup](#AADB2C-setup)
-  - [How to setup the Azure Active Directory application to support role and profile synchronization](#AAD-setup)
-  - [DNN Provider installation and configuration](#provider-configuration)
+- [DNN Azure Active Directory B2C provider](#dnn-azure-active-directory-b2c-provider)
+  - [Contents](#contents)
+  - [Requirements](#requirements)
+  - [Overview](#overview)
+  - [Features](#features)
+  - [Installation and configuration guide](#installation-and-configuration-guide)
+    - [Step 1: Azure Active Directory B2C setup](#step-1-azure-active-directory-b2c-setup)
+    - [Step 2: How to setup the Azure Active Directory application to support role and profile synchronization](#step-2-how-to-setup-the-azure-active-directory-application-to-support-role-and-profile-synchronization)
+    - [Step 3: DNN provider installation and configuration](#step-3-dnn-provider-installation-and-configuration)
 - [Samples](#samples)
-- [Building the solution](#building)
+- [Building the solution](#building-the-solution)
+    - [Requirements](#requirements-1)
+    - [Configure local npm to use the DNN public repository](#configure-local-npm-to-use-the-dnn-public-repository)
+    - [Install package dependencies](#install-package-dependencies)
+    - [Build the module](#build-the-module)
+  - [Additional information](#additional-information)
+  - [Questions &amp; Issues](#questions-amp-issues)
 
 <a name="requirements"></a>
 ## Requirements
@@ -28,7 +36,7 @@ This provider can also retrieve all personal information stored in the user attr
 
 <a name="features"></a>
 ## Features
-* Provides DNN Platform - Azure AD B2C integration by portal, so each portal on a DNN installation can setup their own Auth settings
+* Provides DNN Platform - Azure AD B2C integration by portal, so each portal on a DNN installation can setup their own Auth settings, or by the full DNN install, so all the portals share the same B2C tenant
 * Allows auto-redirection, so users are automatically redirected to the Azure AD B2C login without seeing the DNN login page
 * Supports the following policies (user flows):
   * Sign up/Sign in: users can register on Azure AD B2C and then login, or just login
@@ -38,6 +46,9 @@ This provider can also retrieve all personal information stored in the user attr
 * Supports User profile picture synchronization as part of the profile synchronization
 * Supports JWT authorization. If enabled, developers can get a JWT auth token directly from Azure B2C login using the "Resource Owner" policy, and then use that token to call any DNN WebAPI Controller with the Auth scheme "JWT".
 * Supports for 3rd party WebAPI integration through API Resource and scopes implementation
+* New support for custom claim mappings: user mappings, user profile mappings and role mappings.
+* New user management module allows to manage Azure AD B2C users directly from the DNN interface, including the force password reset attribute (check "Samples/CustomPolicies/SignInWithForcePasswordReset").
+* Now the user and role prefix can be disabled, so user and role names are more friendly (works really well when using "emails" claim as "Id" on the User mappings).
 
 <a name="installation-and-configuration-guide"></a>
 ## Installation and configuration guide
@@ -93,18 +104,17 @@ The settings page is divided into general and advanced settings.
 To start, you can simply fill up the general settings:
 * **Enabled**: Use this switch to enable/disable the Azure AD B2C provider
 * **Auto-Redirect**: This option allows you to automatically redirect your login page to the Azure AD B2C login page. If for some reason you need to login with the legacy DNN auth (i.e. using a host user), you can pass the "legacy=1" parameter in your login URL (i.e. https://mysite.com/login?legacy=1)
+* **Use Global Settings**: If enabled, all the settings are applied to all portals on this deployment. Only Super Users can edit this setting
 * **Directory Tenant Name**: This is the name of your tenant. It's the name that's in your domain name, but without the ".onmicrosoft.com" part. For instance, if your domain name is _test123.onmicrosoft.com_, your tenant name is _test123_
 * **Directory Tenant ID**: You can get this parameter from the **Properties** section of your Azure Active Directory (it's the value of the field **Directory ID**)
 * **App ID**: This is the **Application ID** of the application you created in [step 1](#AADB2C-setup) of the previous section of this guide (the B2C application)
 * **Secret**: This is the **Key** that you generated when you created the application in [step 1](#AADB2C-setup) of the previous section
+* **Redirect Uri**: If specified, the redirect uri after a successful login. By default (blank), the user will be redirected to the page originating the login redirection. This is specially useful on multiportal scenario (different DNN portals sharing the same B2C tenant), by specifying the URL https://mysite.com/api/DotNetNuke.Authentication.Azure.B2C.Services/Authorization/RedirectToPortal. This endpoints automatically manages the redirection after a successfull login, so you only need to specify this redirection URL on the B2C application and the user ends in the right portal after the login.
 * Policies (user flows):
   * **Sign up and/or sign in**: The name of your Sign-up or Sign-in policy that you created before (depending on if you want to support user registration or not)
   * **Profile**: The name of your profile policy that you created before
   * **Reset the password**: The name of the policy that you created before to reset the password
 
-**IMPORTANT** if you are using the vanilla DNN Platform installation with the default settings, after a user successfully logins on B2C will the this message: "An email with your details has been sent to the Site Administrator for verification. You will be notified by email when your registration has been approved. In the meantime you can continue to browse this site.". 
-With some configurations, this message is not even shown, but is the same situation. You can change this behavior by changing the site registration settings of your DNN website through *Site Settings > Security > Member Accounts > Registration Settings > User Registration* and set the setting to "Public".
-Also note that changing the setting, does not "verify" the users that are waiting for verification, so you probably need to go and authorize that user through the DNN Users maintenance (remember to select the "Unauthorized" users on the users maintenance window to see who is pending for verification).
 
 ![AAD B2C settings](docs/images/AzureAdB2C_03.png  "AAD B2C settings")
 
@@ -116,6 +126,9 @@ For advanced scenarios, check the advanced settings:
   * **Profile Sync**: enables profile sync after user sigin, including the profile picture (this can affect login performance)
   * **Application Id**: the application ID of the application created in [step 2](#AAD-setup) of the previous section of this guide (the Azure AD application, not the B2C)
   * **Application Key**: the secret of the application mentioned above
+* Name prefixes:
+  * **Prefix user names**: Enables the addition of the prefix "AzureB2C-" to all user names coming from B2C.
+  * **Prefix group names**: Enables the addition of the prefix "AzureB2C-" to all group names coming from B2C.
 * JWT Authorization:
   * **Enable JWT authorization**: enables the possibility of using JWT tokens created by directly using the Azure AD B2C API, and then call a DNN WebAPI controller decorated with the attribute `[DnnAuthorize(AuthTypes = "JWT")]`. An example of this controller, can be found in `DotNetNuke.Authentication.Azure.B2C\Services\HelloController.cs`. See "Hello" sample for more information.
   * **Audiences**: audiences, separated by commas, to validate on a JWT token when JWT authorization is used. If the field is empty, by default the B2C application Id is used as default audience.
@@ -123,14 +136,24 @@ For advanced scenarios, check the advanced settings:
   * **App ID Uri**: The App ID Uri of the external WebAPI, obtained from the Azure portal (i.e. https://mytenant.onmicrosoft.com/myapi/)
   * **Scopes**: The scopes separated by spaces, that will be include in the issued tokens, to be validated by the external WebAPI (i.e. "read write")
 
-![AAD B2C settings](docs/images/AzureAdB2C_04.png  "AAD B2C settings")
+![AAD B2C advanced settings](docs/images/AzureAdB2C_04.png  "AAD B2C advanced settings")
 
-<a name="features"></a>
+3. MAPPINGS
+
+In this section you can customize the claim mappings between Azure AD B2C claims and DNN properties and attributes:
+* **User mappings**: maps B2C claims to DNN user properties. These properties are fixed and are mandatory, with the exception of the "portalId" claim that can be left without mapping. By default, the "Id" property (the username) is mapped with the "sub" claim (a guid). If you are using emails as usernames, you can map the "emails" claim and disable the "Prefix user names" option in the advanced settings.
+* **User profile mappings**: maps B2C claims to DNN user profile properties. You can add or remove mappings as desired.
+* **Role mappings**: maps B2C roles with DNN roles by name. By default, this list is empty, so all B2C roles are synced with DNN. If there are one or more mappings, only the B2C roles on the list will be synced.
+
+![AAD B2C mappings](docs/images/AzureAdB2C_05.png  "AAD B2C mappings")
+
+<a name="samples"></a>
 # Samples
 Under the "samples" directory, you will find some samples that will show some integration scenarios, like integration mobile apps with DNN by using Azure AD B2C JWT auth tokens:
 * [samples/hello](samples/Hello): a simple console App, that allows you to login with a username and password into Azure AD B2C, and then call a DNN WebAPI controller
 * [samples/active-directory-b2c-dotnet-webapp-and-webapi](samples/active-directory-b2c-dotnet-webapp-and-webapi): slight modified version of the sample available on the Microsoft Azure B2C repo samples, with a webapp and a webapi consuming Azure AD B2C. Modification to setup CORS, to allow the DNN module example work with the webapi.
 * [samples/SPA-WebAPI-Client](samples/SPA-WebAPI-Client): a To-do list DNN module example, that calls an external WebAPI by using B2C JWT tokens. 
+* [samples/CustomPolicies]: custom policies samples to expand the built-in functionalities of Azure AD B2C (i.e. force password reset policy).
 
 For more samples, check:
 * [Microsoft Azure AD B2C samples](https://docs.microsoft.com/en-us/azure/active-directory-b2c/code-samples): check different samples from Microsoft, including Mobile and Desktop apps, WebAPI, Web apps, and single page applications.
@@ -164,6 +187,9 @@ Additional information regarding this sample can be found in Microsoft documenta
 * [How to build a .NET web app using Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/active-directory-b2c-devquickstarts-web-dotnet-susi)
 * [How to build a .NET web API secured using Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/active-directory-b2c-devquickstarts-api-dotnet)
 * [How to call a .NET web api using a .NET web app](https://docs.microsoft.com/azure/active-directory-b2c/active-directory-b2c-devquickstarts-web-api-dotnet)
+* [Get started with custom policies in Azure Active Directory B2C](https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-get-started-custom?tabs=applications)
+* [Solutions and Training for Azure Active Directory B2C](https://docs.microsoft.com/en-us/azure/active-directory-b2c/solution-articles)
+* [Tips and tricks for working with custom policies in Azure AD B2C by @rbrayb](https://medium.com/the-new-control-plane/tips-and-tricks-for-working-with-custom-policies-in-azure-ad-b2c-eb63b508a075)
 
 ## Questions & Issues
 
