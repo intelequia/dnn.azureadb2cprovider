@@ -36,7 +36,7 @@ class App extends Component {
                         <Tabs
                             onSelect={this.onSelectTab.bind(this)}
                             selectedIndex={this.props.selectedTab}
-                            tabHeaders={["General Settings","Advanced Settings", "Mappings"]}>
+                            tabHeaders={[resx.get("GeneralSettings"),resx.get("AdvancedSettings"), resx.get("Mappings")]}>
                             <GeneralSettings />
                             <SyncSettings />
                             <Tabs onSelect={this.onSelectSubTab.bind(this) }
