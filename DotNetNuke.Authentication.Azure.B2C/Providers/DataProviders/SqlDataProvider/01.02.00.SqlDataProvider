@@ -17,7 +17,7 @@ BEGIN
 
 	-- Insert default values:
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
-		 SELECT 'PortalId', 'portalId', PortalId, -1, GETDATE(), -1, GETDATE()
+		 SELECT 'PortalId', '', PortalId, -1, GETDATE(), -1, GETDATE()
 		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 
