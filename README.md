@@ -64,7 +64,10 @@ Following this two steps, you will give access to all your Azure AD B2C users to
 ### Step 1: Azure Active Directory B2C setup
 The following are links to official Microsoft documentation for configuring your Azure AD B2C tenant. Once you have completed all these steps, your B2C tenant will be ready to work with your DNN site:
 1. [Create an Azure Active Directory B2C tenant](https://docs.microsoft.com/en-us/azure/active-directory-b2c/tutorial-create-tenant)
-2. [Register an application in Azure Active Directory B2C](https://docs.microsoft.com/en-us/azure/active-directory-b2c/tutorial-register-applications)
+2. [Register an application in Azure Active Directory B2C](https://docs.microsoft.com/en-us/azure/active-directory-b2c/tutorial-register-applications)  
+   Define the following return urls for your site (i.e https://mysite.com):
+   - .../login (and localized urls, e.g. ../en-us/login)
+   - .../userprofile (and localized urls, e.g. ../en-us/userprofile)
 3. [Create user flows in Azure Active Directory B2C](https://docs.microsoft.com/en-us/azure/active-directory-b2c/tutorial-create-user-flows). For the time being only the following user flows are supported:
    - [Sign-up and sign-in user flow](https://docs.microsoft.com/en-us/azure/active-directory-b2c/tutorial-create-user-flows#create-a-sign-up-and-sign-in-user-flow)
    - [Password reset user flow](https://docs.microsoft.com/en-us/azure/active-directory-b2c/tutorial-create-user-flows#create-a-password-reset-user-flow)
@@ -73,6 +76,7 @@ The following are links to official Microsoft documentation for configuring your
 
 **IMPORTANT**: when creating the policies (user flows), ensure the following claims are returned: "given_name", "family_name", "emails", "sub". If not specified, an authorization error will occur when redirected back to the DNN site after login.
 To do that, on Azure Portal, go to your B2C Directory then click User flows (policies) on the left menu and select your policy. Then click on **Application claims** and make sure that **Given Name**, **Surname**, **Email Addresses** and **User's Object ID** are checked.
+
 
 <a name="AAD-setup"></a>
 ### Step 2: How to setup the Azure Active Directory application to support role and profile synchronization
