@@ -315,7 +315,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (checkExpiry)
             {
                 var now = DateTime.UtcNow;
-                if (now < jwt.ValidFrom || now > jwt.ValidTo)
+                if (now < jwt.ValidFrom.AddMinutes(-5) || now > jwt.ValidTo)
                 {
                     if (Logger.IsDebugEnabled) Logger.Debug("Token is expired");
                     return null;
