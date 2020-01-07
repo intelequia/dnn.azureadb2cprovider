@@ -123,6 +123,15 @@
   <data name="No.Text" xml:space="preserve">
     <value>No</value>
   </data>
+  <data name="GeneralSettings.Text" xml:space="preserve">
+    <value>General Settings</value>
+  </data>
+  <data name="AdvancedSettings.Text" xml:space="preserve">
+    <value>Advanced Settings</value>
+  </data>
+  <data name="Mappings.Text" xml:space="preserve">
+    <value>Mappings</value>
+  </data>
   <data name="SettingsError.Text" xml:space="preserve">
     <value>Could not update the settings. Please try later.</value>
   </data>

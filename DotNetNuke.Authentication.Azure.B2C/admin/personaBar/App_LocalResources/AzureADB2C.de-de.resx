@@ -123,6 +123,15 @@
   <data name="No.Text" xml:space="preserve">
     <value>Nein</value>
   </data>
+  <data name="GeneralSettings.Text" xml:space="preserve">
+    <value>Grundeinstellungen</value>
+  </data>
+  <data name="AdvancedSettings.Text" xml:space="preserve">
+    <value>Erweiterte Einstellungen</value>
+  </data>
+  <data name="Mappings.Text" xml:space="preserve">
+    <value>Zuordnungen</value>
+  </data>
   <data name="SettingsError.Text" xml:space="preserve">
     <value>Die Einstellungen konnten nicht aktualisiert werden. Bitte versuch es später.</value>
   </data>
@@ -136,7 +145,7 @@
     <value>Ja</value>
   </data>
   <data name="Cancel.Text" xml:space="preserve">
-    <value>Stornieren</value>
+    <value>Abbrechen</value>
   </data>
   <data name="lblTenantName.Error" xml:space="preserve">
     <value>Sie müssen den Azure AD B2C-Mandantennamen angeben</value>
@@ -145,7 +154,7 @@
     <value>Azure Active Directory B2C-Mandantenname (&amp;lt;TenantName&amp;gt;.onmicrosoft.com). Geben Sie nicht den Teil ".onmicrosoft.com" an, sondern nur den Namen des Mandanten.</value>
   </data>
   <data name="lblTenantId.Text" xml:space="preserve">
-    <value>Mieter ID</value>
+    <value>Mandanten ID</value>
   </data>
   <data name="lblTenantId.Error" xml:space="preserve">
     <value>Sie müssen die Azure AD B2C-Mandanten-ID angeben</value>
@@ -163,13 +172,13 @@
     <value>App-ID</value>
   </data>
   <data name="lblAppSecret.Error" xml:space="preserve">
-    <value>Sie müssen das Anwendungsgeheimnis angeben</value>
+    <value>Sie müssen den App-Schlüssel angeben</value>
   </data>
   <data name="lblAppSecret.Help" xml:space="preserve">
-    <value>Azure AD B2C-Anwendungsgeheimnis</value>
+    <value>Azure AD B2C-App-Schlüssel</value>
   </data>
   <data name="lblAppSecret.Text" xml:space="preserve">
-    <value>Geheimnis</value>
+    <value>App-Schlüssel</value>
   </data>
   <data name="lblAutoRedirect.Help" xml:space="preserve">
     <value>Wenn diese Option aktiviert ist, wird die Anmeldeseite automatisch zur Azure AD B2C-Anmeldeseite umgeleitet</value>
@@ -202,7 +211,7 @@
     <value>Der Name der Richtlinie zum Zurücksetzen des Kennworts</value>
   </data>
   <data name="lblPasswordResetPolicyName.Text" xml:space="preserve">
-    <value>Setzen Sie den Namen der Passwortrichtlinie zurück</value>
+     <value>Richtlinie zum Zurücksetzen des Kennworts</value>
   </data>
   <data name="lblPolicies.Text" xml:space="preserve">
     <value>Richtlinien (Benutzerflüsse)</value>
@@ -214,7 +223,7 @@
     <value>Der Name der Richtlinie für das Profil</value>
   </data>
   <data name="lblProfilePolicyName.Text" xml:space="preserve">
-    <value>Name der Profilrichtlinie</value>
+    <value>Richtlinie für Profiländerungen</value>
   </data>
   <data name="lblSignUpPolicyName.Error" xml:space="preserve">
     <value>Sie müssen den Namen der Registrierungsrichtlinie angeben</value>
@@ -223,10 +232,10 @@
     <value>Der Name der Richtlinie für die Registrierung und Anmeldung. Wenn Sie die Registrierung nicht verwenden, geben Sie einfach den Namen Ihrer Anmelderichtlinie ein</value>
   </data>
   <data name="lblSignUpPolicyName.Text" xml:space="preserve">
-    <value>Registrieren und / oder Anmelden des Richtliniennamens</value>
+    <value>Richtlinie fürs Anmelden und Registrieren</value>
   </data>
   <data name="lblTenantName.Text" xml:space="preserve">
-    <value>Name des Mieters</value>
+    <value>Name des Mandanten</value>
   </data>
   <data name="lblAADAppClientId.Error" xml:space="preserve">
     <value>Sie müssen die Azure AD-Anwendungs-ID angeben</value>
@@ -256,7 +265,7 @@
     <value>Zielgruppen</value>
   </data>
   <data name="lblGraphClient.Help" xml:space="preserve">
-    <value>Wenn die Synchronisierung aktiviert ist, müssen Sie eine Azure App-ID und ein Geheimnis angeben, um die Microsoft Graph-API zu verwenden.</value>
+    <value>Wenn die Synchronisierung aktiviert ist, müssen Sie eine Azure App-ID und den dazugehörigen Schlüssel angeben, um die Microsoft Graph-API zu verwenden.</value>
   </data>
   <data name="lblJwtAuthEnabled.Help" xml:space="preserve">
     <value>Aktiviert die JWT-Autorisierung für dieses Portal</value>
@@ -310,7 +319,7 @@
     <value>Wenn diese Option aktiviert ist, werden alle Einstellungen auf alle Portale dieser Bereitstellung angewendet. Nur Superuser können diese Einstellung bearbeiten</value>
   </data>
   <data name="lblUseGlobalSettings.Text" xml:space="preserve">
-    <value>Verwenden Sie die globalen Einstellungen</value>
+    <value>Einstellungen gelten global</value>
   </data>
   <data name="lblRedirectUri.Help" xml:space="preserve">
     <value>Falls angegeben, leitet die URI nach einer erfolgreichen Anmeldung weiter. Standardmäßig (leer) wird der Benutzer auf die Seite umgeleitet, von der die Anmeldeumleitung ausgeht.</value>
@@ -325,16 +334,16 @@
     <value>B2C Erweiterung</value>
   </data>
   <data name="cmdAddProfileMapping.Text" xml:space="preserve">
-    <value>Zuordnung hinzufügen</value>
+    <value>Neue Zuordnung</value>
   </data>
   <data name="DnnProfileProperty.Header.Text" xml:space="preserve">
-    <value>DNN-Profileigenschaft</value>
+    <value>Profileigenschaft</value>
   </data>
   <data name="lblProfilePropertiesMapping.Text" xml:space="preserve">
     <value>ZUORDNUNG VON BENUTZERPROFILEIGENSCHAFTEN</value>
   </data>
   <data name="InvalidB2cClaimName.Text" xml:space="preserve">
-    <value>Sie müssen einen gültigen B2C-Anspruchsnamen eingeben.</value>
+    <value>Sie müssen einen gültigen B2C-Claim eingeben.</value>
   </data>
   <data name="lblB2cClaimName.Text" xml:space="preserve">
     <value>B2C Claim*</value>
@@ -352,7 +361,7 @@
     <value>Diese Eigenschaft ist bereits zugeordnet.</value>
   </data>
   <data name="lblB2cClaimName.Help" xml:space="preserve">
-    <value>Der B2C-Anspruchsname</value>
+    <value>Der B2C-Claim-Name</value>
   </data>
   <data name="lblB2cExtensionName.Help" xml:space="preserve">
     <value>Der Name der B2C-Erweiterung</value>
@@ -385,19 +394,19 @@
     <value>Sind Sie sicher, dass Sie dieses Mapping löschen möchten?&lt;br/&gt;B2C-Nutzer bleiben in der DNN-Rolle.</value>
   </data>
   <data name="TabRoleMappings.Text" xml:space="preserve">
-    <value>Role Mappings</value>
+    <value>Gruppen</value>
   </data>
   <data name="TabUserMappings.Text" xml:space="preserve">
-    <value>User Mappings</value>
+    <value>Benutzer</value>
   </data>
   <data name="TabUserProfileMappings.Text" xml:space="preserve">
-    <value>User Profile Mappings</value>
+    <value>Nutzerprofil</value>
   </data>
   <data name="cmdAddRoleMapping.Text" xml:space="preserve">
-    <value>Zuordnung hinzufügen</value>
+    <value>Neue Zuordnung</value>
   </data>
   <data name="InvalidB2cRoleName.Text" xml:space="preserve">
-    <value>Falscher B2C-Rollenname</value>
+    <value>Ungültiger B2C-Rollenname</value>
   </data>
   <data name="lblDnnRoleName.Help" xml:space="preserve">
     <value>Die DNN-Rolle, die Sie mit einer B2C-Rolle abbilden möchten.</value>
@@ -421,10 +430,10 @@
     <value>B2C Claim</value>
   </data>
   <data name="DnnProperty.Header.Text" xml:space="preserve">
-    <value>DNN-Eigentum</value>
+    <value>DNN-Eigenschaft</value>
   </data>
   <data name="InvalidB2cPropertyName.Text" xml:space="preserve">
-    <value>Falscher B2C-Eigenschaftsname</value>
+    <value>Ungültiger B2C-Eigenschaftsname</value>
   </data>
   <data name="lblB2cPropertyName.Help" xml:space="preserve">
     <value>Dies ist die B2C-Eigenschaft, auf die die DNN-Eigenschaft abgebildet wird.</value>
@@ -445,7 +454,7 @@
     <value>Ermöglicht das Hinzufügen des Präfixes "AzureB2C-" zu allen Gruppennamen aus dem B2C.</value>
   </data>
   <data name="lblGroupNamePrefixEnabled.Text" xml:space="preserve">
-    <value>Präfix-Gruppennamen</value>
+    <value>Präfix für Gruppen</value>
   </data>
   <data name="lblNamePrefixes.Help" xml:space="preserve">
     <value>Standardmäßig enthalten alle Benutzer und Gruppen, die von B2C kommen, das Präfix "AzureB2C-". Mit den folgenden zwei Optionen können Sie das Hinzufügen dieses Präfixes deaktivieren</value>
@@ -457,7 +466,7 @@
     <value>Ermöglicht das Hinzufügen des Präfixes "azureb2c"- zu allen Benutzernamen aus dem B2C.</value>
   </data>
   <data name="lblUsernamePrefixEnabled.Text" xml:space="preserve">
-    <value>Präfixe Benutzernamen</value>
+    <value>Präfix für Benutzernamen</value>
   </data>
   <data name="NamePrefixesWarningMessage.Text" xml:space="preserve">
     <value>Hinweis: Wenn sich diese Einstellungen ändern, werden alle bereits synchronisierten Benutzer nach der nächsten Anmeldung wieder mit ihren neuen Benutzernamen synchronisiert, wobei die alten im System bleiben.</value>
