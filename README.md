@@ -193,6 +193,7 @@ From the command line, the following command must be executed:
 From the command line, enter the `<RepoRoot>\DotNetNuke.Authentication.Azure.B2C\AzureADB2C.Web` and run the following commands:
 ```
   npm install -g webpack
+  npm install -g webpack-cli
   npm install
 ```
 
