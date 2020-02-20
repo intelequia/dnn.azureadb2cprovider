@@ -15,3 +15,12 @@
 	<li>B2C Extension names are now calculared automatically</li>
 	<li>The JWT login process has been modified to synchronize user details and roles after the login</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.03.00</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Updated German localization (thanks @SCullman)</li>
+	<li>Updated setup documentation (thanks @SCullman)</li>
+	<li>Fixed the default portalId claim mapping to empty (not mapped by default)</li>
+	<li>Changed token expiration validation giving a 5min out-of-sync system clocks</li>
+	<li>Ordered the list of users by display name and added optional filter on User Management screen</li>
+</ul>
