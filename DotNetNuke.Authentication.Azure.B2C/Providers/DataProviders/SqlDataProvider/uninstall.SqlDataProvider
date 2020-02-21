@@ -10,10 +10,64 @@
    , 'AzureB2C_SignUpPolicy'
    , 'AzureB2C_ProfilePolicy'
    , 'AzureB2C_PasswordResetPolicy'
+   , 'AzureB2C_AADApplicationId'
+   , 'AzureB2C_AADApplicationKey'
+   , 'AzureB2C_JwtAudiences'
+   , 'AzureB2C_RoleSyncEnabled'
+   , 'AzureB2C_ProfileSyncEnabled'
+   , 'AzureB2C_JwtAuthEnabled'
+   , 'AzureB2C_APIResource'
+   , 'AzureB2C_Scopes'
+   , 'AzureB2C_UsernamePrefixEnabled'
+   , 'AzureB2C_GroupNamePrefixEnabled',
+   , 'AzureB2C_B2CApplicationId'
+   , 'AzureB2C_UserGlobalSettings'
+ )
+GO
+
+DELETE {databaseOwner}[{objectQualifier}HostSettings]
+ WHERE SettingName IN
+ (
+     'AzureB2C_APIKey'
+   , 'AzureB2C_APISecret'
+   , 'AzureB2C_AutoRedirect'
+   , 'AzureB2C_Enabled'
+   , 'AzureB2C_TenantName'
+   , 'AzureB2C_TenantId'
+   , 'AzureB2C_SignUpPolicy'
+   , 'AzureB2C_ProfilePolicy'
+   , 'AzureB2C_PasswordResetPolicy'
+   , 'AzureB2C_AADApplicationId'
+   , 'AzureB2C_AADApplicationKey'
+   , 'AzureB2C_JwtAudiences'
+   , 'AzureB2C_RoleSyncEnabled'
+   , 'AzureB2C_ProfileSyncEnabled'
+   , 'AzureB2C_JwtAuthEnabled'
+   , 'AzureB2C_APIResource'
+   , 'AzureB2C_Scopes'
+   , 'AzureB2C_UsernamePrefixEnabled'
+   , 'AzureB2C_GroupNamePrefixEnabled',
+   , 'AzureB2C_B2CApplicationId'
+   , 'AzureB2C_UserGlobalSettings'
  )
 GO
 
 DELETE FROM {databaseOwner}[{objectQualifier}Schedule] 
 WHERE TypeFullName = 'DotNetNuke.Authentication.Azure.B2C.ScheduledTasks.SyncSchedule, DotNetNuke.Authentication.Azure.B2C')
 GO
+
+IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureAD_UserMappings]', N'U') IS NULL
+BEGIN
+	DROP TABLE {databaseOwner}[{objectQualifier}AzureAD_UserMappings]
+END
+
+IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureAD_ProfileMappings]', N'U') IS NULL
+BEGIN
+	DROP TABLE {databaseOwner}[{objectQualifier}AzureAD_ProfileMappings]
+END
+
+IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureAD_RoleMappings]', N'U') IS NULL
+BEGIN
+	DROP TABLE {databaseOwner}[{objectQualifier}AzureAD_RoleMappings]
+END
 
