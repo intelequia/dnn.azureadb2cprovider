@@ -680,10 +680,15 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         private List<string> GetDnnB2cRoles()
         {
             // This is the list of DNN roles coming from B2C
-            return RoleController.Instance.GetRoles(PortalSettings.Current.PortalId)
+            var result = RoleController.Instance.GetRoles(PortalSettings.Current.PortalId)
                 .Where(r => r.Settings.ContainsKey(RoleSettingsB2cPropertyName) && r.Settings[RoleSettingsB2cPropertyName] == RoleSettingsB2cPropertyValue)
                 .Select((roleInfo) => roleInfo.RoleName)
                 .ToList();
+
+            // Tenemos que añadir también a esta lista la lista de roles mapeados, porque esos roles también están sincronizados con B2C
+            result.AddRange(CustomRoleMappings.Select((role) => role.DnnRoleName).ToList());
+
+            return result;
         }
 
         private int AddRole(string roleName, string roleDescription, bool isFromB2c)
@@ -734,7 +739,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     }
 
                     var dnnB2cRoles = GetDnnB2cRoles();
-                    // In DNN, remove user from roles where the user doesn't belong to in AAD (we'll take care only AAD B2C roles)
+                    // In DNN, remove user from roles where the user doesn't belong to in AAD (we'll take care only the roles that we are synchronizing with B2C)
                     foreach (var dnnUserRole in userInfo.Roles.Where(role => dnnB2cRoles.Contains(role)))
                     {
                         var aadGroupName = dnnUserRole;
