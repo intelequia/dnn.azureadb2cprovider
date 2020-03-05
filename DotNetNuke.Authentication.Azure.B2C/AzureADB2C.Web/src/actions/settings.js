@@ -51,7 +51,8 @@ const settingsActions = {
                         scopes: data.scopes,
                         usernamePrefixEnabled: data.usernamePrefixEnabled,
                         groupNamePrefixEnabled: data.groupNamePrefixEnabled,
-                        clientModified: false
+                        clientModified: false,
+                        ropcPolicy: data.ropcPolicy
                     }
                 });
                 if (callback) {
@@ -124,7 +125,8 @@ const settingsActions = {
                     scopes: settings.scopes,
                     usernamePrefixEnabled: settings.usernamePrefixEnabled,
                     groupNamePrefixEnabled: settings.groupNamePrefixEnabled,
-                    clientModified: true
+                    clientModified: true,
+                    ropcPolicy: settings.ropcPolicy
                 }
             });
         };

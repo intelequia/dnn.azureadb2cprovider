@@ -27,7 +27,8 @@ export default function settings(state = {
                 scopes: action.data.scopes,
                 clientModified: action.data.clientModified,
                 usernamePrefixEnabled: action.data.usernamePrefixEnabled,
-                groupNamePrefixEnabled: action.data.groupNamePrefixEnabled
+                groupNamePrefixEnabled: action.data.groupNamePrefixEnabled,
+                ropcPolicy: action.data.ropcPolicy
 
             };
         case ActionTypes.SETTINGS_CLIENT_MODIFIED:
@@ -53,7 +54,8 @@ export default function settings(state = {
                 scopes: action.data.scopes,
                 clientModified: action.data.clientModified,
                 usernamePrefixEnabled: action.data.usernamePrefixEnabled,
-                groupNamePrefixEnabled: action.data.groupNamePrefixEnabled
+                groupNamePrefixEnabled: action.data.groupNamePrefixEnabled,
+                ropcPolicy: action.data.ropcPolicy
             };
         case ActionTypes.UPDATED_SETTINGS:
             return { ...state,

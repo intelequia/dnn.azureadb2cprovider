@@ -54,6 +54,7 @@ class GeneralSettings extends Component {
             signUpPolicy: (key === "SignUpPolicy") ? event.target.value : props.signUpPolicy,
             profilePolicy: (key === "ProfilePolicy") ? event.target.value : props.profilePolicy,
             passwordResetPolicy: (key === "PasswordResetPolicy") ? event.target.value : props.passwordResetPolicy,
+            ropcPolicy: (key === "RopcPolicy") ? event.target.value : props.ropcPolicy,
         }));
     }
 
@@ -77,6 +78,7 @@ class GeneralSettings extends Component {
             signUpPolicy: props.signUpPolicy,
             profilePolicy: props.profilePolicy,
             passwordResetPolicy: props.passwordResetPolicy,
+            ropcPolicy: props.ropcPolicy
         }, () => {
             utils.utilities.notify(resx.get("SettingsUpdateSuccess"));
             this.setState({
@@ -203,6 +205,16 @@ class GeneralSettings extends Component {
                             value={this.props.passwordResetPolicy}
                             onChange={this.onSettingChange.bind(this, "PasswordResetPolicy")}
                         />
+                        <SingleLineInputWithError
+                            withLabel={true}
+                            label={resx.get("lblRopcPolicyName")}
+                            enabled={true}
+                            error={this.state.error.ropcPolicy}
+                            errorMessage={resx.get("lblRopcPolicyName.Error")}
+                            tooltipMessage={resx.get("lblRopcPolicyName.Help")}
+                            value={this.props.ropcPolicy}
+                            onChange={this.onSettingChange.bind(this, "RopcPolicy")}
+                        />
                     </GridCell>
                 </GridSystem>
                 <InputGroup>
@@ -240,7 +252,8 @@ GeneralSettings.propTypes = {
     tenantId: PropTypes.string,
     signUpPolicy: PropTypes.string,
     profilePolicy: PropTypes.string,
-    passwordResetPolicy: PropTypes.string
+    passwordResetPolicy: PropTypes.string,
+    ropcPolicy: PropTypes.string
 };
 
 
@@ -256,7 +269,8 @@ function mapStateToProps(state) {
         tenantId: state.settings.tenantId,
         signUpPolicy: state.settings.signUpPolicy,
         profilePolicy: state.settings.profilePolicy,
-        passwordResetPolicy: state.settings.passwordResetPolicy
+        passwordResetPolicy: state.settings.passwordResetPolicy,
+        ropcPolicy: state.settings.ropcPolicy
     };
 }
 

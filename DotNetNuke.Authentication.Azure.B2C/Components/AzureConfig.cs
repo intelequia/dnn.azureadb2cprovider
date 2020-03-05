@@ -66,7 +66,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             B2cApplicationId = GetScopedSetting(Service + "_B2CApplicationId", portalId, "");
             UsernamePrefixEnabled = bool.Parse(GetScopedSetting(Service + "_UsernamePrefixEnabled", portalId, "true"));
             GroupNamePrefixEnabled = bool.Parse(GetScopedSetting(Service + "_GroupNamePrefixEnabled", portalId, "true"));
-
+            RopcPolicy = GetScopedSetting(Service + "_RopcPolicy", portalId, "");
         }
 
         public static string GetSetting(string service, string key, int portalId, string defaultValue)
@@ -125,6 +125,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public bool UsernamePrefixEnabled { get; set; }
         [SortOrder(18)]
         public bool GroupNamePrefixEnabled { get; set; }
+        [SortOrder(19)]
+        public string RopcPolicy { get; set; }
 
         private static string GetCacheKey(string service, int portalId)
         {
@@ -167,6 +169,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_Scopes", config.Scopes);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_UsernamePrefixEnabled", config.UsernamePrefixEnabled.ToString());
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_GroupNamePrefixEnabled", config.GroupNamePrefixEnabled.ToString());
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_RopcPolicy", config.RopcPolicy);
 
             config.B2cApplicationId = UpdateB2CApplicationId(config);
 
