@@ -211,7 +211,7 @@
     <value>Der Name der Richtlinie zum Zurücksetzen des Kennworts</value>
   </data>
   <data name="lblPasswordResetPolicyName.Text" xml:space="preserve">
-     <value>Richtlinie zum Zurücksetzen des Kennworts</value>
+    <value>Richtlinie zum Zurücksetzen des Kennworts</value>
   </data>
   <data name="lblPolicies.Text" xml:space="preserve">
     <value>Richtlinien (Benutzerflüsse)</value>
@@ -470,5 +470,14 @@
   </data>
   <data name="NamePrefixesWarningMessage.Text" xml:space="preserve">
     <value>Hinweis: Wenn sich diese Einstellungen ändern, werden alle bereits synchronisierten Benutzer nach der nächsten Anmeldung wieder mit ihren neuen Benutzernamen synchronisiert, wobei die alten im System bleiben.</value>
+  </data>
+  <data name="lblRopcPolicyName.Error" xml:space="preserve">
+    <value>Sie müssen den Namen der ROPC-Richtlinie angeben</value>
+  </data>
+  <data name="lblRopcPolicyName.Help" xml:space="preserve">
+    <value>Der Flow für Kennwortanmeldeinformationen von Ressourcenbesitzern (Resource Owner Password Credentials, ROPC)</value>
+  </data>
+  <data name="lblRopcPolicyName.Text" xml:space="preserve">
+    <value>Name der ROPC-Richtlinie</value>
   </data>
 </root>

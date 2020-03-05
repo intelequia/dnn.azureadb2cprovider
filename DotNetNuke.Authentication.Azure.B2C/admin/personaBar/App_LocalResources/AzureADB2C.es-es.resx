@@ -462,4 +462,13 @@
   <data name="NamePrefixesWarningMessage.Text" xml:space="preserve">
     <value>Advertencia: Si estos ajustes cambian, todos los usuarios que ya han sido sincronizados serán sincronizados de nuevo con sus nuevos nombres de usuario tras el siguiente login, dejando los antiguos en el sistema.</value>
   </data>
+  <data name="lblRopcPolicyName.Error" xml:space="preserve">
+    <value>Debes especificar el nombre de la política para el ROPC</value>
+  </data>
+  <data name="lblRopcPolicyName.Help" xml:space="preserve">
+    <value>Nombre de la política para el flujo de credenciales de contraseña de propietario del recurso (ROPC)</value>
+  </data>
+  <data name="lblRopcPolicyName.Text" xml:space="preserve">
+    <value>Política de ROPC</value>
+  </data>
 </root>

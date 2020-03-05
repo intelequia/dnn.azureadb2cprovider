@@ -471,4 +471,13 @@
   <data name="NamePrefixesWarningMessage.Text" xml:space="preserve">
     <value>Warning: If these settings change, all users who have already been synchronized will be synchronized again with their new usernames after the next login, leaving the old ones in the system.</value>
   </data>
+  <data name="lblRopcPolicyName.Error" xml:space="preserve">
+    <value>You must specify the name of the ROPC policy</value>
+  </data>
+  <data name="lblRopcPolicyName.Help" xml:space="preserve">
+    <value>The name of the policy for the resource owner password credentials (ROPC)</value>
+  </data>
+  <data name="lblRopcPolicyName.Text" xml:space="preserve">
+    <value>ROPC policy name</value>
+  </data>
 </root>
