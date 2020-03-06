@@ -52,33 +52,43 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         #region constants, properties, etc.
 
         private static readonly ILog Logger = LoggerSource.Instance.GetLogger(typeof(B2CController));
-        private static Dictionary<int, OpenIdConnectConfiguration> _config = null;
+        private static Dictionary<int, B2CControllerConfiguration> _config = null;
         private static readonly Encoding TextEncoder = Encoding.UTF8;
         public const string AuthScheme = "Bearer";
         public string SchemeType => "JWT";
 
-        internal static Dictionary<int, OpenIdConnectConfiguration> Config
+        internal static Dictionary<int, B2CControllerConfiguration> Config
         {
             get
             {
                 if (_config == null)
                 {
-                    _config = new Dictionary<int, OpenIdConnectConfiguration>();
+                    _config = new Dictionary<int, B2CControllerConfiguration>();
                 }
                 return _config;
             }
         }
 
-        internal static OpenIdConnectConfiguration GetConfig(int portalId, AzureConfig azureB2cConfig)
+        internal static B2CControllerConfiguration GetConfig(int portalId, AzureConfig azureB2cConfig)
         {
-            if (!Config.ContainsKey(portalId))
+            const string DefaultRopcPolicy = "B2C_1_ROPC";
+
+            var currentConfig = Config.ContainsKey(portalId) ? Config[portalId] : null;
+            if (currentConfig != null && !currentConfig.IsValid(azureB2cConfig, DefaultRopcPolicy))
             {
-                var ropcPolicyName = !string.IsNullOrEmpty(azureB2cConfig.RopcPolicy) ? azureB2cConfig.RopcPolicy : "B2C_1_ROPC";
+                Config.Remove(portalId);
+                currentConfig = null;
+            }
+
+            if (currentConfig == null)
+            {
+                var ropcPolicyName = !string.IsNullOrEmpty(azureB2cConfig.RopcPolicy) ? azureB2cConfig.RopcPolicy : DefaultRopcPolicy;
                 var tokenConfigurationUrl = $"https://{azureB2cConfig.TenantName}.b2clogin.com/{azureB2cConfig.TenantId}/.well-known/openid-configuration?p={ropcPolicyName}";
                 var _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(tokenConfigurationUrl, new OpenIdConnectConfigurationRetriever());
                 var _config = _configManager.GetConfigurationAsync().Result;
-                Config.Add(portalId, _config);
+                Config.Add(portalId, new B2CControllerConfiguration(ropcPolicyName, _config));
             }
+
             return Config[portalId]; 
         }
 
@@ -350,8 +360,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     // App Id URI and AppId of this service application are both valid audiences.
                     ValidAudiences = validAudiences,
                     // Support Azure AD V1 and V2 endpoints.
-                    ValidIssuers = new[] { _config.Issuer, $"{_config.Issuer}v2.0/" },
-                    IssuerSigningKeys = _config.SigningKeys
+                    ValidIssuers = new[] { _config.OpenIdConfig.Issuer, $"{_config.OpenIdConfig.Issuer}v2.0/" },
+                    IssuerSigningKeys = _config.OpenIdConfig.SigningKeys
                 };
 
                 var claimsPrincipal = _tokenValidator.ValidateToken(rawToken, validationParameters, out SecurityToken _);

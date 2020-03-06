@@ -163,6 +163,7 @@
     <Compile Include="Components\AzureConfig.cs" />
     <Compile Include="Components\AzureUserData.cs" />
     <Compile Include="Components\B2CController.cs" />
+    <Compile Include="Components\B2CControllerConfiguration.cs" />
     <Compile Include="Components\FeatureController.cs" />
     <Compile Include="Components\Graph\GraphClient.cs" />
     <Compile Include="Components\Graph\Models\Application.cs" />
