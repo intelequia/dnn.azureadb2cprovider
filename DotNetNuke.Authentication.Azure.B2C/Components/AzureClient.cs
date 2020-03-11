@@ -685,7 +685,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 .Select((roleInfo) => roleInfo.RoleName)
                 .ToList();
 
-            // Tenemos que añadir también a esta lista la lista de roles mapeados, porque esos roles también están sincronizados con B2C
+            // We have to add also to this list the list of mapped roles, because those roles are also synchronized with B2C
             result.AddRange(CustomRoleMappings.Select((role) => role.DnnRoleName).ToList());
 
             return result;
