@@ -817,10 +817,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
                         userInfo.Profile.Photo = profilePictureInfo.FileId.ToString();
                     }
-                    else
-                    {
-                        userInfo.Profile.Photo = "";
-                    }
                     if (saveUserInfo)
                     {
                         UserController.UpdateUser(userInfo.PortalID, userInfo);
