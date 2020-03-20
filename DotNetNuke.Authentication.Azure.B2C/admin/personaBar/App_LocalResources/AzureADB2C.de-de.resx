@@ -480,4 +480,13 @@
   <data name="lblRopcPolicyName.Text" xml:space="preserve">
     <value>Name der ROPC-Richtlinie</value>
   </data>
+  <data name="lblImpersonatePolicyName.Error" xml:space="preserve">
+    <value>Sie müssen den Namen der Impersonationsrichtlinie angeben</value>
+  </data>
+  <data name="lblImpersonatePolicyName.Help" xml:space="preserve">
+    <value>Der Name der Imitationspolitik</value>
+  </data>
+  <data name="lblImpersonatePolicyName.Text" xml:space="preserve">
+    <value>Name der Nachahmungsrichtlinie</value>
+  </data>
 </root>

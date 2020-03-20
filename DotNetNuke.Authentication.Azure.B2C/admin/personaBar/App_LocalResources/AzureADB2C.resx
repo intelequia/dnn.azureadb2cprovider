@@ -480,4 +480,13 @@
   <data name="lblRopcPolicyName.Text" xml:space="preserve">
     <value>ROPC policy name</value>
   </data>
+  <data name="lblImpersonatePolicyName.Error" xml:space="preserve">
+    <value>You must specify the impersonation policy name</value>
+  </data>
+  <data name="lblImpersonatePolicyName.Help" xml:space="preserve">
+    <value>The name of the impersonation policy</value>
+  </data>
+  <data name="lblImpersonatePolicyName.Text" xml:space="preserve">
+    <value>Impersonation policy name</value>
+  </data>
 </root>

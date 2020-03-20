@@ -69,7 +69,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         private const string TokenEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/token";
         private const string LogoutEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/logout?p={2}&post_logout_redirect_uri={3}";
-        private const string AuthorizationEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/authorize";
+        internal const string AuthorizationEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/authorize";
         private const string GraphEndpointPattern = "https://graph.windows.net/{0}";
 
         private static readonly ILog Logger = LoggerSource.Instance.GetLogger(typeof(AzureClient));
@@ -506,6 +506,27 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 };
 
             HttpContext.Current.Response.Redirect(AuthorizationEndpoint + "?" + parameters.ToNormalizedString(), false);
+        }
+
+        public Uri Impersonate(Uri redirectAfterImpersonateUri = null)
+        {
+            var parameters = new List<QueryParameter>
+                {
+                    new QueryParameter("scope", Scope),
+                    new QueryParameter("client_id", APIKey),
+                    new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
+                    new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() {
+                        PortalId = PortalSettings.Current.PortalId,
+                        Culture = PortalSettings.Current.CultureCode,
+                        RedirectUrl = redirectAfterImpersonateUri?.ToString(),
+                        IsUserProfile = false
+                    }.ToString())),
+                    new QueryParameter("response_type", "code"),
+                    new QueryParameter("response_mode", "query"),
+                    new QueryParameter("p", Settings.ImpersonatePolicy)
+                };
+
+            return new Uri(AuthorizationEndpoint + "?" + parameters.ToNormalizedString());
         }
 
         public override void AuthenticateUser(UserData user, PortalSettings settings, string IPAddress, Action<NameValueCollection> addCustomProperties, Action<UserAuthenticatedEventArgs> onAuthenticated)

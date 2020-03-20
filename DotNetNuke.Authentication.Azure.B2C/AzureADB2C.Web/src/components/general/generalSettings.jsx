@@ -55,6 +55,7 @@ class GeneralSettings extends Component {
             profilePolicy: (key === "ProfilePolicy") ? event.target.value : props.profilePolicy,
             passwordResetPolicy: (key === "PasswordResetPolicy") ? event.target.value : props.passwordResetPolicy,
             ropcPolicy: (key === "RopcPolicy") ? event.target.value : props.ropcPolicy,
+            impersonatePolicy: (key === "ImpersonatePolicy") ? event.target.value : props.impersonatePolicy,
         }));
     }
 
@@ -78,7 +79,8 @@ class GeneralSettings extends Component {
             signUpPolicy: props.signUpPolicy,
             profilePolicy: props.profilePolicy,
             passwordResetPolicy: props.passwordResetPolicy,
-            ropcPolicy: props.ropcPolicy
+            ropcPolicy: props.ropcPolicy,
+            impersonatePolicy: props.impersonatePolicy
         }, () => {
             utils.utilities.notify(resx.get("SettingsUpdateSuccess"));
             this.setState({
@@ -215,6 +217,16 @@ class GeneralSettings extends Component {
                             value={this.props.ropcPolicy}
                             onChange={this.onSettingChange.bind(this, "RopcPolicy")}
                         />
+                        <SingleLineInputWithError
+                            withLabel={true}
+                            label={resx.get("lblImpersonatePolicyName")}
+                            enabled={true}
+                            error={this.state.error.impersonatePolicy}
+                            errorMessage={resx.get("lblImpersonatePolicyName.Error")}
+                            tooltipMessage={resx.get("lblImpersonatePolicyName.Help")}
+                            value={this.props.impersonatePolicy}
+                            onChange={this.onSettingChange.bind(this, "ImpersonatePolicy")}
+                        />                        
                     </GridCell>
                 </GridSystem>
                 <InputGroup>
@@ -253,7 +265,8 @@ GeneralSettings.propTypes = {
     signUpPolicy: PropTypes.string,
     profilePolicy: PropTypes.string,
     passwordResetPolicy: PropTypes.string,
-    ropcPolicy: PropTypes.string
+    ropcPolicy: PropTypes.string,
+    impersonatePolicy: PropTypes.string
 };
 
 
@@ -270,7 +283,8 @@ function mapStateToProps(state) {
         signUpPolicy: state.settings.signUpPolicy,
         profilePolicy: state.settings.profilePolicy,
         passwordResetPolicy: state.settings.passwordResetPolicy,
-        ropcPolicy: state.settings.ropcPolicy
+        ropcPolicy: state.settings.ropcPolicy,
+        impersonatePolicy: state.settings.impersonatePolicy
     };
 }
 

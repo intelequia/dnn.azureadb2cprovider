@@ -52,7 +52,8 @@ const settingsActions = {
                         usernamePrefixEnabled: data.usernamePrefixEnabled,
                         groupNamePrefixEnabled: data.groupNamePrefixEnabled,
                         clientModified: false,
-                        ropcPolicy: data.ropcPolicy
+                        ropcPolicy: data.ropcPolicy,
+                        impersonatePolicy: data.impersonatePolicy
                     }
                 });
                 if (callback) {
@@ -126,7 +127,8 @@ const settingsActions = {
                     usernamePrefixEnabled: settings.usernamePrefixEnabled,
                     groupNamePrefixEnabled: settings.groupNamePrefixEnabled,
                     clientModified: true,
-                    ropcPolicy: settings.ropcPolicy
+                    ropcPolicy: settings.ropcPolicy,
+                    impersonatePolicy: settings.impersonatePolicy
                 }
             });
         };

@@ -3,7 +3,23 @@
     padding: 10px;
 }
 
-.b2c-overlay {
+    .userManagement.actions a {
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+        .userManagement.actions a:hover {
+            cursor: pointer;
+            text-decoration: underline !important;
+        }
+
+    .userManagement.actions span.disabled {
+        cursor: not-allowed;
+        text-decoration: none;
+        opacity: 0.5;
+    }
+
+    .b2c-overlay {
     position: fixed;
     right: 0;
     top: 0;

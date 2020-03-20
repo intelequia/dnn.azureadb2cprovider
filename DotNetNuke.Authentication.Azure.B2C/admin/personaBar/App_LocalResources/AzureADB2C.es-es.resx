@@ -471,4 +471,13 @@
   <data name="lblRopcPolicyName.Text" xml:space="preserve">
     <value>Política de ROPC</value>
   </data>
+  <data name="lblImpersonatePolicyName.Error" xml:space="preserve">
+    <value>Debes especificar el nombre de la política de impersonalización</value>
+  </data>
+  <data name="lblImpersonatePolicyName.Help" xml:space="preserve">
+    <value>El nombre de la política de impersonalización</value>
+  </data>
+  <data name="lblImpersonatePolicyName.Text" xml:space="preserve">
+    <value>Política de impersonalización</value>
+  </data>
 </root>

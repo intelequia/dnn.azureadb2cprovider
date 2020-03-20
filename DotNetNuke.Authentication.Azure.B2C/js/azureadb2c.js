@@ -257,6 +257,26 @@ dnn.extend(dnn.adb2c.UserManagement,
 
             this.ajax = ajax;
 
+            this.impersonate = function () {
+                that.loading(true);
+                ajax("Impersonate", null,
+                    function (data) {
+                        if (data.impersonateUrl) {
+                            setTimeout(function () {
+                                window.location.replace(data.impersonateUrl);
+                            }, 6000);                            
+                        }
+                        else {
+                            toastr.error("Could not get the impersonation Url. Contact your site administrator.");
+                            that.loading(false);
+                        }
+                    },
+                    function (e) {
+                        that.loading(false);
+                    }
+                );
+            };
+
             this.refresh = function () {
                 that.loading(true);
                 ajax("GetAllGroups", null,

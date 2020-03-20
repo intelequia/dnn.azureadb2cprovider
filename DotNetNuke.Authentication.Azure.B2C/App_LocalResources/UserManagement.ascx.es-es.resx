@@ -402,4 +402,7 @@ Gracias, apreciamos tu soporte.
   <data name="ForcePasswordReset.Text" xml:space="preserve">
     <value>Forzar cambio de contraseña</value>
   </data>
+  <data name="Impersonate.Text" xml:space="preserve">
+    <value>Iniciar sesión como...</value>
+  </data>
 </root>

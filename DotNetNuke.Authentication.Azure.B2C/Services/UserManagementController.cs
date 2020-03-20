@@ -1,12 +1,14 @@
 ﻿using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models;
+using DotNetNuke.Authentication.Azure.B2C.Components.Models;
 using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Users;
 using DotNetNuke.Security;
+using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.Localization;
 using DotNetNuke.Web.Api;
 using System;
@@ -99,7 +101,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 var user = graphClient.GetUser(objectId);
-                if (!UserInfo.IsSuperUser && userMapping != null)
+                // Check user is from current portal, if PortalId is an extension name
+                string portalUserMappingB2cCustomClaimName = userMapping?.GetB2cCustomClaimName();
+                if (!UserInfo.IsSuperUser && userMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
                 {
                     var b2cExtensionName = userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId);
                     if (string.IsNullOrEmpty(b2cExtensionName) 
@@ -196,8 +200,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 // Validate permissions
                 var user = graphClient.GetUser(parameters.user.ObjectId);
-                // Check user is from current portal, if PortalId is an extension name
-                if (!UserInfo.IsSuperUser && portalUserMapping != null)
+                string portalUserMappingB2cCustomClaimName = portalUserMapping?.GetB2cCustomClaimName();
+                if (!UserInfo.IsSuperUser && portalUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
                 {
                     if (!user.AdditionalData.ContainsKey(portalUserMapping.GetB2cCustomClaimName())
                         || (int) (long) user.AdditionalData[portalUserMapping.GetB2cCustomClaimName()] != PortalSettings.PortalId)
@@ -251,10 +255,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 // Validate permissions
                 var user = graphClient.GetUser(parameters.user.ObjectId);
                 // Check user is from current portal, if PortalId is an extension name
-                if (!UserInfo.IsSuperUser && portalUserMapping != null)
+                string portalUserMappingB2cCustomClaimName = portalUserMapping?.GetB2cCustomClaimName();
+                if (!UserInfo.IsSuperUser && portalUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
                 {
-                    if (!user.AdditionalData.ContainsKey(portalUserMapping.GetB2cCustomClaimName())
-                        || (int)(long)user.AdditionalData[portalUserMapping.GetB2cCustomClaimName()] != PortalSettings.PortalId)
+                    if (!user.AdditionalData.ContainsKey(portalUserMappingB2cCustomClaimName)
+                        || (int)(long)user.AdditionalData[portalUserMappingB2cCustomClaimName] != PortalSettings.PortalId)
                     {
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
                     }
@@ -347,6 +352,64 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             message = message.Replace("[User:LastName]", user.Surname);
             message = message.Replace("[User:Password]", user.PasswordProfile.Password);
             return message;
+        }
+
+        [HttpGet]
+        [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
+        public HttpResponseMessage Impersonate()
+        {
+            try
+            {
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var idUserMapping = UserMappingsRepository.Instance.GetUserMapping("Id", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+
+                if (string.IsNullOrEmpty(settings.ImpersonatePolicy))
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Impersonate policy has not been setup");
+                }
+
+                // Validate permissions
+                // Allow the current user to impersonate by setting canImpersonate
+                var user = GetGraphUserForImpersonation(settings, graphClient, idUserMapping);
+
+                // Check user is from current portal, if PortalId is an extension name
+                string portalUserMappingB2cCustomClaimName = portalUserMapping?.GetB2cCustomClaimName();
+                if (!UserInfo.IsSuperUser && portalUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
+                {
+                    if (!user.AdditionalData.ContainsKey(portalUserMappingB2cCustomClaimName)
+                        || (int)(long)user.AdditionalData[portalUserMappingB2cCustomClaimName] != PortalSettings.PortalId)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.Forbidden, "You can't impersonate");
+                    }
+                }
+
+                user.AdditionalData.Clear();
+                user.AdditionalData.Add($"extension_{settings.B2cApplicationId.Replace("-", "")}_canImpersonate", true);
+                graphClient.UpdateUser(user);
+
+                // Return the impersonation URL
+                var azureClient = new AzureClient(this.PortalSettings.PortalId, DotNetNuke.Services.Authentication.AuthMode.Login);
+                var url = azureClient.Impersonate();
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    impersonateUrl = url
+                }); ;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        private User GetGraphUserForImpersonation(AzureConfig settings, GraphClient graphClient, UserMapping idUserMapping)
+        {
+            var usernameWithoutPrefix = settings.UsernamePrefixEnabled ? UserInfo.Username.Substring(AzureConfig.ServiceName.Length + 1) : UserInfo.Username;
+            var user = idUserMapping.B2cClaimName == "sub" ?
+                    graphClient.GetUser(usernameWithoutPrefix)
+                    : graphClient.GetAllUsers($"{idUserMapping.B2cClaimName} eq '{usernameWithoutPrefix}").Values.FirstOrDefault();
+            return user;
         }
     }
 }

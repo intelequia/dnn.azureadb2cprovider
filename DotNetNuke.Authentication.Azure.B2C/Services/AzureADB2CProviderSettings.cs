@@ -73,6 +73,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public bool GroupNamePrefixEnabled { get; set; }
         [DataMember(Name = "ropcPolicy")]
         public string RopcPolicy { get; set; }
+        [DataMember(Name = "impersonatePolicy")]
+        public string ImpersonatePolicy { get; set; }
+
 
         public static AzureADB2CProviderSettings LoadSettings(string service, int portalId)
         {
@@ -100,7 +103,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 Scopes = config.Scopes,
                 UsernamePrefixEnabled = config.UsernamePrefixEnabled,
                 GroupNamePrefixEnabled = config.GroupNamePrefixEnabled,
-                RopcPolicy = config.RopcPolicy
+                RopcPolicy = config.RopcPolicy,
+                ImpersonatePolicy = config.ImpersonatePolicy
             };
         }
 
@@ -119,7 +123,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 PasswordResetPolicy = settings.PasswordResetPolicy,
                 Enabled = settings.Enabled,
                 UseGlobalSettings = settings.UseGlobalSettings,
-                RopcPolicy = settings.RopcPolicy
+                RopcPolicy = settings.RopcPolicy,
+                ImpersonatePolicy = settings.ImpersonatePolicy
             };
 
             AzureConfig.UpdateConfig(config);

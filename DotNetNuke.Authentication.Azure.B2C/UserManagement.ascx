@@ -17,6 +17,15 @@
         <a id="addUser" data-bind="click: addUser"> <i class="fa fa-plus-square-o"></i> <% = LocalizeString("AddUser") %></a>
          | 
         <a id="refreshUsers" data-bind="click: refresh"> <i class="fa fa-refresh"></i> <% = LocalizeString("Refresh") %></a>
+        <% if (CanImpersonate)
+            { %>
+         | 
+        <a id="impersonate" data-bind="click: impersonate"> <% = LocalizeString("Impersonate") %></a>
+        <% }
+                                  else
+                                  { %>
+        <span class="disabled"><% = LocalizeString("Impersonate") %></span>
+        <% }        %>
     </div>
     <table id="userManagementTable" class="table table-hover">
         <thead>

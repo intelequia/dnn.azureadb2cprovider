@@ -28,8 +28,8 @@ export default function settings(state = {
                 clientModified: action.data.clientModified,
                 usernamePrefixEnabled: action.data.usernamePrefixEnabled,
                 groupNamePrefixEnabled: action.data.groupNamePrefixEnabled,
-                ropcPolicy: action.data.ropcPolicy
-
+                ropcPolicy: action.data.ropcPolicy,
+                impersonatePolicy: action.data.impersonatePolicy
             };
         case ActionTypes.SETTINGS_CLIENT_MODIFIED:
             return { ...state,
@@ -55,7 +55,8 @@ export default function settings(state = {
                 clientModified: action.data.clientModified,
                 usernamePrefixEnabled: action.data.usernamePrefixEnabled,
                 groupNamePrefixEnabled: action.data.groupNamePrefixEnabled,
-                ropcPolicy: action.data.ropcPolicy
+                ropcPolicy: action.data.ropcPolicy,
+                impersonatePolicy: action.data.impersonatePolicy
             };
         case ActionTypes.UPDATED_SETTINGS:
             return { ...state,

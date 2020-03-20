@@ -43,6 +43,18 @@ namespace DotNetNuke.Authentication.Azure.B2C
 {
     public partial class UserManagement : PortalModuleBase
     {
+        public AzureConfig AzureConfig { get; set; }
+
+        public bool CanImpersonate
+        {
+            get
+            {
+                var user = UserInfo;
+                Security.Profile.ProfileProvider.Instance().GetUserProfile(ref user);
+                var identitySource = user.Profile.GetPropertyValue("IdentitySource");
+                return identitySource == "Azure-B2C" && !string.IsNullOrEmpty(AzureConfig.ImpersonatePolicy);
+            }
+        }
         #region "Event Handlers"
 
         protected override void OnInit(EventArgs e)
@@ -54,6 +66,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
         private void InitializeComponent()
         {
             Load += Page_Load;
+            AzureConfig = new AzureConfig(AzureConfig.ServiceName, this.PortalId);
             JavaScript.RequestRegistration(CommonJs.DnnPlugins);
             ServicesFramework.Instance.RequestAjaxScriptSupport();
             ServicesFramework.Instance.RequestAjaxAntiForgerySupport();
