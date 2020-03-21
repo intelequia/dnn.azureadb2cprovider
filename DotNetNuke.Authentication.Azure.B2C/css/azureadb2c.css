@@ -1,6 +1,20 @@
-﻿.userManagement.actions {
+﻿::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: black;
+    opacity: 0.5; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: black;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+    color: black;
+}
+
+.userManagement.actions {
     display: block;
-    padding: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
     .userManagement.actions a {
@@ -11,13 +25,26 @@
         .userManagement.actions a:hover {
             cursor: pointer;
             text-decoration: underline !important;
-        }
+        } 
 
     .userManagement.actions span.disabled {
         cursor: not-allowed;
         text-decoration: none;
         opacity: 0.5;
     }
+
+    .userManagement .searchbox {
+        float: right;
+    }
+
+    .userManagement .searchbox input {
+        width: 250px;
+        padding: 5px;
+        padding-left: 15px;
+        margin-bottom: 5px;
+        margin-right: 0px;        
+    }
+
 
     .b2c-overlay {
     position: fixed;
@@ -31,6 +58,38 @@
     z-index: 9998;
     display: none;
 }
+
+#userManagementTable div.livecom {
+    background-repeat: no-repeat;
+    background-image: url('/DesktopModules/AuthenticationServices/AzureB2C/Images/microsoft.svg');
+    padding-left: 25px;
+}
+#userManagementTable div.githubcom {
+    background-repeat: no-repeat;
+    background-image: url('/DesktopModules/AuthenticationServices/AzureB2C/Images/github.svg');
+    padding-left: 25px;
+}
+#userManagementTable div.facebookcom {
+    background-repeat: no-repeat;
+    background-image: url('/DesktopModules/AuthenticationServices/AzureB2C/Images/facebook.svg');
+    padding-left: 25px;
+}
+#userManagementTable div.gmailcom {
+    background-repeat: no-repeat;
+    background-image: url('/DesktopModules/AuthenticationServices/AzureB2C/Images/google.svg');
+    padding-left: 25px;
+}
+#userManagementTable div.amazoncom {
+    background-repeat: no-repeat;
+    background-image: url('/DesktopModules/AuthenticationServices/AzureB2C/Images/amazon.svg');
+    padding-left: 25px;
+}
+#userManagementTable div.linkedcom {
+    background-repeat: no-repeat;
+    background-image: url('/DesktopModules/AuthenticationServices/AzureB2C/Images/linked.svg');
+    padding-left: 25px;
+}
+
 
 .b2c-rightTab {
     position: fixed;
@@ -122,3 +181,4 @@
         width: 100%;
     }
 }
+

@@ -26,6 +26,9 @@
                                   { %>
         <span class="disabled"><% = LocalizeString("Impersonate") %></span>
         <% }        %>
+        <div class="searchbox">
+            <input type="text" class="txtSearch" placeholder="Search..." data-bind="value: searchText, valueUpdate: 'keyup', event: { keyup: search }" autocomplete="off" />
+        </div>
     </div>
     <table id="userManagementTable" class="table table-hover">
         <thead>
@@ -41,7 +44,7 @@
                     <span data-bind="text: displayName"></span>
                 </td>
                 <td class="userName" data-bind="event: { click: $parent.updateUser }">
-                    <div data-bind="text: usernameToDisplay" ></div>
+                    <div data-bind="text: usernameToDisplay, css: identityIssuer" ></div>
                 </td>
                 <td>
                     <a class="kblist-glyph segoemdl2 pull-right fa fa-trash-o" style="font-size: 1.2em; margin-left: 2.3em" data-bind="click: remove"></a>   
@@ -49,7 +52,7 @@
             </tr>
         </tbody>
         <tfoot>
-            <tr>
+            <tr> 
                 <th colspan="3">
                     <div data-bind="visible: !loading()"><span class="userCount" data-bind="text: users().length">0</span> <% = LocalizeString("Users") %></div>
                     <div data-bind="visible: loading()"><% = LocalizeString("Loading") %></div>

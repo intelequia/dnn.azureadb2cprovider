@@ -130,11 +130,17 @@
     <Content Include="css\azureadb2c.css" />
     <Content Include="css\sweetalert.css" />
     <Content Include="css\toastr.min.css" />
+    <Content Include="Images\amazon.svg" />
     <Content Include="Images\azure-bg.png" />
     <Content Include="Images\azure-login.png" />
     <Content Include="Images\azure.png" />
     <Content Include="Images\dnn-webapp.png" />
     <Content Include="AzureADB2CLicense.txt" />
+    <Content Include="Images\facebook.svg" />
+    <Content Include="Images\github.svg" />
+    <Content Include="Images\google.svg" />
+    <Content Include="Images\linkedin.svg" />
+    <Content Include="Images\microsoft.svg" />
     <Content Include="js\azureadb2c.js" />
     <Content Include="js\sweetalert.min.js" />
     <Content Include="js\toastr.min.js" />

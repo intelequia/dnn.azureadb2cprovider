@@ -60,7 +60,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
         [HttpGet]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
-        public HttpResponseMessage GetAllUsers()
+        public HttpResponseMessage GetAllUsers(string search)
         {
             try
             {
@@ -68,6 +68,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var query = "$orderby=displayName";
                 var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllUsers.Filter"];
+                if (!string.IsNullOrEmpty(search))
+                {
+                    if (!string.IsNullOrEmpty(filter))
+                    {
+                        filter += " and ";
+                    }
+                    filter += $"startswith(displayName, '{search}')";
+                }
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
                 {

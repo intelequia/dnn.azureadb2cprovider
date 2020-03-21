@@ -111,6 +111,13 @@ dnn.extend(dnn.adb2c.UserManagement,
                 if (that.displayName() === "")
                     that.displayName(that.givenName() + " " + that.surname());
             }; 
+            this.identityIssuer = ko.computed(function () {
+                if (that.userIdentities().length > 0) {
+                    console.log(that.userIdentities()[0].issuer.replace('.', ''));
+                    return that.userIdentities()[0].issuer.replace('.', '');
+                }                    
+                return "";
+            });
 
             this.addGroup = function () {
                 if (that.userManagement.selectedGroup() && (that.groups().length === 0 || that.groups().find(function (data) {
@@ -229,6 +236,8 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.selectedGroup = ko.observable('');
             this.newUser = ko.observable();
             this.selectedUser = ko.observable();
+            this.searchText = ko.observable('');
+            this.searchTimeout = null;
             this.loading = ko.observable(true);
 
             function setHeaders(xhr) {
@@ -286,7 +295,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                             function (index, group) {
                                 that.groups.push(new dnn.adb2c.UserManagement.GroupModel(that, group));
                             });
-                        ajax("GetAllUsers", null,
+                        ajax("GetAllUsers?search=" + that.searchText(), null,
                             function (data) {
                                 that.users.removeAll();
                                 $.each(data,
@@ -304,6 +313,27 @@ dnn.extend(dnn.adb2c.UserManagement,
                         that.loading(false);
                     }
                 );
+            };
+
+            this.search = function () {
+                if (that.searchTimeout)
+                    clearTimeout(that.searchTimeout);
+                that.searchTimeout = setTimeout(function () {
+                    that.searchTimeout = null;
+                    ajax("GetAllUsers?search=" + that.searchText(), null,
+                        function (data) {
+                            that.users.removeAll();
+                            $.each(data,
+                                function (index, user) {
+                                    that.users.push(new dnn.adb2c.UserManagement.UserModel(that, user));
+                                });
+                            that.loading(false);
+                        },
+                        function (e) {
+                            that.loading(false);
+                        }
+                    );
+                }, 500);
             };
             this.showTab = function() {
                 $(".b2c-overlay").css("display", "block");
