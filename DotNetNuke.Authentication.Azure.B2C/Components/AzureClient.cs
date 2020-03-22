@@ -391,7 +391,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                         properties.Set("Country", claim.Value);
                         break;
                     case "name":
-                        properties.Set("FirstName", claim.Value);
+                        properties.Set("DisplayName", claim.Value);
                         break;
                     case "given_name":
                         properties.Set("FirstName", claim.Value);
