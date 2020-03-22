@@ -3,19 +3,19 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
 PolicySchemaVersion="0.3.0.0" 
-TenantId="intelequiab2c.onmicrosoft.com" 
+TenantId="YOURTENANTNAME.onmicrosoft.com" 
 PolicyId="B2C_1A_Impersonation" 
-PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation" 
+PublicPolicyUri="http://YOURTENANTNAME.onmicrosoft.com/B2C_1A_Impersonation" 
 DeploymentMode="Development" 
 UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
   <BasePolicy>
-    <TenantId>intelequiab2c.onmicrosoft.com</TenantId>
+    <TenantId>YOURTENANTNAME.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_Impersonation_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
   <RelyingParty>
     <DefaultUserJourney ReferenceId="Impersonation" />
     <UserJourneyBehaviors>
-      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="e05a0a40-bda9-43ba-9b64-e1eeeb4ad9df" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
+      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="00000000-0000-0000-0000-000000000000" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
     </UserJourneyBehaviors>
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
@@ -23,12 +23,11 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
-        <OutputClaim ClaimTypeReferenceId="impersonatedObjectId" />
         <OutputClaim ClaimTypeReferenceId="surname" />
         <OutputClaim ClaimTypeReferenceId="emails" />
         <OutputClaim ClaimTypeReferenceId="extension_portalId" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
-        <OutputClaim ClaimTypeReferenceId="impersonatedUser"/>        
+        <OutputClaim ClaimTypeReferenceId="impersonatorObjectId" />
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />

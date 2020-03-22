@@ -2,11 +2,11 @@
 xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
 PolicySchemaVersion="0.3.0.0" 
-TenantId="intelequiab2c.onmicrosoft.com" 
+TenantId="YOURTENANTNAME.onmicrosoft.com" 
 PolicyId="B2C_1A_Impersonation_TrustFrameworkExtensions" 
-PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_TrustFrameworkExtensions">
+PublicPolicyUri="http://YOURTENANTNAME.onmicrosoft.com/B2C_1A_Impersonation_TrustFrameworkExtensions">
   <BasePolicy>
-    <TenantId>intelequiab2c.onmicrosoft.com</TenantId>
+    <TenantId>YOURTENANTNAME.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
@@ -39,7 +39,13 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
         <DisplayName>Impersonated account objectId</DisplayName>
         <DataType>string</DataType>
         <UserHelpText/>
-      </ClaimType>      
+      </ClaimType>     
+
+      <ClaimType Id="impersonatorObjectId">  
+        <DisplayName>Impersonator account objectId</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText/>
+      </ClaimType>        
 
       <!--Sample: Indicates whether a user can impersonate (if the value is 1)-->
       <ClaimType Id="extension_canImpersonate">
@@ -67,6 +73,7 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
           <OutputClaim ClaimTypeReferenceId="errorMessage" TransformationClaimType="createdClaim" />
         </OutputClaims>
       </ClaimsTransformation>
+
     <ClaimsTransformation Id="GetFirstOtherMail" TransformationMethod="GetSingleItemFromStringCollection">
       <InputClaims>
         <InputClaim ClaimTypeReferenceId="otherMails" TransformationClaimType="collection" />
@@ -118,9 +125,16 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
           <OutputClaims>
             <!-- Required claims -->
             <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true"/>
+            <OutputClaim ClaimTypeReferenceId="otherMails" Required="true"/>
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" Required="true" /> 
             <OutputClaim ClaimTypeReferenceId="impersonatedUser" Required="true"/>
             <OutputClaim ClaimTypeReferenceId="impersonatedObjectId" Required="true"/>
+            <OutputClaim ClaimTypeReferenceId="givenName" Required="true"/>
+            <OutputClaim ClaimTypeReferenceId="displayName" Required="true"/>
+            <OutputClaim ClaimTypeReferenceId="surname" Required="true"/>
+            <OutputClaim ClaimTypeReferenceId="objectId" Required="true"/>
             <OutputClaim ClaimTypeReferenceId="targetEmail" Required="true"/> 
+
           </OutputClaims>
           <ValidationTechnicalProfiles>
             <ValidationTechnicalProfile ReferenceId="AAD-ImpersonatedUserRead"/>
@@ -158,8 +172,8 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
                 For more information: https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom 
                 Action required: Insert objectId and appId here -->
           <Metadata>
-            <Item Key="ApplicationObjectId">b2d9c7ee-324b-4cf8-814b-d389bd583bc0</Item>
-            <Item Key="ClientId">173d4e67-cdc5-45a4-b82a-759a486c3e27</Item>
+            <Item Key="ApplicationObjectId">11111111-1111-1111-1111-111111111111</Item>
+            <Item Key="ClientId">22222222-2222-2222-2222-222222222222</Item>
           </Metadata>
           <PersistedClaims>
             <PersistedClaim ClaimTypeReferenceId="objectId" />
@@ -171,6 +185,7 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="extension_canImpersonate"/>
           <OutputClaim ClaimTypeReferenceId="extension_portalId" />
+          <OutputClaim ClaimTypeReferenceId="impersonatorObjectId" PartnerClaimType="objectId" />
         </OutputClaims>
       </TechnicalProfile>   
 
@@ -184,7 +199,7 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
           <PersistedClaims>
             <PersistedClaim ClaimTypeReferenceId="objectId" />
             <PersistedClaim ClaimTypeReferenceId="extension_canImpersonate" />            
-          </PersistedClaims>
+          </PersistedClaims>        
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>      
 
@@ -226,12 +241,17 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
         <OutputClaims>
           <!-- Sample: Reutrns the value in targetEmail and check in signInNames collection, then 
                  returns value in SignInName and pipe into impersonatedUser-->
+          <OutputClaim ClaimTypeReferenceId="otherMails" PartnerClaimType="otherMails" />
+          <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" PartnerClaimType="signInNames.emailAddress" /> 
           <OutputClaim ClaimTypeReferenceId="impersonatedUser" PartnerClaimType="signInNames.emailAddress" /> 
           <OutputClaim ClaimTypeReferenceId="impersonatedObjectId" PartnerClaimType="objectId" /> 
           <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="givenName" /> 
+          <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="surname" /> 
+          <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="displayName" /> 
+          <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="objectId" />
         </OutputClaims>       
         <IncludeTechnicalProfile ReferenceId="AAD-Common"/>
-      </TechnicalProfile>
+      </TechnicalProfile>   
     </TechnicalProfiles>
   </ClaimsProvider>
 
@@ -242,19 +262,31 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
         <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
             <!--Demo action required: Change to your ProxyIdentityExperienceFramework App Id-->
-            <Item Key="client_id">e6961777-178c-4846-998a-637fd5782529</Item>
+            <Item Key="client_id">33333333-3333-3333-3333-333333333333</Item>
             <!--Demo action required: Change to your IdentityExperienceFramework App Id-->
-            <Item Key="IdTokenAudience">2a909fbf-24f0-408d-b79c-0fadc708d32d</Item>
+            <Item Key="IdTokenAudience">44444444-4444-4444-4444-444444444444</Item>
           </Metadata>
           <InputClaims>
             <!--Demo action required: Change to your ProxyIdentityExperienceFramework App Id-->
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="e6961777-178c-4846-998a-637fd5782529" />
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="33333333-3333-3333-3333-333333333333" />
             <!--Demo action required: Change to your IdentityExperienceFramework App Id-->
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="2a909fbf-24f0-408d-b79c-0fadc708d32d" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="44444444-4444-4444-4444-444444444444" />
           </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
+
+  <ClaimsProvider>
+    <DisplayName>Local Account</DisplayName>
+    <TechnicalProfiles>
+      <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
+        <InputClaims>
+          <!-- Add the login hint value to the sign-in names claim type -->
+          <InputClaim ClaimTypeReferenceId="signInName" DefaultValue="{OIDC:LoginHint}" />
+        </InputClaims>
+      </TechnicalProfile>
+    </TechnicalProfiles>
+  </ClaimsProvider>    
 
 </ClaimsProviders>
 <UserJourneys>
@@ -291,7 +323,15 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
           </ClaimsExchanges>
         </OrchestrationStep>
 
+        <!--Sample: Collect the email address of the end user of act of behalf of-->
         <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="TargetEmailExchange" TechnicalProfileReferenceId="SelfAsserted-TargetEmailExchange"/>
+          </ClaimsExchanges>
+        </OrchestrationStep>      
+
+        <!-- Remove the canImpersonate attribute -->
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
               <Value>extension_canImpersonate</Value>
@@ -301,14 +341,7 @@ PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_Trust
           <ClaimsExchanges>
             <ClaimsExchange Id="AADUserRemoveCanImpersonateUsingObjectId" TechnicalProfileReferenceId="AAD-UserRemoveCanImpersonateUsingObjectId" />
           </ClaimsExchanges>
-        </OrchestrationStep>                
-
-        <!--Sample: Collect the email address of the end user of act of behalf of-->
-        <OrchestrationStep Order="5" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="TargetEmailExchange" TechnicalProfileReferenceId="SelfAsserted-TargetEmailExchange"/>
-          </ClaimsExchanges>
-        </OrchestrationStep>      
+        </OrchestrationStep>               
 
         <!-- This step adds the emails claim -->
         <OrchestrationStep Order="6" Type="ClaimsExchange">
