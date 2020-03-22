@@ -24,3 +24,15 @@
 	<li>Changed token expiration validation giving a 5min out-of-sync system clocks</li>
 	<li>Ordered the list of users by display name and added optional filter on User Management screen</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.04.00</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Fixed uninstall script to completely remove all the tables and settings</li>
+	<li>Bug fix: users removed from groups in Azure AD B2C, were not being removed from DNN groups</li>
+	<li>Added a new configuration setting where you can change the name of the ROPC policy</li>
+	<li>Added documentation about how to setup the ROPC policy at https://github.com/intelequia/dnn.azureadb2cprovider/tree/master/samples/Hello</li>
+	<li>Fix to avoid removing the local picture set on DNN if no profile picture is set on B2C</li>
+	<li>Added search and issuer icons on UserManagement module</li>
+	<li>Fixed the DisplayName claim mapping</li>
+	<li>Implemented user impersonation flow via custom policies (see https://github.com/intelequia/dnn.azureadb2cprovider/tree/master/samples/CustomPolicies/Impersonation/LocalAccounts)</li>
+</ul>
