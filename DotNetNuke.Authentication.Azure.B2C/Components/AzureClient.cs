@@ -34,6 +34,7 @@ using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Profile;
 using DotNetNuke.Entities.Users;
 using DotNetNuke.Instrumentation;
+using DotNetNuke.Security;
 using DotNetNuke.Security.Roles;
 using DotNetNuke.Services.Authentication;
 using DotNetNuke.Services.Authentication.OAuth;
@@ -46,7 +47,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using System.Web;
 using System.Web.Script.Serialization;
 using static DotNetNuke.Services.Authentication.AuthenticationLoginBase;
@@ -61,7 +64,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         {
             SignUpPolicy,
             PasswordResetPolicy,
-            ProfilePolicy
+            ProfilePolicy,
+            ImpersonatePolicy
         }
 
         public const string RoleSettingsB2cPropertyName = "IdentitySource";
@@ -216,6 +220,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 {
                     case PolicyEnum.PasswordResetPolicy: return Settings.PasswordResetPolicy;
                     case PolicyEnum.ProfilePolicy: return Settings.ProfilePolicy;
+                    case PolicyEnum.ImpersonatePolicy: return Settings.ImpersonatePolicy;
                     default: return Settings.SignUpPolicy;
                 }
             }
@@ -429,6 +434,48 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         }
 
 
+        private void SetCurrentPrincipal(IPrincipal principal, HttpContext httpContext)
+        {
+            Thread.CurrentPrincipal = principal;
+            httpContext.User = principal;            
+        }
+
+        public void Impersonate(JwtSecurityToken pToken = null)
+        {
+            if (pToken == null && (!IsCurrentUserAuthorized() || JwtIdToken == null))
+            {
+                return;
+            }
+            if (pToken != null)
+            {
+                JwtIdToken = pToken;
+            }
+
+            //Remove user from cache
+            var userData = GetCurrentUserInternal(pToken);            
+            
+            if (userData != null)
+            {
+                DataCache.ClearUserCache(Settings.PortalID, HttpContext.Current.User.Identity.Name);
+                var objPortalSecurity = PortalSecurity.Instance;
+                objPortalSecurity.SignOut();
+
+                var _b2cController = (B2CController)B2CController.Instance;
+                var user = _b2cController.TryGetUser(JwtIdToken, true);
+                var username = user?.Username;
+                if (!string.IsNullOrEmpty(username))
+                {
+                    DataCache.ClearUserCache(Settings.PortalID, user.Username);
+                    objPortalSecurity.SignIn(user, true);
+                    SaveTokenCookie(string.IsNullOrEmpty(AuthToken));
+
+                    if (Logger.IsDebugEnabled) Logger.Debug($"Authenticated user '{username}'");
+                    SetCurrentPrincipal(new GenericPrincipal(new GenericIdentity(user.Username, _b2cController.SchemeType), null), HttpContext.Current);
+                }
+            }
+        }
+
+
         public void UpdateUserProfile(JwtSecurityToken pToken = null, bool updateProfilePicture = true, bool updateUserRoles = true)
         {
             if (pToken == null && (!IsCurrentUserAuthorized() || JwtIdToken == null))
@@ -497,7 +544,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() { 
                         PortalId = PortalSettings.Current.PortalId, 
                         Culture = PortalSettings.Current.CultureCode,
-                        RedirectUrl = redirectAfterEditUri.ToString(),
+                        RedirectUrl = redirectAfterEditUri?.ToString(),
                         IsUserProfile = true
                     }.ToString())),
                     new QueryParameter("response_type", "code"),
@@ -508,13 +555,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             HttpContext.Current.Response.Redirect(AuthorizationEndpoint + "?" + parameters.ToNormalizedString(), false);
         }
 
-        public Uri Impersonate(Uri redirectAfterImpersonateUri = null)
+        public Uri NavigateImpersonation(Uri redirectAfterImpersonateUri = null, string loginHint = "")
         {
             var parameters = new List<QueryParameter>
                 {
                     new QueryParameter("scope", Scope),
                     new QueryParameter("client_id", APIKey),
-                    new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
+                    new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/Impersonate")),
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() {
                         PortalId = PortalSettings.Current.PortalId,
                         Culture = PortalSettings.Current.CultureCode,
@@ -525,6 +572,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     new QueryParameter("response_mode", "query"),
                     new QueryParameter("p", Settings.ImpersonatePolicy)
                 };
+            if (!string.IsNullOrEmpty(loginHint))
+            {
+                parameters.Add(new QueryParameter("login_hint", loginHint));
+            }
 
             return new Uri(AuthorizationEndpoint + "?" + parameters.ToNormalizedString());
         }

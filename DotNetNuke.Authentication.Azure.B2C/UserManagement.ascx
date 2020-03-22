@@ -24,7 +24,7 @@
         <% }
                                   else
                                   { %>
-        <span class="disabled"><% = LocalizeString("Impersonate") %></span>
+        | <span class="disabled"><% = LocalizeString("Impersonate") %></span>
         <% }        %>
         <div class="searchbox">
             <input type="text" class="txtSearch" placeholder="Search..." data-bind="value: searchText, valueUpdate: 'keyup', event: { keyup: search }" autocomplete="off" />

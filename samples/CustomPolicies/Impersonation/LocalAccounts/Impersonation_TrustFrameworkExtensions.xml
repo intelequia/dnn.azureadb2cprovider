@@ -1,0 +1,327 @@
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+PolicySchemaVersion="0.3.0.0" 
+TenantId="intelequiab2c.onmicrosoft.com" 
+PolicyId="B2C_1A_Impersonation_TrustFrameworkExtensions" 
+PublicPolicyUri="http://intelequiab2c.onmicrosoft.com/B2C_1A_Impersonation_TrustFrameworkExtensions">
+  <BasePolicy>
+    <TenantId>intelequiab2c.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <ClaimType Id="extension_portalId">
+        <DisplayName>Portal Id</DisplayName>
+        <DataType>int</DataType>
+        <UserHelpText>DNN Portal Id</UserHelpText>
+      </ClaimType> 
+
+       <!-- Sample: targetEmail is the email of the user originally requested impersonatedUser is the 
+       email value returned from SignInNames.Email from Azure AD after we requested (this is directory data) -->
+      <ClaimType Id="targetEmail">
+        <DisplayName>Sign-in on behalf of</DisplayName>
+        <DataType>string</DataType>
+         <UserHelpText>Email address of the impersonated user</UserHelpText>
+        <UserInputType>EmailBox</UserInputType>
+        <Restriction>
+          <Pattern RegularExpression="^[a-zA-Z0-9.!#$%&amp;'^_`{}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" HelpText="Please enter a valid email address." />
+        </Restriction>
+      </ClaimType>
+
+      <ClaimType Id="impersonatedUser">  
+        <DisplayName>Impersonated account</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText/>
+      </ClaimType>
+
+      <ClaimType Id="impersonatedObjectId">  
+        <DisplayName>Impersonated account objectId</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText/>
+      </ClaimType>      
+
+      <!--Sample: Indicates whether a user can impersonate (if the value is 1)-->
+      <ClaimType Id="extension_canImpersonate">
+        <DisplayName>Can impersonate</DisplayName>
+        <DataType>boolean</DataType>
+        <UserHelpText>Allows to impersonate as other user</UserHelpText>
+      </ClaimType>
+
+      <!--Sample: Stores the error message if user can't impersonate-->
+      <ClaimType Id="errorMessage">
+     	  <DisplayName>Error</DisplayName>
+     	  <DataType>string</DataType>
+        <UserHelpText>Add help text here</UserHelpText>
+     	  <UserInputType>Paragraph</UserInputType>
+      </ClaimType>
+   </ClaimsSchema>
+
+    <ClaimsTransformations>
+      <!--Sample: Initiates the errorMessage claims type with the error message-->
+      <ClaimsTransformation Id="CreateUnsolicitedErrorMessage" TransformationMethod="CreateStringClaim">
+        <InputParameters>
+          <InputParameter Id="value" DataType="string" Value="You are not allow to impersonate. Please contact your administrator." />
+        </InputParameters>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="errorMessage" TransformationClaimType="createdClaim" />
+        </OutputClaims>
+      </ClaimsTransformation>
+    <ClaimsTransformation Id="GetFirstOtherMail" TransformationMethod="GetSingleItemFromStringCollection">
+      <InputClaims>
+        <InputClaim ClaimTypeReferenceId="otherMails" TransformationClaimType="collection" />
+      </InputClaims>
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="firstOtherMail" TransformationClaimType="extractedItem" />
+      </OutputClaims>
+      </ClaimsTransformation>
+
+      <ClaimsTransformation Id="CopyFirstOtherMailToEmail" TransformationMethod="AddItemToStringCollection">
+      <InputClaims>
+        <InputClaim ClaimTypeReferenceId="firstOtherMail" TransformationClaimType="item" />
+        <InputClaim ClaimTypeReferenceId="emails" TransformationClaimType="collection" />
+      </InputClaims>
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="emails" TransformationClaimType="collection" />
+      </OutputClaims>
+      </ClaimsTransformation>
+
+      <ClaimsTransformation Id="CopySignInNamesEmailToEmails" TransformationMethod="AddItemToStringCollection">
+      <InputClaims>
+        <InputClaim ClaimTypeReferenceId="signInNames.emailAddress" TransformationClaimType="item" />
+        <InputClaim ClaimTypeReferenceId="emails" TransformationClaimType="collection" />
+      </InputClaims>
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="emails" TransformationClaimType="collection" />
+      </OutputClaims>
+      </ClaimsTransformation>  
+    </ClaimsTransformations>
+  </BuildingBlocks>
+<ClaimsProviders>
+  <!--Sample: this technical profile provides input for targetEmail and runs validation technical 
+      profile for to read the impersonated user profile -->
+  <ClaimsProvider>
+    <DisplayName>Self Asserted Targeted Email Exchange</DisplayName>
+    <TechnicalProfiles>
+      <TechnicalProfile Id="SelfAsserted-TargetEmailExchange">
+          <DisplayName>Target Email Page</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item> 
+            <!--Sample:  indicating that claim resolving should be performed. So, we can read the value of {OAUTH-KV:targetEmail} claim resolver -->
+            <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
+          </Metadata>
+          <InputClaims>
+            <!--Sample: read the targetEmail query string parameter e.g. &targetemail=bob@contoso.com -->
+            <InputClaim ClaimTypeReferenceId="targetEmail" DefaultValue="{OAUTH-KV:targetEmail}" AlwaysUseDefaultValue="true"/>
+          </InputClaims>
+          <OutputClaims>
+            <!-- Required claims -->
+            <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true"/>
+            <OutputClaim ClaimTypeReferenceId="impersonatedUser" Required="true"/>
+            <OutputClaim ClaimTypeReferenceId="impersonatedObjectId" Required="true"/>
+            <OutputClaim ClaimTypeReferenceId="targetEmail" Required="true"/> 
+          </OutputClaims>
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="AAD-ImpersonatedUserRead"/>
+          </ValidationTechnicalProfiles>
+        </TechnicalProfile>
+
+        <!-- Sample: Show error message if user is not allowed to impersonate-->
+        <TechnicalProfile Id="SelfAsserted-ErrorMessage">
+          <DisplayName>Error message</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
+            <!-- Sample: Remove the continue button-->
+            <Item Key="setting.showContinueButton">false</Item>         
+         </Metadata>
+          <InputClaimsTransformations>
+            <InputClaimsTransformation ReferenceId="CreateUnsolicitedErrorMessage" />
+          </InputClaimsTransformations>         
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="errorMessage"/>
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="errorMessage"/>
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  
+    <ClaimsProvider>
+    <DisplayName>Azure Active Directory</DisplayName>
+    <TechnicalProfiles>
+        <TechnicalProfile Id="AAD-Common">
+          <DisplayName>Azure Active Directory</DisplayName>
+          <!--  Demo action required: Provide objectId and appId before using extension properties.
+                For more information: https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom 
+                Action required: Insert objectId and appId here -->
+          <Metadata>
+            <Item Key="ApplicationObjectId">b2d9c7ee-324b-4cf8-814b-d389bd583bc0</Item>
+            <Item Key="ClientId">173d4e67-cdc5-45a4-b82a-759a486c3e27</Item>
+          </Metadata>
+          <PersistedClaims>
+            <PersistedClaim ClaimTypeReferenceId="objectId" />
+          </PersistedClaims>
+        </TechnicalProfile>
+
+      <!--Sample: read the extension_canImpersonate attribute-->
+      <TechnicalProfile Id="AAD-UserReadUsingObjectId">
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="extension_canImpersonate"/>
+          <OutputClaim ClaimTypeReferenceId="extension_portalId" />
+        </OutputClaims>
+      </TechnicalProfile>   
+
+        <TechnicalProfile Id="AAD-UserRemoveCanImpersonateUsingObjectId">
+          <Metadata>
+            <Item Key="Operation">DeleteClaims</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" Required="true" />
+          </InputClaims>
+          <PersistedClaims>
+            <PersistedClaim ClaimTypeReferenceId="objectId" />
+            <PersistedClaim ClaimTypeReferenceId="extension_canImpersonate" />            
+          </PersistedClaims>
+          <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+        </TechnicalProfile>      
+
+      <!-- The following technical profile is used to create the emails collection after user authenticates. -->
+      <TechnicalProfile Id="AAD-UserCreateEmailsClaim">
+        <Metadata>
+          <Item Key="Operation">Read</Item>
+          <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
+        </Metadata>
+        <IncludeInSso>false</IncludeInSso>
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="objectId" Required="true" />
+        </InputClaims>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" />
+          <OutputClaim ClaimTypeReferenceId="otherMails" />
+        </OutputClaims>
+        <OutputClaimsTransformations>
+          <OutputClaimsTransformation ReferenceId="GetFirstOtherMail" />
+          <OutputClaimsTransformation ReferenceId="CopySignInNamesEmailToEmails" />
+          <OutputClaimsTransformation ReferenceId="CopyFirstOtherMailToEmail" />
+        </OutputClaimsTransformations>
+        <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+      </TechnicalProfile>
+
+      <!--Sample: Read target user and return error it doesn't exist. 
+        If exists, pipes value into impersonatedUser claim type -->
+      <TechnicalProfile Id="AAD-ImpersonatedUserRead">
+        <Metadata>
+          <Item Key="Operation">Read</Item>
+          <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
+          <Item Key="UserMessageIfClaimsPrincipalDoesNotExist">An account could not be found for the provided user ID.</Item>
+        </Metadata>
+        <IncludeInSso>false</IncludeInSso>
+        <InputClaims>
+          <!--Sample: Look up in the signInNames to see if the value in targetEmail contains - look it up-->
+          <InputClaim ClaimTypeReferenceId="targetEmail" PartnerClaimType="signInNames" Required="true"/>
+        </InputClaims>
+        <OutputClaims>
+          <!-- Sample: Reutrns the value in targetEmail and check in signInNames collection, then 
+                 returns value in SignInName and pipe into impersonatedUser-->
+          <OutputClaim ClaimTypeReferenceId="impersonatedUser" PartnerClaimType="signInNames.emailAddress" /> 
+          <OutputClaim ClaimTypeReferenceId="impersonatedObjectId" PartnerClaimType="objectId" /> 
+          <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="givenName" /> 
+        </OutputClaims>       
+        <IncludeTechnicalProfile ReferenceId="AAD-Common"/>
+      </TechnicalProfile>
+    </TechnicalProfiles>
+  </ClaimsProvider>
+
+    <!-- Local account Sign-In claims provider -->
+    <ClaimsProvider>
+      <DisplayName>Local Account SignIn</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="login-NonInteractive">
+          <Metadata>
+            <!--Demo action required: Change to your ProxyIdentityExperienceFramework App Id-->
+            <Item Key="client_id">e6961777-178c-4846-998a-637fd5782529</Item>
+            <!--Demo action required: Change to your IdentityExperienceFramework App Id-->
+            <Item Key="IdTokenAudience">2a909fbf-24f0-408d-b79c-0fadc708d32d</Item>
+          </Metadata>
+          <InputClaims>
+            <!--Demo action required: Change to your ProxyIdentityExperienceFramework App Id-->
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="e6961777-178c-4846-998a-637fd5782529" />
+            <!--Demo action required: Change to your IdentityExperienceFramework App Id-->
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="2a909fbf-24f0-408d-b79c-0fadc708d32d" />
+          </InputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+</ClaimsProviders>
+<UserJourneys>
+  <UserJourney Id="Impersonation">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+          </ClaimsProviderSelections>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- This step reads any user attributes that we may not have received when authenticating using ESTS so they can be sent 
+          in the token. -->
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Sample: Check whether user can impersonate -->
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+         <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>extension_canImpersonate</Value>
+              <Value>True</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>        
+          <ClaimsExchanges>
+            <ClaimsExchange Id="SelfAsserted-ErrorMessage" TechnicalProfileReferenceId="SelfAsserted-ErrorMessage"/>
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+              <Value>extension_canImpersonate</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>            
+          </Preconditions>        
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserRemoveCanImpersonateUsingObjectId" TechnicalProfileReferenceId="AAD-UserRemoveCanImpersonateUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>                
+
+        <!--Sample: Collect the email address of the end user of act of behalf of-->
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="TargetEmailExchange" TechnicalProfileReferenceId="SelfAsserted-TargetEmailExchange"/>
+          </ClaimsExchanges>
+        </OrchestrationStep>      
+
+        <!-- This step adds the emails claim -->
+        <OrchestrationStep Order="6" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserCreateEmailsClaim" TechnicalProfileReferenceId="AAD-UserCreateEmailsClaim" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!--Sample: Issu an access token-->
+        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer"/>
+    
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb"/>
+    </UserJourney>
+	</UserJourneys>
+</TrustFrameworkPolicy>

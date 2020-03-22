@@ -112,7 +112,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                     that.displayName(that.givenName() + " " + that.surname());
             }; 
             this.identityIssuer = ko.computed(function () {
-                if (that.userIdentities().length > 0) {
+                if (that.userIdentities() && that.userIdentities().length > 0) {
                     console.log(that.userIdentities()[0].issuer.replace('.', ''));
                     return that.userIdentities()[0].issuer.replace('.', '');
                 }                    
@@ -268,12 +268,13 @@ dnn.extend(dnn.adb2c.UserManagement,
 
             this.impersonate = function () {
                 that.loading(true);
-                ajax("Impersonate", null,
+                ajax("Impersonate",
+                    {
+                        returnUri: window.location.href
+                    },
                     function (data) {
                         if (data.impersonateUrl) {
-                            setTimeout(function () {
-                                window.location.replace(data.impersonateUrl);
-                            }, 6000);                            
+                            window.location.replace(data.impersonateUrl);
                         }
                         else {
                             toastr.error("Could not get the impersonation Url. Contact your site administrator.");
@@ -282,7 +283,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                     },
                     function (e) {
                         that.loading(false);
-                    }
+                    },null, "POST"
                 );
             };
 

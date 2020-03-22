@@ -183,7 +183,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             return userName;
         }
 
-        private UserInfo TryGetUser(JwtSecurityToken jwt)
+        internal UserInfo TryGetUser(JwtSecurityToken jwt, bool isImpersonation = false)
         {
             try
             {
@@ -194,7 +194,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     if (Logger.IsDebugEnabled) Logger.Debug("Unable to retrieve portal settings");
                     return null;
                 }
-                if (!azureB2cConfig.Enabled || !azureB2cConfig.JwtAuthEnabled)
+                if (!azureB2cConfig.Enabled || (!azureB2cConfig.JwtAuthEnabled && !isImpersonation))
                 {
                     if (Logger.IsDebugEnabled) Logger.Debug($"Azure B2C JWT auth is not enabled for portal {portalSettings.PortalId}");
                     return null;

@@ -362,9 +362,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             return message;
         }
 
-        [HttpGet]
+
+        public class ImpersonateParams
+        {
+            public string returnUri { get; set; }
+        }
+        [HttpPost]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
-        public HttpResponseMessage Impersonate()
+        public HttpResponseMessage Impersonate(ImpersonateParams parameters)
         {
             try
             {
@@ -398,8 +403,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 graphClient.UpdateUser(user);
 
                 // Return the impersonation URL
-                var azureClient = new AzureClient(this.PortalSettings.PortalId, DotNetNuke.Services.Authentication.AuthMode.Login);
-                var url = azureClient.Impersonate();
+                var azureClient = new AzureClient(this.PortalSettings.PortalId, DotNetNuke.Services.Authentication.AuthMode.Login);                
+                var url = azureClient.NavigateImpersonation(new Uri(parameters.returnUri), user.Mail ?? user.OtherMails?.FirstOrDefault());
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     impersonateUrl = url

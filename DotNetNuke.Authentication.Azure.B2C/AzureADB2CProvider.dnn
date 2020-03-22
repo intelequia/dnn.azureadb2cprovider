@@ -149,6 +149,35 @@
 
         <component type="Module">
           <desktopModule>
+            <moduleName>AzureAD.B2C.Impersonate</moduleName>
+            <foldername>AzureAD.B2C.Impersonate</foldername>
+            <businessControllerClass>DotNetNuke.Authentication.Azure.B2C.Components.FeatureController</businessControllerClass>
+            <supportedFeatures>
+              <supportedFeature type="Upgradeable" />
+            </supportedFeatures>
+            <moduleDefinitions>
+              <moduleDefinition>
+                <friendlyName>AzureAD.B2C.Impersonate</friendlyName>
+                <defaultCacheTime>0</defaultCacheTime>
+                <moduleControls>
+                  <moduleControl>
+                    <controlKey />
+                    <controlSrc>DesktopModules/AuthenticationServices/AzureB2C/Impersonate.ascx</controlSrc>
+                    <supportsPartialRendering>False</supportsPartialRendering>
+                    <controlTitle />
+                    <controlType>View</controlType>
+                    <iconFile />
+                    <helpUrl />
+                    <viewOrder>0</viewOrder>
+                  </moduleControl>
+                </moduleControls>
+              </moduleDefinition>
+            </moduleDefinitions>
+          </desktopModule>
+        </component>
+
+        <component type="Module">
+          <desktopModule>
             <moduleName>AzureAD.B2C.UserManagement</moduleName>
             <foldername>AzureAD.B2C.UserManagement</foldername>
             <businessControllerClass>DotNetNuke.Authentication.Azure.B2C.Components.FeatureController</businessControllerClass>

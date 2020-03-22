@@ -129,6 +129,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 AzureADB2CProviderSettings.SaveGeneralSettings(AzureConfig.ServiceName, PortalId, settings);
                 AddUserProfilePage(PortalId, settings.Enabled && !string.IsNullOrEmpty(settings.ProfilePolicy));
+                AddImpersonatePage(PortalId);
 
                 // If UseGlobalSettigns was set to false, we have to create mappings if there're no mappings for the current portal
                 if (config.UseGlobalSettings != settings.UseGlobalSettings && settings.UseGlobalSettings == false)
@@ -460,8 +461,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             var moduleDef = ModuleDefinitionController.GetModuleDefinitionByFriendlyName(moduleFriendlyName);
 
             //Add User Profile page under root
-            var parentId = TabController.GetTabByTabPath(PortalId, "//", Null.NullString);
-            var tabId = TabController.GetTabByTabPath(PortalId, "//UserProfile", Null.NullString);
+            var parentId = TabController.GetTabByTabPath(portalId, "//", Null.NullString);
+            var tabId = TabController.GetTabByTabPath(portalId, "//UserProfile", Null.NullString);
             int moduleId;
             TabInfo tabInfo;
             
@@ -470,7 +471,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 tabInfo = new TabInfo()
                 {
-                    PortalID = PortalId,
+                    PortalID = portalId,
                     TabName = "UserProfile",
                     Title = "User Profile",
                     Description = "Manage Azure AD B2C User profile",
@@ -528,9 +529,88 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
 
             // Change User profile page on the Portal settings
-            var portalInfo = PortalController.Instance.GetPortal(PortalId);
+            var portalInfo = PortalController.Instance.GetPortal(portalId);
             portalInfo.UserTabId = setAsPortalUserProfile ? tabId : Null.NullInteger;
             PortalController.Instance.UpdatePortalInfo(portalInfo);
         }
+
+        private void AddImpersonatePage(int portalId)
+        {
+            var tabController = new TabController();
+            var moduleController = new ModuleController();
+
+            // Get Azure AD B2C User profile module
+            var moduleFriendlyName = "AzureAD.B2C.Impersonate";
+            var moduleDef = ModuleDefinitionController.GetModuleDefinitionByFriendlyName(moduleFriendlyName);
+
+            //Add User Profile page under root
+            var parentId = TabController.GetTabByTabPath(portalId, "//", Null.NullString);
+            var tabId = TabController.GetTabByTabPath(portalId, "//Impersonate", Null.NullString);
+            int moduleId;
+            TabInfo tabInfo;
+
+
+            if (tabId == Null.NullInteger)
+            {
+                tabInfo = new TabInfo()
+                {
+                    PortalID = portalId,
+                    TabName = "Impersonate",
+                    Title = "User Impersonate",
+                    Description = "Manages Azure AD B2C User impersonation",
+                    KeyWords = "impersonate",
+                    IsDeleted = false,
+                    IsSuperTab = false,
+                    IsVisible = false,
+                    DisableLink = false,
+                    IconFile = null,
+                    SiteMapPriority = 0,
+                    Url = null,
+                    ParentId = parentId
+                };
+                tabInfo.TabSettings.Add("AllowIndex", "False");
+                // Add User Profile page                
+                tabId = tabController.AddTab(tabInfo);
+
+
+                // Allow access to "Registered Users" role                
+                var permissions = new TabPermissionInfo()
+                {
+                    AllowAccess = true,
+                    RoleID = PortalSettings.RegisteredRoleId,
+                    RoleName = PortalSettings.RegisteredRoleName,
+                    TabID = tabId,
+                    PermissionID = 3 // View
+                };
+                tabInfo.TabPermissions.Add(permissions, true);
+                PermissionProvider.Instance().SaveTabPermissions(tabInfo);
+
+            }
+            else
+            {
+                tabInfo = tabController.GetTab(tabId, portalId, false);
+
+                foreach (var kvp in moduleController.GetTabModules(tabId))
+                {
+                    if (kvp.Value.DesktopModule.ModuleName == moduleFriendlyName)
+                    {
+                        // Preview module so hard delete
+                        moduleController.DeleteTabModule(tabId, kvp.Value.ModuleID, false);
+                        break;
+                    }
+                }
+            }
+
+            //Add module to page
+            moduleId = Upgrade.AddModuleToPage(tabInfo, moduleDef.ModuleDefID, "Impersonate", "", true);
+
+            var moduleTab = moduleController.GetTabModules(tabInfo.TabID)
+                .FirstOrDefault(x => x.Value.ModuleID == moduleId);
+            if (moduleTab.Value != null)
+            {
+                moduleController.UpdateTabModuleSetting(moduleTab.Value.TabModuleID, "hideadminborder", "True");
+            }
+        }
+
     }
 }
