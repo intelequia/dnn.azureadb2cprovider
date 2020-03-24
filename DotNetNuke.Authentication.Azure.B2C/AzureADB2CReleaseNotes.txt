@@ -36,3 +36,10 @@
 	<li>Fixed the DisplayName claim mapping</li>
 	<li>Implemented user impersonation flow via custom policies (see https://github.com/intelequia/dnn.azureadb2cprovider/tree/master/samples/CustomPolicies/Impersonation/LocalAccounts)</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.04.01</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Fixed 500 error bug when editing a page after installing the B2C module</li>
+	<li>Added EventLog audit notification when an user impersonation happens</li>
+	<li>Fixed login redirection from policies when Autoredirect=false</li>
+</ul>
