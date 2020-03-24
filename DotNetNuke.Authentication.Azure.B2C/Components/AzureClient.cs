@@ -39,6 +39,7 @@ using DotNetNuke.Security.Roles;
 using DotNetNuke.Services.Authentication;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.FileSystem;
+using DotNetNuke.Services.Log.EventLog;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -456,6 +457,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             
             if (userData != null)
             {
+                var impersonatorUsername = HttpContext.Current.User.Identity.Name;
                 DataCache.ClearUserCache(Settings.PortalID, HttpContext.Current.User.Identity.Name);
                 var objPortalSecurity = PortalSecurity.Instance;
                 objPortalSecurity.SignOut();
@@ -469,8 +471,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     objPortalSecurity.SignIn(user, true);
                     SaveTokenCookie(string.IsNullOrEmpty(AuthToken));
 
-                    if (Logger.IsDebugEnabled) Logger.Debug($"Authenticated user '{username}'");
+                    if (Logger.IsInfoEnabled) Logger.Info($"User {impersonatorUsername} has impersonated as {username}");
                     SetCurrentPrincipal(new GenericPrincipal(new GenericIdentity(user.Username, _b2cController.SchemeType), null), HttpContext.Current);
+
+                    EventLogController.Instance.AddLog("User Impersonation", $"User {impersonatorUsername} has impersonated as {username}", 
+                        PortalSettings.Current, user.UserID, EventLogController.EventLogType.USER_IMPERSONATED);
                 }
             }
         }
