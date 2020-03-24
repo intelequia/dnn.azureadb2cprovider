@@ -74,7 +74,10 @@ namespace DotNetNuke.Authentication.Azure.B2C
 
             var config = new AzureConfig(AzureConfig.ServiceName, PortalId);
             var hasVerificationCode = ((AzureClient)OAuthClient).IsCurrentService() && OAuthClient.HaveVerificationCode();
-            if ((config.AutoRedirect && Request["legacy"] != "1") || hasVerificationCode)
+            if ((config.AutoRedirect && Request["legacy"] != "1") 
+                || hasVerificationCode 
+                || (Request["error_description"]?.IndexOf("AADB2C90118") > -1)
+                || (Request["error_description"]?.IndexOf("AADB2C90091") > -1))
                 loginButton_Click(null, null);
         }
 
