@@ -44,9 +44,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
             };
         }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "signInNames", Required = Required.Default)]
-        public List<SignInName> SignInNames { get; set; }
-
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "creationType", Required = Required.Default)]
         public string CreationType { get; set; }
 

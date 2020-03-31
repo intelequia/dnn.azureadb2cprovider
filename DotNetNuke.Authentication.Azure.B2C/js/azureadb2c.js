@@ -33,7 +33,9 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.accountEnabled = ko.observable(model.accountEnabled || true);
             this.displayName = ko.observable(model.displayName || "");
             this.givenName = ko.observable(model.givenName || "");
-            this.mail = ko.observable(model.mail || (model.otherMails && model.otherMails.length > 0 ? model.otherMails[0] : ""));
+            this.mail = ko.observable(model.mail
+                || (model.otherMails && model.otherMails.length > 0 ? model.otherMails[0] : "")
+                || (model.signInNames && model.signInNames.length > 0 && model.signInNames[0].value ? model.signInNames[0].value : ""));
             this.mailNickname = ko.observable(model.mailNickname || "");
             this.otherMails = ko.observableArray(model.otherMails || []);
             this.proxyAddresses = ko.observableArray(model.proxyAddresses || []);
@@ -265,6 +267,35 @@ dnn.extend(dnn.adb2c.UserManagement,
             }
 
             this.ajax = ajax;
+
+            this.downloadUsers = function () {
+                swal({
+                    title: dnn.getVar("AreYouSure"),
+                    text: dnn.getVar("ExportMessage"),
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#004e97",
+                    confirmButtonText: dnn.getVar("YesDownload"),
+                    cancelButtonText: dnn.getVar("Cancel"),
+                    closeOnConfirm: true
+                }, function () {
+                    that.loading(true);
+                    that.ajax("Export", null,
+                        function (data) {
+                            if (data.downloadUrl) {
+                                window.location.replace(data.downloadUrl);
+                            }
+                            else {
+                                toastr.error("Could not get the export Url. Contact your site administrator.");
+                                that.loading(false);
+                            }
+                        },
+                        function (e) {
+                            that.loading(false);
+                        }, null, "POST"
+                    );
+                });
+            };
 
             this.impersonate = function () {
                 that.loading(true);

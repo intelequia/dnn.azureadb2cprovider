@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Http;
 using System.Web.Security;
@@ -225,13 +226,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 // WORKAROUND: "A stream property was found in a JSON Light request payload. Stream properties are only supported in responses."
                 // ==> Patch only the PortalId extension
                 user.AdditionalData.Clear();
-                user.AdditionalData.Add("signInNames", new List<SignInName>() { 
-                    new SignInName()
-                    {
-                        Type = "emailAddress",
-                        Value = parameters.user.Mail
-                    }
-                });
+                var signInName = new SignInName()
+                {
+                    Type = "emailAddress",
+                    Value = parameters.user.Mail
+                };
+                if (user.SignInNames.Count() == 0)
+                {
+                    user.AdditionalData.Add("signInNames", signInName);
+                }
+                else
+                {
+                    user.SignInNames[0] = signInName;
+                }
+
                 user.OtherMails = new string[] { parameters.user.Mail };
                 graphClient.UpdateUser(user);
 
@@ -424,5 +432,95 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     : graphClient.GetAllUsers($"{idUserMapping.B2cClaimName} eq '{usernameWithoutPrefix}").Values.FirstOrDefault();
             return user;
         }
+
+        [HttpPost]
+        [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
+        public HttpResponseMessage Export()
+        {
+            try
+            {
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var idUserMapping = UserMappingsRepository.Instance.GetUserMapping("Id", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+
+                var query = "$orderby=displayName";
+                var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllUsers.Filter"];
+                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
+                {
+                    if (!string.IsNullOrEmpty(filter))
+                    {
+                        filter += " and ";
+                    }
+                    filter += $"{userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
+                }
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    query = $"$filter={filter}";
+                }
+
+                var users = graphClient.GetAllUsers(query);
+                // TODO return all paginated users
+
+                var opId = Guid.NewGuid().ToString();
+                var filename = Path.Combine(Path.GetTempPath(), $"{opId}.tmp");
+                File.AppendAllText(filename, $"userPrincipalName,displayName,surname,givenName,issuer,mail,objectId,userType,jobTitle,department,accountEnabled,usageLocation,streetAddress,state,country,physicalDeliveryOfficeName,city,postalCode,telephoneNumber,mobile,ageGroup,consentProvidedForMinor,legalAgeGroupClassification\n", System.Text.Encoding.UTF8);
+                foreach (var user in users.Values)
+                {
+                    var mail = user.Mail ?? user.OtherMails?.FirstOrDefault() ?? user.SignInNames?.FirstOrDefault()?.Value;
+                    File.AppendAllText(filename, $"{user.UserPrincipalName},{user.DisplayName},{user.Surname},{user.GivenName},{user.UserIdentities?.FirstOrDefault()?.Issuer},{mail},{user.ObjectId},{user.UserType},{user.JobTitle},{user.Department},{user.AccountEnabled},{user.UsageLocation},{user.StreetAddress},{user.State},{user.Country},\"{user.OfficeLocation}\",{user.City},{user.PostalCode},{user.BusinessPhones?.FirstOrDefault()},{user.MobilePhone},{user.AgeGroup},{user.LegalAgeGroupClassification}\n", System.Text.Encoding.UTF8);
+                }
+                // Return the impersonation URL
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    downloadUrl = Request.RequestUri.ToString().Replace("/Export", "/DownloadUsers") + "?id=" + opId
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public HttpResponseMessage DownloadUsers(string id)
+        {
+            try
+            {
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var idUserMapping = UserMappingsRepository.Instance.GetUserMapping("Id", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Operation not found");
+                }
+                var filename = Path.Combine(Path.GetTempPath(), $"{id}.tmp");
+                if (!File.Exists(filename) || !(File.GetCreationTimeUtc(filename) > DateTime.UtcNow.AddMinutes(-1)))
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Operation not found");
+                }
+                var dataBytes = File.ReadAllBytes(filename);
+                var dataStream = new MemoryStream(dataBytes);
+                    
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                result.Content = new StreamContent(dataStream);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = $"{id}.csv"
+                };
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
     }
 }

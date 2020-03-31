@@ -405,4 +405,13 @@ Thank you, we appreciate your support.
   <data name="Impersonate.Text" xml:space="preserve">
     <value>Impersonate as...</value>
   </data>
+  <data name="Export.Text" xml:space="preserve">
+    <value>Download Users</value>
+  </data>
+  <data name="ExportMessage.Text" xml:space="preserve">
+    <value>You are going to download the list of users to CSV format. This process can take a while. </value>
+  </data>
+  <data name="YesDownload.Text" xml:space="preserve">
+    <value>Yes, download them!</value>
+  </data>
 </root>

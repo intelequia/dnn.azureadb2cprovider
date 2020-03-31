@@ -16,7 +16,9 @@
     <div class="userManagement actions">
         <a id="addUser" data-bind="click: addUser"> <i class="fa fa-plus-square-o"></i> <% = LocalizeString("AddUser") %></a>
          | 
-        <a id="refreshUsers" data-bind="click: refresh"> <i class="fa fa-refresh"></i> <% = LocalizeString("Refresh") %></a>
+        <a id="refreshUsers" data-bind="click: refresh"> <i class="fa icon-refresh"></i> <% = LocalizeString("Refresh") %></a>
+        |
+        <a id="export" data-bind="click: downloadUsers"> <% = LocalizeString("Export") %></a>
         <% if (CanImpersonate)
             { %>
          | 
@@ -47,7 +49,7 @@
                     <div data-bind="text: usernameToDisplay, css: identityIssuer" ></div>
                 </td>
                 <td>
-                    <a class="kblist-glyph segoemdl2 pull-right fa fa-trash-o" style="font-size: 1.2em; margin-left: 2.3em" data-bind="click: remove"></a>   
+                    <a class="kblist-glyph segoemdl2 pull-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="click: remove"></a>   
                 </td>
             </tr>
         </tbody>

@@ -164,6 +164,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
         public IEnumerable<string> OtherMails { get; set; }
 
         /// <summary>
+        /// Gets or sets other mails.
+        /// A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com']. Supports $filter.
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "userIdentities", Required = Newtonsoft.Json.Required.Default)]
+        public IEnumerable<UserIdentity> UserIdentities { get; set; }
+
+        /// <summary>
+        /// Gets or sets other mails.
+        /// A list of additional email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com']. Supports $filter.
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "signInNames", Required = Newtonsoft.Json.Required.Default)]
+        public List<SignInName> SignInNames { get; set; }
+
+        /// <summary>
         /// Gets or sets password policies.
         /// Specifies password policies for the user. This value is an enumeration with one possible value being 'DisableStrongPassword', which allows weaker passwords than the default policy to be specified. 'DisablePasswordExpiration' can also be specified. The two may be specified together; for example: 'DisablePasswordExpiration, DisableStrongPassword'.
         /// </summary>

@@ -405,4 +405,13 @@ Gracias, apreciamos tu soporte.
   <data name="Impersonate.Text" xml:space="preserve">
     <value>Iniciar sesión como...</value>
   </data>
+  <data name="Export.Text" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="ExportMessage.Text" xml:space="preserve">
+    <value>Vas a exportar la lista de usuarios al formato CSV. Este proceso puede llevar un tiempo.</value>
+  </data>
+  <data name="YesDownload.Text" xml:space="preserve">
+    <value>¡Sí, descárgalos!</value>
+  </data>
 </root>

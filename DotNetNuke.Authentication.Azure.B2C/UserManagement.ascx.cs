@@ -85,7 +85,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
 
                 ClientAPI.RegisterClientVariable(Page, "AreYouSure", LocalizeString("AreYouSure"), true);
                 ClientAPI.RegisterClientVariable(Page, "DeleteMessage", LocalizeString("DeleteMessage"), true);
-                ClientAPI.RegisterClientVariable(Page, "Yes", LocalizeString("Yes"), true);
+                ClientAPI.RegisterClientVariable(Page, "ExportMessage", LocalizeString("ExportMessage"), true);
+                ClientAPI.RegisterClientVariable(Page, "YesDownload", LocalizeString("YesDownload"), true);
                 ClientAPI.RegisterClientVariable(Page, "Cancel", LocalizeString("Cancel"), true);
             }
             catch (Exception exc)
