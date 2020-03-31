@@ -460,17 +460,22 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     query = $"$filter={filter}";
                 }
 
-                var users = graphClient.GetAllUsers(query);
-                // TODO return all paginated users
-
                 var opId = Guid.NewGuid().ToString();
                 var filename = Path.Combine(Path.GetTempPath(), $"{opId}.tmp");
                 File.AppendAllText(filename, $"userPrincipalName,displayName,surname,givenName,issuer,mail,objectId,userType,jobTitle,department,accountEnabled,usageLocation,streetAddress,state,country,physicalDeliveryOfficeName,city,postalCode,telephoneNumber,mobile,ageGroup,consentProvidedForMinor,legalAgeGroupClassification\n", System.Text.Encoding.UTF8);
-                foreach (var user in users.Values)
+                var users = graphClient.GetAllUsers(query);
+                while (users.Values.Count > 0)
                 {
-                    var mail = user.Mail ?? user.OtherMails?.FirstOrDefault() ?? user.SignInNames?.FirstOrDefault()?.Value;
-                    File.AppendAllText(filename, $"{user.UserPrincipalName},{user.DisplayName},{user.Surname},{user.GivenName},{user.UserIdentities?.FirstOrDefault()?.Issuer},{mail},{user.ObjectId},{user.UserType},{user.JobTitle},{user.Department},{user.AccountEnabled},{user.UsageLocation},{user.StreetAddress},{user.State},{user.Country},\"{user.OfficeLocation}\",{user.City},{user.PostalCode},{user.BusinessPhones?.FirstOrDefault()},{user.MobilePhone},{user.AgeGroup},{user.LegalAgeGroupClassification}\n", System.Text.Encoding.UTF8);
+                    foreach (var user in users.Values)
+                    {
+                        var mail = user.Mail ?? user.OtherMails?.FirstOrDefault() ?? user.SignInNames?.FirstOrDefault()?.Value;
+                        File.AppendAllText(filename, $"{user.UserPrincipalName},{user.DisplayName},{user.Surname},{user.GivenName},{user.UserIdentities?.FirstOrDefault()?.Issuer},{mail},{user.ObjectId},{user.UserType},{user.JobTitle},{user.Department},{user.AccountEnabled},{user.UsageLocation},{user.StreetAddress},{user.State},{user.Country},\"{user.OfficeLocation}\",{user.City},{user.PostalCode},{user.BusinessPhones?.FirstOrDefault()},{user.MobilePhone},{user.AgeGroup},{user.LegalAgeGroupClassification}\n", System.Text.Encoding.UTF8);
+                    }
+                    if (string.IsNullOrEmpty(users.ODataNextLink))
+                        break;
+                    users = graphClient.GetNextUsers(users.ODataNextLink);
                 }
+
                 // Return the impersonation URL
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {

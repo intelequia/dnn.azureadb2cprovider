@@ -65,6 +65,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             var result = SendAADGraphRequest("/users", query);
             return JsonConvert.DeserializeObject<GraphList<User>>(result);
         }
+        public GraphList<User> GetNextUsers(string nextLink)
+        {
+            var result = SendAADGraphRequest("/" + nextLink);
+            return JsonConvert.DeserializeObject<GraphList<User>>(result);
+        }
 
         public void DeleteUser(string objectId)
         {
@@ -189,7 +194,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             // For B2C user managment, be sure to use the 1.6 Graph API version.
             using (var http = new HttpClient())
             {
-                var url = aadGraphEndpoint + Tenant + api + "?" + aadGraphVersion;
+                var url = aadGraphEndpoint + Tenant + api + (api.Contains("?") ? "&" : "?") + aadGraphVersion;
                 if (!string.IsNullOrEmpty(query))
                 {
                     url += "&" + query;
