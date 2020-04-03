@@ -651,6 +651,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 if (IsCurrentUserAuthorized())
                 {
                     UpdateUserAndRoles(userInfo);
+                    MarkUserAsB2c(userInfo);
                 }
                 base.AuthenticateUser(user, portalSettings, IPAddress, addCustomProperties, onAuthenticated);
             }
@@ -658,16 +659,25 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         private void MarkUserAsB2c(UserInfo user)
         {
-            var def = ProfileController.GetPropertyDefinitionByName(user.PortalID, "IdentitySource");
+            EnsureIdentitySourceProfilePropertyDefinitionExists(-1); //  Ensure profile property exists for superusers
+            EnsureIdentitySourceProfilePropertyDefinitionExists(user.PortalID);
+
+            user.Profile.SetProfileProperty("IdentitySource", "Azure-B2C");
+            Security.Profile.ProfileProvider.Instance().UpdateUserProfile(user);
+        }
+
+        private static void EnsureIdentitySourceProfilePropertyDefinitionExists(int portalId)
+        {
+            var def = ProfileController.GetPropertyDefinitionByName(portalId, "IdentitySource");
             if (def == null)
             {
                 var dataTypes = (new ListController()).GetListEntryInfoDictionary("DataType");
-                var definition = new ProfilePropertyDefinition(user.PortalID)
+                var definition = new ProfilePropertyDefinition(portalId)
                 {
                     DataType = dataTypes["DataType:Text"].EntryID,
                     DefaultValue = "Azure-B2C",
                     DefaultVisibility = UserVisibilityMode.AdminOnly,
-                    PortalId = user.PortalID,
+                    PortalId = portalId,
                     ModuleDefId = Null.NullInteger,
                     PropertyCategory = "Security",
                     PropertyName = "IdentitySource",
@@ -677,11 +687,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 };
                 ProfileController.AddPropertyDefinition(definition);
             }
-            
-            user.Profile.SetProfileProperty("IdentitySource", "Azure-B2C");
-            Security.Profile.ProfileProvider.Instance().UpdateUserProfile(user);
         }
-        
+
         private void UpdateUserAndRoles(UserInfo userInfo)
         {
             if (!userInfo.Membership.Approved && IsCurrentUserAuthorized())
