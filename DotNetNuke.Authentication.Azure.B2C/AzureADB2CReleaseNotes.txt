@@ -43,3 +43,10 @@
 	<li>Added EventLog audit notification when an user impersonation happens</li>
 	<li>Fixed login redirection from policies when Autoredirect=false</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.04.02</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Added option to export users from UserManagement in csv format</li>
+	<li>Fix to allow superusers to use the impersonation feature</li>
+	<li>Added identity providers .svg files to the build script</li>
+</ul>
