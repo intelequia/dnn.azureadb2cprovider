@@ -204,6 +204,27 @@ dnn.extend(dnn.adb2c.UserManagement,
                 );
             };
 
+            this.changePassword = function () {
+                that.userManagement.loading(true);
+                that.userManagement.ajax("ChangePassword", {
+                    user: {
+                        objectId: that.objectId()
+                    },
+                    passwordType: that.passwordType(),
+                    password: that.password(),
+                    sendEmail: that.sendEmail()
+                },
+                    function (data) {
+                        that.userManagement.hideTab();
+                        that.userManagement.loading(false);
+                    },
+                    function (e) {
+                        that.userManagement.loading(false);
+                    }, null, "POST"
+                );
+            };
+
+
             this.remove = function () {
                 swal({
                     title: dnn.getVar("AreYouSure"),
@@ -241,6 +262,8 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.searchText = ko.observable('');
             this.searchTimeout = null;
             this.loading = ko.observable(true);
+            this.changingPassword = ko.observable(false);
+
 
             function setHeaders(xhr) {
                 sf.setModuleHeaders(xhr);
@@ -384,6 +407,7 @@ dnn.extend(dnn.adb2c.UserManagement,
             };
             this.updateUser = function (evt) {
                 that.newUser(null);
+                that.changingPassword(false);
                 ajax("GetUserGroups?objectId=" + evt.objectId(), null,
                     function (data) {
                         evt.groups.removeAll();
@@ -393,6 +417,9 @@ dnn.extend(dnn.adb2c.UserManagement,
                             });
                         that.selectedGroup('');
                         that.selectedUser(evt);
+                        evt.passwordType("auto");
+                        evt.password("");
+                        evt.sendEmail(true);
                         that.showTab();
                         that.loading(false);
                     },
@@ -400,6 +427,10 @@ dnn.extend(dnn.adb2c.UserManagement,
                         that.loading(false);
                     }
                 );
+            };
+
+            this.changePassword = function () {
+                that.changingPassword(true);
             };
 
             this.refresh();

@@ -414,4 +414,10 @@ Thank you, we appreciate your support.
   <data name="YesDownload.Text" xml:space="preserve">
     <value>Yes, download them!</value>
   </data>
+  <data name="ChangePassword.Text" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="ChangePasswordSubtitle.Text" xml:space="preserve">
+    <value>You are going to change the password for </value>
+  </data>
 </root>

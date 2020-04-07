@@ -192,6 +192,57 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
         }
 
+        public class ChangePasswordParameters
+        {
+            public User user { get; set; }
+            public string passwordType { get; set; }
+            public string password { get; set; }
+            public bool sendEmail { get; set; }
+        }
+
+        [HttpPost]
+        [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
+        public HttpResponseMessage ChangePassword(AddUserParameters parameters)
+        {
+            try
+            {
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+
+                // Validate permissions
+                var user = graphClient.GetUser(parameters.user.ObjectId);
+                string portalUserMappingB2cCustomClaimName = portalUserMapping?.GetB2cCustomClaimName();
+                if (!UserInfo.IsSuperUser && portalUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
+                {
+                    if (!user.AdditionalData.ContainsKey(portalUserMapping.GetB2cCustomClaimName())
+                        || (int)(long)user.AdditionalData[portalUserMapping.GetB2cCustomClaimName()] != PortalSettings.PortalId)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
+                    }
+                }
+                var newUser = new NewUser(user, false);
+                newUser.PasswordProfile.Password = parameters.passwordType == "auto"
+                    ? Membership.GeneratePassword(Membership.MinRequiredPasswordLength < 8 ? 8 : Membership.MinRequiredPasswordLength,
+                        Membership.MinRequiredNonAlphanumericCharacters < 2 ? 2 : Membership.MinRequiredNonAlphanumericCharacters)
+                    : parameters.password;
+
+                newUser.AdditionalData.Clear();
+                graphClient.UpdateUserPassword(newUser);
+
+                // Send welcome email with password
+                if (parameters.sendEmail)
+                {
+                    SendWelcomeEmail(newUser);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK, user);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
         public class UpdateUserParameters
         {
             public User user { get; set; }

@@ -89,6 +89,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             _ = SendAADGraphRequest("/users/" + user.ObjectId, body: body, httpMethod: new HttpMethod("PATCH"));
         }
 
+        public void UpdateUserPassword(NewUser user)
+        {
+            var body = JsonConvert.SerializeObject(user);
+            _ = SendAADGraphRequest("/users/" + user.ObjectId, body: body, httpMethod: new HttpMethod("PATCH"));
+        }
+
+
         public GraphList<Group> GetAllGroups(string query)
         {
             var result = SendAADGraphRequest("/groups", query);

@@ -139,6 +139,9 @@
 .b2c-panel .dnnForm {
     margin-top: 60px;
 }
+.b2c-panel .actions {
+    margin-bottom: 20px;
+}
 .b2c-groups-header {
     width: 100%;
     background-color: #f0f0f0;

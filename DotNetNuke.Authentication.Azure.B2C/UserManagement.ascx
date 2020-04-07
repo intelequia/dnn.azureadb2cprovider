@@ -137,10 +137,15 @@
         <!-- /ko -->
 
         <!-- ko with: selectedUser -->
+        <!-- ko ifnot: $parent.changingPassword() -->
         <div id="updateUserPanel" class="b2c-panel">
             <h3 class="dnnFormSectionHead"><% = LocalizeString("UpdateUser") %></h3>
             <div class="dnnForm">
-                <p><% = LocalizeString("AddUserDescription") %></p>
+                    <div class="actions">
+                        <a id="btnForcePasswordReset" href="#" data-bind="click: forceChangePassword"><% = LocalizeString("ForcePasswordReset") %></a>
+                        |
+                        <a id="btnChangePassword" href="#" data-bind="click: $parent.changePassword"><% = LocalizeString("ChangePassword") %></a>                        
+                    </div>
                 <fieldset class="dnnClear">
                     <div class="dnnFormItem">
                         <label for="txtFirstName"><% = LocalizeString("lblFirstName") %> *</label>
@@ -157,12 +162,6 @@
                     <div class="dnnFormItem">
                         <label for="txtEmail"><% = LocalizeString("lblEmail") %> *</label>
                         <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
-                    </div>
-                    <div class="dnnFormItem">
-                        <label><% =LocalizeString("PasswordSettings") %></label>
-                    </div>
-                    <div class="dnnFormItem">
-                        <a id="btnForcePasswordReset" class="dnnPrimaryAction" data-bind="click: forceChangePassword"><% = LocalizeString("ForcePasswordReset") %></a>
                     </div>
                     <div class="dnnFormItem">
                         <label for="cboGroups"><% = LocalizeString("lblGroups") %></label>
@@ -186,7 +185,46 @@
                 <a id="btnCancel" class="dnnSecondaryAction" data-bind="click: $parent.hideTab"><% = LocalizeString("Cancel") %></a>
             </div>
         </div>
+         <!-- /ko -->
+
+        <!-- ko if: $parent.changingPassword() -->
+        <div id="changePasswordPanel" class="b2c-panel">
+            <h3 class="dnnFormSectionHead"><% = LocalizeString("ChangePassword") %></h3>
+            <div class="dnnForm">
+            <p><% = LocalizeString("ChangePasswordSubtitle") %> <strong><span class="inline" data-bind="text: displayName"></span></strong> (<span class="inline" data-bind="text: mail"></span>)</p>
+                <fieldset class="dnnClear">
+                    <div class="dnnFormItem">
+                        <label><% =LocalizeString("PasswordSettings") %></label>
+                    </div>
+                    <div class="dnnFormItem">
+                        <input type="radio" name="PasswordType" value="auto" data-bind="checked: passwordType" />
+                        <span class="inline"><% = LocalizeString("AutoGeneratePassword") %></span>
+                    </div>
+                    <div class="dnnFormItem">
+                        <input type="radio" name="PasswordType" value="user" data-bind="checked: passwordType" />
+                        <span class="inline"><% = LocalizeString("UserGeneratedPassword") %></span>
+                    </div>
+                    <!-- ko if: passwordType() === "user" -->
+                    <div class="dnnFormItem">
+                        <label for="txtPassword"><% = LocalizeString("lblPassword") %> *</label>
+                        <input type="password" id="txtPassword" class="full-width" autocomplete="new-password" data-bind="value: password" />
+                    </div>
+                    <!-- /ko -->
+                    <div class="dnnFormItem">
+                        <input type="checkbox" id="chkSendEmail" data-bind="checked: sendEmail" />
+                        <span class="inline" for="chkSendEmail"><% = LocalizeString("lblSendEmail") %></span>
+                    </div>
+
+                </fieldset>
+                <a id="btnUpdatePassword" class="dnnPrimaryAction" data-bind="click: changePassword"><% = LocalizeString("ChangePassword") %></a>
+                <a id="btnCancelUpdatePassword" class="dnnSecondaryAction" data-bind="click: $parent.hideTab"><% = LocalizeString("Cancel") %></a>
+            </div>
+        </div>
         <!-- /ko -->
+
+        <!-- /ko -->
+
+
 
 
     </div>

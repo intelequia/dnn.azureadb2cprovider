@@ -12,7 +12,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
             Initialize();
         }
 
-        public NewUser(User user)
+        public NewUser(User user, bool initializeForAdd = true)
         {
             //Get the list of properties available in base class
             var properties = user.GetType().GetProperties();
@@ -29,14 +29,17 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
                 }
             });
 
-            Initialize();
+            Initialize(initializeForAdd);
         }
 
-        private void Initialize()
+        private void Initialize(bool initializeForAdd = true)
         {
-            AccountEnabled = true;
-            SignInNames = new List<SignInName>();
-            CreationType = "LocalAccount";
+            if (initializeForAdd)
+            {
+                AccountEnabled = true;
+                SignInNames = new List<SignInName>();
+                CreationType = "LocalAccount";
+            }
             PasswordPolicies = "DisablePasswordExpiration";
             PasswordProfile = new PasswordProfile()
             {
