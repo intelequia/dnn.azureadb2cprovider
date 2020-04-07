@@ -25,6 +25,7 @@
 
 using System;
 using System.Globalization;
+using DotNetNuke.Authentication.Azure.B2C.Common;
 using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Framework;
@@ -55,6 +56,43 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 return identitySource == "Azure-B2C" && !string.IsNullOrEmpty(AzureConfig.ImpersonatePolicy);
             }
         }
+
+        public bool EnableAdd
+        {
+            get
+            {
+                return bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableAdd", "True"));
+            }
+        }
+        public bool EnableUpdate
+        {
+            get
+            {
+                return bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableUpdate", "True"));
+            }
+        }
+        public bool EnableDelete
+        {
+            get
+            {
+                return bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableDelete", "True"));
+            }
+        }
+        public bool EnableImpersonate
+        {
+            get
+            {
+                return bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableImpersonate", "True"));
+            }
+        }
+        public bool EnableExport
+        {
+            get
+            {
+                return bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableExport", "True"));
+            }
+        }
+
         #region "Event Handlers"
 
         protected override void OnInit(EventArgs e)

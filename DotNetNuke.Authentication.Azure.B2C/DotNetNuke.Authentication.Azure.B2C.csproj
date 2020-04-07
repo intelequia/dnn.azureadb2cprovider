@@ -144,6 +144,9 @@
     <Content Include="js\azureadb2c.js" />
     <Content Include="js\sweetalert.min.js" />
     <Content Include="js\toastr.min.js" />
+    <Content Include="UserManagementSettings.ascx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="UserManagement.ascx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
@@ -202,6 +205,13 @@
     <Compile Include="Services\AuthorizationController.cs" />
     <Compile Include="Services\HelloController.cs" />
     <Compile Include="Services\UserManagementController.cs" />
+    <Compile Include="UserManagementSettings.ascx.cs">
+      <DependentUpon>UserManagementSettings.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UserManagementSettings.ascx.designer.cs">
+      <DependentUpon>UserManagementSettings.ascx</DependentUpon>
+    </Compile>
     <Compile Include="UserManagement.ascx.cs">
       <DependentUpon>UserManagement.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -313,6 +323,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_LocalResources\Impersonate.ascx.de-de.resx">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="App_LocalResources\UserManagementSettings.ascx.resx">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -1,4 +1,5 @@
-﻿using DotNetNuke.Authentication.Azure.B2C.Components;
+﻿using DotNetNuke.Authentication.Azure.B2C.Common;
+using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models;
 using DotNetNuke.Authentication.Azure.B2C.Components.Models;
@@ -146,6 +147,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                if (!bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAdd", "True")))
+                {
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to add users");
+                }
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
 
@@ -206,6 +211,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                if (!bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableUpdate", "True")))
+                {
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to update users");
+                }
+
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
@@ -254,6 +264,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                if (!bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableUpdate", "True")))
+                {
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to update users");
+                }
+
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
@@ -315,6 +330,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                if (!bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableUpdate", "True")))
+                {
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to update users");
+                }
+
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
@@ -356,9 +376,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                if (!bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableDelete", "True")))
+                {
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to delete users");
+                }
+
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-
                 graphClient.DeleteUser(parameters.objectId);
 
                 // Delete user if exist locally
@@ -432,6 +456,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                if (!bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableImpersonate", "True")))
+                {
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to impersonate users");
+                }
+
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
@@ -490,6 +519,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
+                if (!bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableExport", "True")))
+                {
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to export users");
+                }
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);

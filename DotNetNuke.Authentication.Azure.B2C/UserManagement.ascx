@@ -14,20 +14,29 @@
 <!-- ko with: dnn.adb2c.usermgt -->
 <div id="UserManagement-<% = ModuleId %>">
     <div class="userManagement actions">
+        <% if (EnableAdd)
+            { %>
         <a id="addUser" data-bind="click: addUser"> <i class="fa fa-plus-square-o"></i> <% = LocalizeString("AddUser") %></a>
          | 
+        <% } %>
         <a id="refreshUsers" data-bind="click: refresh"> <i class="fa icon-refresh"></i> <% = LocalizeString("Refresh") %></a>
+        <% if (EnableExport)
+            { %>
         |
         <a id="export" data-bind="click: downloadUsers"> <% = LocalizeString("Export") %></a>
-        <% if (CanImpersonate)
+        <% } %>
+        <% if (EnableImpersonate)
             { %>
+        <% if (CanImpersonate)
+                                     { %>
          | 
         <a id="impersonate" data-bind="click: impersonate"> <% = LocalizeString("Impersonate") %></a>
         <% }
-                                  else
-                                  { %>
+                                     else
+                                     { %>
         | <span class="disabled"><% = LocalizeString("Impersonate") %></span>
         <% }        %>
+        <% } %>
         <div class="searchbox">
             <input type="text" class="txtSearch" placeholder="Search..." data-bind="value: searchText, valueUpdate: 'keyup', event: { keyup: search }" autocomplete="off" />
         </div>
@@ -49,7 +58,10 @@
                     <div data-bind="text: usernameToDisplay, css: identityIssuer" ></div>
                 </td>
                 <td>
+                    <% if (EnableDelete)
+                        { %>
                     <a class="kblist-glyph segoemdl2 pull-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="click: remove"></a>   
+                    <% } %>
                 </td>
             </tr>
         </tbody>
@@ -141,11 +153,14 @@
         <div id="updateUserPanel" class="b2c-panel">
             <h3 class="dnnFormSectionHead"><% = LocalizeString("UpdateUser") %></h3>
             <div class="dnnForm">
+                <% if (EnableUpdate)
+                    { %>
                     <div class="actions">
                         <a id="btnForcePasswordReset" href="#" data-bind="click: forceChangePassword"><% = LocalizeString("ForcePasswordReset") %></a>
                         |
                         <a id="btnChangePassword" href="#" data-bind="click: $parent.changePassword"><% = LocalizeString("ChangePassword") %></a>                        
                     </div>
+                <% } %>
                 <fieldset class="dnnClear">
                     <div class="dnnFormItem">
                         <label for="txtFirstName"><% = LocalizeString("lblFirstName") %> *</label>
@@ -163,11 +178,14 @@
                         <label for="txtEmail"><% = LocalizeString("lblEmail") %> *</label>
                         <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
                     </div>
+                    <% if (EnableUpdate)
+                        { %>
                     <div class="dnnFormItem">
                         <label for="cboGroups"><% = LocalizeString("lblGroups") %></label>
                         <select data-bind="options: $parent.groups, optionsText: 'displayName', value: $parent.selectedGroup, optionsCaption: '<% = LocalizeString("ChooseGroup") %>'"></select>
                         <a id="btnAddGroup" class="dnnPrimaryAction" data-bind="click: addGroup"><% = LocalizeString("AddGroup") %></a>
                     </div>
+                    <% } %>
                     <div class="dnnFormItem">
                         <div class="b2c-groups-header"><% = LocalizeString("CurrentGroups") %></div>
                         <div data-bind="foreach: groups">
@@ -181,7 +199,10 @@
                         <!-- /ko -->
                     </div>
                 </fieldset>
+                <% if (EnableUpdate)
+                    { %>
                 <a id="btnAddUser" class="dnnPrimaryAction" data-bind="click: update"><% = LocalizeString("UpdateUser") %></a>
+                <% } %>
                 <a id="btnCancel" class="dnnSecondaryAction" data-bind="click: $parent.hideTab"><% = LocalizeString("Cancel") %></a>
             </div>
         </div>

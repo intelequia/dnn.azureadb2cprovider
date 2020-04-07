@@ -25,6 +25,7 @@ using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common;
 using DotNetNuke.Common.Utilities;
+using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Tabs;
 using System;
@@ -149,6 +150,15 @@ namespace DotNetNuke.Authentication.Azure.B2C.Common
             var usernameMapping = UserMappingsRepository.Instance.GetUserMapping("Id", portalId);
 
             return (usernameMapping != null) ? usernameMapping.B2cClaimName : "sub";
+        }
+         
+
+        internal static string GetTabModuleSetting(int tabModuleId, string settingKey, string defaultValue = "")
+        {
+            var settings = ModuleController.Instance.GetTabModule(tabModuleId).TabModuleSettings;
+            if (!settings.ContainsKey(settingKey))
+                return defaultValue;
+            return (string) settings[settingKey];
         }
 
     }
