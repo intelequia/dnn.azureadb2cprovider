@@ -297,9 +297,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     Type = "emailAddress",
                     Value = parameters.user.Mail
                 };
-                if (user.SignInNames.Count() == 0)
+                if (user.SignInNames == null)
                 {
                     user.AdditionalData.Add("signInNames", signInName);
+                }
+                else if (user.SignInNames.Count() == 0)
+                {
+                    user.SignInNames.Add(signInName);
                 }
                 else
                 {
@@ -488,6 +492,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 user.AdditionalData.Clear();
                 user.AdditionalData.Add($"extension_{settings.B2cApplicationId.Replace("-", "")}_canImpersonate", true);
+                // HACK: Avoid error "Property alternativeSecurityIds value is required but is empty or missing." when using
+                // federated users
+                user.UserIdentities = null; 
                 graphClient.UpdateUser(user);
 
                 // Return the impersonation URL

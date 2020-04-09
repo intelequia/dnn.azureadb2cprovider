@@ -100,13 +100,20 @@ dnn.extend(dnn.adb2c.UserManagement,
             };
 
             this.usernameToDisplay = ko.computed(function () {
+                var sub = "";
+                if (that.userPrincipalName().includes("#EXT#")) { 
+                    sub = " (External)";
+                }
+                else if (that.userPrincipalName().startsWith("cpim_")) {
+                    sub = " (Federated)";
+                }
                 if (that.signInNames() && that.signInNames().length > 0 && that.signInNames()[0].type === "emailAddress") {
-                    return that.signInNames()[0].value;
+                    return that.signInNames()[0].value + sub;
                 }
                 if (that.mail() !== "") {
-                    return that.mail();
+                    return that.mail() + sub;
                 }
-                return that.userPrincipalName();
+                return that.userPrincipalName() + sub;
             }, this);
 
             this.setDisplayName = function () {
