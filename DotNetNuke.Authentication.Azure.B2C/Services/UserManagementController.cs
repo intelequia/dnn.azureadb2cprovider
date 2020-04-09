@@ -292,22 +292,31 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 // WORKAROUND: "A stream property was found in a JSON Light request payload. Stream properties are only supported in responses."
                 // ==> Patch only the PortalId extension
                 user.AdditionalData.Clear();
-                var signInName = new SignInName()
+                if (user.UserPrincipalName.StartsWith("cpim_")) // Is a federated user?
                 {
-                    Type = "emailAddress",
-                    Value = parameters.user.Mail
-                };
-                if (user.SignInNames == null)
-                {
-                    user.AdditionalData.Add("signInNames", signInName);
-                }
-                else if (user.SignInNames.Count() == 0)
-                {
-                    user.SignInNames.Add(signInName);
+                    // Can't modify this properties on federated users
+                    user.UserIdentities = null;
+                    user.SignInNames = null;
                 }
                 else
                 {
-                    user.SignInNames[0] = signInName;
+                    var signInName = new SignInName()
+                    {
+                        Type = "emailAddress",
+                        Value = parameters.user.Mail
+                    };
+                    if (user.SignInNames == null)
+                    {
+                        user.AdditionalData.Add("signInNames", signInName);
+                    }
+                    else if (user.SignInNames.Count() == 0)
+                    {
+                        user.SignInNames.Add(signInName);
+                    }
+                    else
+                    {
+                        user.SignInNames[0] = signInName;
+                    }
                 }
 
                 user.OtherMails = new string[] { parameters.user.Mail };
