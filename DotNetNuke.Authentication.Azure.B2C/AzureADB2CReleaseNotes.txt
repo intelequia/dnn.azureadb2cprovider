@@ -50,3 +50,10 @@
 	<li>Fix to allow superusers to use the impersonation feature</li>
 	<li>Added identity providers .svg files to the build script</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.04.03</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Added option to reset user password on User Management module</li>
+	<li>Added module settings to the user management module to enable or disable features</li>
+	<li>Fix to allow updating federated users</li>
+</ul>
