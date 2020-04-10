@@ -32,12 +32,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Models
 
         public string GetB2cCustomAttributeName(int portalId)
         {
-            if (B2cClaimName.StartsWith("extension_"))
-                return B2cClaimName;
+            var b2cAttName = B2cClaimName;
+            if (b2cAttName.StartsWith("extension_"))
+                b2cAttName = b2cAttName.Substring(10);
             var settings = new AzureConfig(AzureConfig.ServiceName, portalId);
             return string.IsNullOrEmpty(settings.B2cApplicationId) || string.IsNullOrEmpty(B2cClaimName)
                 ? ""
-                : $"extension_{settings.B2cApplicationId.Replace("-", "")}_{B2cClaimName}";
+                : $"extension_{settings.B2cApplicationId.Replace("-", "")}_{b2cAttName}";
         }
     }
 }

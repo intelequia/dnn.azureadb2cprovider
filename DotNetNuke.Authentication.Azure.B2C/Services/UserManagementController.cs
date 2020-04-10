@@ -525,7 +525,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             var usernameWithoutPrefix = settings.UsernamePrefixEnabled ? UserInfo.Username.Substring(AzureConfig.ServiceName.Length + 1) : UserInfo.Username;
             var user = idUserMapping.B2cClaimName == "sub" ?
                     graphClient.GetUser(usernameWithoutPrefix)
-                    : graphClient.GetAllUsers($"{idUserMapping.B2cClaimName} eq '{usernameWithoutPrefix}").Values.FirstOrDefault();
+                    : graphClient.GetAllUsers($"$filter={idUserMapping.GetB2cCustomAttributeName(settings.PortalID)} eq '{usernameWithoutPrefix}'").Values.FirstOrDefault();
             return user;
         }
 
