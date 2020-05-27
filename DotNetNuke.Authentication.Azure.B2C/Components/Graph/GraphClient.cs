@@ -102,6 +102,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             return JsonConvert.DeserializeObject<GraphList<Group>>(result);
         }
 
+        public GraphList<Group> GetNextGroups(string nextLink)
+        {
+            var result = SendAADGraphRequest("/" + nextLink);
+            return JsonConvert.DeserializeObject<GraphList<Group>>(result);
+        }
+
         public GraphList<Group> GetUserGroups(string userId)
         {
             var result = SendAADGraphRequest($"/users/{userId}/memberOf");
