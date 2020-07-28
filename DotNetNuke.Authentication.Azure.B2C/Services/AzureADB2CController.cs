@@ -128,8 +128,21 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 AzureADB2CProviderSettings.SaveGeneralSettings(AzureConfig.ServiceName, PortalId, settings);
-                AddUserProfilePage(PortalId, settings.Enabled && !string.IsNullOrEmpty(settings.ProfilePolicy));
-                AddImpersonatePage(PortalId);
+
+                if (!config.UseGlobalSettings)
+                {
+                    AddUserProfilePage(PortalId, settings.Enabled && !string.IsNullOrEmpty(settings.ProfilePolicy));
+                    AddImpersonatePage(PortalId);
+                }
+                else
+                {
+                    var portals = PortalController.Instance.GetPortals();
+                    foreach (PortalInfo portal in portals)
+                    {
+                        AddUserProfilePage(portal.PortalID, settings.Enabled && !string.IsNullOrEmpty(settings.ProfilePolicy));
+                        AddImpersonatePage(portal.PortalID);
+                    }
+                }
 
                 // If UseGlobalSettigns was set to false, we have to create mappings if there're no mappings for the current portal
                 if (config.UseGlobalSettings != settings.UseGlobalSettings && settings.UseGlobalSettings == false)

@@ -3,6 +3,7 @@ using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Authentication.Azure.B2C.Components.Models;
 using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common.Utilities;
+using DotNetNuke.Data;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Instrumentation;
 using DotNetNuke.Security.Roles;
@@ -53,6 +54,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
 
                 ScheduleHistoryItem.AddLogNote("Starting Azure AD B2C Synchronization\n");
 
+                // Run optional pre-sync stored procedure
+                RunStoredProcedureIfExists($"{AzureConfig.ServiceName}_BeforeScheduledSync");
+
                 var portals = PortalController.Instance.GetPortalList(Null.NullString);
                 foreach (var portal in portals)
                 {
@@ -63,6 +67,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                         ScheduleHistoryItem.AddLogNote(message);
                     }
                 }
+
+                // Run optional post-sync stored procedure
+                RunStoredProcedureIfExists($"{AzureConfig.ServiceName}_AfterScheduledSync");
 
                 ScheduleHistoryItem.AddLogNote(string.Format("Azure AD B2C Synchronization finished successfully\n"));
 
@@ -75,6 +82,22 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 ScheduleHistoryItem.AddLogNote(string.Format("Error performing Azure AD B2C Synchronization: {0}\n", ex.Message)); ;
 
                 Errored(ref ex);
+                DotNetNuke.Services.Exceptions.Exceptions.LogException(ex);
+            }
+        }
+
+        private void RunStoredProcedureIfExists(string storedProcedureName)
+        {
+            try
+            {
+                using (IDataContext ctx = DataContext.Instance())
+                {
+                    var query = $"IF OBJECT_ID(N'[{storedProcedureName}]', N'P') IS NOT NULL BEGIN EXEC {storedProcedureName} END";
+                    ctx.Execute(System.Data.CommandType.Text, query);
+                }
+            }
+            catch (Exception ex)
+            {
                 DotNetNuke.Services.Exceptions.Exceptions.LogException(ex);
             }
         }

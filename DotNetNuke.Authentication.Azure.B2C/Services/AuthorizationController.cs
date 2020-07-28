@@ -47,6 +47,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 {
                     uriBuilder = new UriBuilder($"{Request.RequestUri.Scheme}://{portalAlias.HTTPAlias}/UserProfile");
                 }
+                else if (state.IsImpersonate)
+                {
+                    uriBuilder = new UriBuilder($"{Request.RequestUri.Scheme}://{portalAlias.HTTPAlias}/Impersonate");
+                }
                 else
                 {
                     uriBuilder = new UriBuilder(Globals.LoginURL(state.RedirectUrl, false, portalSettings));

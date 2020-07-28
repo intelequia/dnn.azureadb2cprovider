@@ -441,11 +441,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             httpContext.User = principal;            
         }
 
-        public void Impersonate(JwtSecurityToken pToken = null)
+        public string Impersonate(JwtSecurityToken pToken = null)
         {
             if (pToken == null && (!IsCurrentUserAuthorized() || JwtIdToken == null))
             {
-                return;
+                return string.Empty;
             }
             if (pToken != null)
             {
@@ -476,12 +476,18 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
                     EventLogController.Instance.AddLog("User Impersonation", $"User {impersonatorUsername} has impersonated as {username}", 
                         PortalSettings.Current, user.UserID, EventLogController.EventLogType.USER_IMPERSONATED);
+
+                    var portal = PortalController.Instance.GetPortal(user.PortalID);
+                    //var portalSettings = new PortalSettings(portal.PortalID);
+                    var httpAlias = PortalAliasController.Instance.GetPortalAliasesByPortalId(portal.PortalID).ToList().FirstOrDefault().HTTPAlias;
+                    return $"{HttpContext.Current.Request.Url.Scheme}://{httpAlias}";
                 }
             }
+            return string.Empty;
         }
 
 
-        public void UpdateUserProfile(JwtSecurityToken pToken = null, bool updateProfilePicture = true, bool updateUserRoles = true)
+        public void UpdateUserProfile(JwtSecurityToken pToken = null, PortalSettings portalSettings = null, bool updateProfilePicture = true, bool updateUserRoles = true)
         {
             if (pToken == null && (!IsCurrentUserAuthorized() || JwtIdToken == null))
             {
@@ -490,9 +496,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (pToken != null) {
                 JwtIdToken = pToken;
             }
+            if (portalSettings == null)
+            {
+                portalSettings = PortalSettings.Current;
+            }
             var user = GetCurrentUserInternal(pToken).ToUserInfo(Settings.UsernamePrefixEnabled);
             // Update user
-            var userInfo = UserController.GetUserByName(PortalSettings.Current.PortalId, user.Username);
+            var userInfo = UserController.GetUserByName(portalSettings.PortalId, user.Username);
 
             userInfo.FirstName = user.FirstName;
             userInfo.LastName = user.LastName;
@@ -514,7 +524,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     UpdateUserProfilePicture(JwtIdToken.Claims.First(c => c.Type == "sub").Value, userInfo);
                 }
             }
-            UserController.UpdateUser(PortalSettings.Current.PortalId, userInfo);
+            UserController.UpdateUser(portalSettings.PortalId, userInfo);
 
             // Update user roles
             if (updateUserRoles)
@@ -562,16 +572,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         public Uri NavigateImpersonation(Uri redirectAfterImpersonateUri = null, string loginHint = "")
         {
+            redirectAfterImpersonateUri = new Uri($"{CallbackUri.Scheme}://{PortalSettings.Current.PortalAlias.HTTPAlias}/Impersonate");
             var parameters = new List<QueryParameter>
                 {
                     new QueryParameter("scope", Scope),
                     new QueryParameter("client_id", APIKey),
-                    new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/Impersonate")),
+                    //new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/Impersonate")),
+                    new QueryParameter("redirect_uri", string.IsNullOrEmpty(Settings.RedirectUri)
+                        ? HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/UserProfile")
+                        : HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() {
                         PortalId = PortalSettings.Current.PortalId,
                         Culture = PortalSettings.Current.CultureCode,
                         RedirectUrl = redirectAfterImpersonateUri?.ToString(),
-                        IsUserProfile = false
+                        IsImpersonate = true
                     }.ToString())),
                     new QueryParameter("response_type", "code"),
                     new QueryParameter("response_mode", "query"),
@@ -596,7 +610,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 {
                     var claimName = portalUserMapping?.GetB2cCustomClaimName();
                     // Get PortalId from claim
-                    var portalIdClaim = JwtIdToken.Claims.FirstOrDefault(x => x.Type == claimName)?.Value;
+                    var portalIdClaim = JwtIdToken.Claims.FirstOrDefault(x => x.Type.ToLowerInvariant() == claimName.ToLowerInvariant())?.Value;
                     if (string.IsNullOrEmpty(portalIdClaim))
                     {
                         throw new SecurityTokenException("The user has no portalId claim and portalId profile mapping is setup. The B2C user can't login to any portal until the portalId attribute has been setup for the user. Ensure that the PortalId claim has been setup and included on the policy being used.");

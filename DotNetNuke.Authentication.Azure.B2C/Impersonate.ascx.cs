@@ -104,8 +104,15 @@ namespace DotNetNuke.Authentication.Azure.B2C
                         {
                             if (User != null)
                             {
-                                oauthClient.Impersonate();
-                                Response.Redirect("/"); //  Redirect to homepage after impersonation
+                                var url = oauthClient.Impersonate();
+                                if (string.IsNullOrEmpty(url))
+                                {
+                                    Response.Redirect($"{Request.Url.Scheme}://{PortalSettings.PortalAlias.HTTPAlias}"); //  Redirect to homepage after impersonation
+                                }
+                                else
+                                {
+                                    Response.Redirect(url);
+                                }
                             }
                         }
                     }

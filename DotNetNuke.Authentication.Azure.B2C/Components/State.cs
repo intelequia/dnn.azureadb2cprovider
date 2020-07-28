@@ -26,6 +26,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public string Culture { get; set; }
         public string RedirectUrl { get; set; }
         public bool IsUserProfile { get; set; }
+        public bool IsImpersonate { get; set; }
 
         public override string ToString()
         {
@@ -49,6 +50,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (IsUserProfile)
             {
                 s += $";up=1";
+            }
+            if (IsImpersonate)
+            {
+                s += ";i=1";
             }
             return s;
         }
@@ -78,6 +83,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                             break;
                         case "up":
                             IsUserProfile = item[1] == "1";
+                            break;
+                        case "i":
+                            IsImpersonate = item[1] == "1";
                             break;
                         default:
                             break;

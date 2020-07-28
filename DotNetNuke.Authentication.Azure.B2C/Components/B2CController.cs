@@ -188,6 +188,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             try
             {
                 var portalSettings = PortalController.Instance.GetCurrentPortalSettings();
+                var portalIds = jwt?.Claims.FirstOrDefault(x => x.Type == "extension_portalId")?.Value;
+                if (!string.IsNullOrEmpty(portalIds) && int.Parse(portalIds) != portalSettings.PortalId)
+                {
+                    var portal = PortalController.Instance.GetPortal(int.Parse(portalIds));
+                    portalSettings = new PortalSettings(portal);
+                }
                 var azureB2cConfig = new AzureConfig(AzureConfig.ServiceName, portalSettings.PortalId);
                 if (portalSettings == null)
                 {
@@ -262,7 +268,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 }
 
                 azureClient.AuthenticateUser(userData, portalSettings, HttpContext.Current.Request["REMOTE_ADDR"], azureClient.AddCustomProperties, azureClient.OnUserAuthenticated);
-                azureClient.UpdateUserProfile(jwt, false, false);
+                azureClient.UpdateUserProfile(jwt, portalSettings, false, false);
                 cache.Insert($"SyncB2CToken|{tokenKey}", "OK", null, jwt.ValidTo, TimeSpan.Zero);
             }
 
