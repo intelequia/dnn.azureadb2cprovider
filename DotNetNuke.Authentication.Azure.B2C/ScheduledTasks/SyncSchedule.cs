@@ -174,13 +174,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
 
                         foreach (var aadGroup in groups)
                         {
-                            var dnnRole = RoleController.Instance.GetRoleByName(portalId, $"{groupPrefix}{aadGroup.DisplayName}");
+                            var displayName = $"{groupPrefix}{aadGroup.DisplayName}";
+                            var mapping = customRoleMappings?.FirstOrDefault(x => x.AadRoleName == aadGroup.DisplayName);
+                            if (mapping != null)
+                            {
+                                displayName = mapping.DnnRoleName;
+                            }
+
+                            var dnnRole = RoleController.Instance.GetRoleByName(portalId, displayName);
                             if (dnnRole == null)
                             {
                                 try
                                 {
                                     // Create role
-                                    var roleId = AddRole(portalId, $"{groupPrefix}{aadGroup.DisplayName}", aadGroup.Description, true);
+                                    var roleId = AddRole(portalId, displayName, aadGroup.Description, true);
                                     groupsCreated++;
                                 }
                                 catch (Exception ex)
@@ -211,7 +218,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 foreach (var dnnRole in dnnB2cRoles)
                 {
                     if (allaadGroups.Count == 0
-                        || aadGroups.Values.FirstOrDefault(x => x.DisplayName == (dnnRole.RoleName.StartsWith("AzureB2C-") ? dnnRole.RoleName.Substring("AzureB2C-".Length) : dnnRole.RoleName)) == null)
+                        || aadGroups.Values.FirstOrDefault(x => x.DisplayName == (settings.GroupNamePrefixEnabled ? dnnRole.RoleName.Substring("AzureB2C-".Length) : dnnRole.RoleName)) == null)
                     {
                         try
                         {
