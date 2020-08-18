@@ -12,7 +12,6 @@
     - [Step 2: How to setup the Azure Active Directory application to support role and profile synchronization](#step-2-how-to-setup-the-azure-active-directory-application-to-support-role-and-profile-synchronization)
     - [Step 3: DNN provider installation and configuration](#step-3-dnn-provider-installation-and-configuration)
     - [Step 4. (Optional) Setup the User Management module](#step-4-optional-setup-the-user-management-module)
-   - [Claim mappings](docs/mappings.md)
 - [Samples](#samples)
 - [Building the solution](#building-the-solution)
     - [Requirements](#requirements-1)
