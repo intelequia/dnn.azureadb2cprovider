@@ -175,7 +175,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                         foreach (var aadGroup in groups)
                         {
                             var displayName = $"{groupPrefix}{aadGroup.DisplayName}";
-                            var mapping = customRoleMappings?.FirstOrDefault(x => x.AadRoleName == aadGroup.DisplayName);
+                            var mapping = customRoleMappings?.FirstOrDefault(x => x.B2cRoleName == aadGroup.DisplayName);
                             if (mapping != null)
                             {
                                 displayName = mapping.DnnRoleName;
