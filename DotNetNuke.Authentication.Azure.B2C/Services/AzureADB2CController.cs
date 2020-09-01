@@ -412,7 +412,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var profileProperties = ProfileController.GetPropertyDefinitionsByPortal(0, false, false).Cast<ProfilePropertyDefinition>().Select(v => new
+                var profileProperties = ProfileController.GetPropertyDefinitionsByPortal(PortalId, false, false).Cast<ProfilePropertyDefinition>().Select(v => new
                 {
                     v.PropertyName
                 });
