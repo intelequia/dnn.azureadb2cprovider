@@ -63,7 +63,7 @@ To create a b2c application follow this documentation [Register a web applicatio
 Now that we have our b2c application, we have to configure all the samples, except the API, with this b2c application. 
 
 To achieve this, we will setup all the samples following their respective instructions by just using one b2c application and don´t forget to add all your apps url to the Redirect Url at the B2C Application like this:
-![](images/install-dnn.jpg "Dnn install module")
+![](images/reply-url.jpg "Application reply url")
 
 ##### Step 3: Testing the SSO
 If everything went as planned, we could now try log in to one of our applications, after logging in, we will try to login in another application, and this time it won't ask for credentials, it will enter directly with the account used in the other application
