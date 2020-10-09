@@ -113,6 +113,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="images\install-dnn.jpg" />
+    <Content Include="images\module.PNG" />
+    <Content Include="images\reply-url.jpg" />
     <Content Include="License.txt" />
     <Content Include="module.css" />
     <Content Include="ReleaseNotes.txt" />
@@ -140,6 +143,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Views\Item\Index.cshtml" />
+    <Content Include="readme.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
