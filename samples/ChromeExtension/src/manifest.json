@@ -1,0 +1,35 @@
+{
+    "name": "TodoList B2C Example",
+    "description": "Example to illustrate how to login into Azure AD B2C to obtain a token and consume a secured WebAPI",
+    "version": "1.0",
+    "permissions": [
+        "debugger",
+        "declarativeContent",
+        "storage"       
+    ],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": true
+    },
+    "page_action": {
+        "default_popup": "todolist.html",
+        "default_icon": {
+            "16": "b2c16.png",
+            "32": "b2c32.png",
+            "64": "b2c64.png",
+            "128": "b2c128.png"
+        },
+        "default_title": "TodoList B2C Example"
+    },
+    "icons": {
+        "16": "b2c16.png",
+        "32": "b2c32.png",
+        "64": "b2c64.png",
+        "128": "b2c128.png"
+    },
+    "manifest_version": 2,
+    "incognito": "split",
+    "web_accessible_resources": ["todolist.html"],
+    "content_security_policy": "script-src 'self' https://ajax.googleapis.com https://alcdn.msauth.net/ https://code.jquery.com/ https://cdn.jsdelivr.net https://stackpath.bootstrapcdn.com/ https://cdnjs.cloudflare.com; object-src 'self'"
+}
+  
