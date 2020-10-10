@@ -37,7 +37,7 @@
                 <moduleControls>
                   <moduleControl>
                     <controlKey />
-                    <controlSrc>SPA_WebAPI_Client/Item/Index.mvc</controlSrc>
+                    <controlSrc>Item/Index.mvc</controlSrc>
                     <supportsPartialRendering>False</supportsPartialRendering>
                     <controlTitle />
                     <controlType>View</controlType>
