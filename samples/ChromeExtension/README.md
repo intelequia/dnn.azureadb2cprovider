@@ -35,8 +35,9 @@ Follow these steps to setup the Chrome Extension:
        ![Chrome Extension](docs/images/ChromeExtension7.png)
 10. Edit the files apiConfig.js to specify the scope names and endpoint of the WebAPI you created on step #1
 11. Edit the file policies.js to specify the policy names and authorities
-12. Finally edit the file authConfig.js and specify the Application ID you copied on step #8.7
-13. Reload the extension on Chrome
+12. Edit background.js to indicate on which websites you want to enable the extension (or change the logic for what's better for you)
+13. Finally edit the file authConfig.js and specify the Application ID you copied on step #8.7
+14. Reload the extension on Chrome
 
 # References
 * https://github.com/Azure-Samples/active-directory-b2c-javascript-msal-singlepageapp/tree/master/JavaScriptSPA
