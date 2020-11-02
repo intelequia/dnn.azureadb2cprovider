@@ -8,7 +8,7 @@
 
 const msalConfig = {
   auth: {
-    clientId: "611dc285-7d91-48b4-b683-4a391815b08f"
+    clientId: "611dc285-7d91-48b4-b683-4a391815b08f",
     authority: b2cPolicies.authorities.signUpSignIn.authority,
     validateAuthority: false
   },
