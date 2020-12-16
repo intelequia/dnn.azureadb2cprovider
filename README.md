@@ -92,6 +92,7 @@ To support the role and profile synchronization by internally using the Microsof
 5. Click on the name of the app we've just created and then on "All settings" > "Required permissions" > "Windows Azure Active Directory". Ensure that the app has, at least, **Sign in and read user profile** checked, in the **Delegated permissions** section.
 6. Click on the **Grant permissions** button and then click on "Yes" to grant the permissions in all the accounts in the current directory.
 7. <a name="getaadkey"></a> Now on the **Settings** page, under the **keys** section, create a new key with the desired expiration. Click on Save and then copy the key to a secure location. `IMPORTANT: you won't be able to copy this key later, so copy it now or generate a new one when needed.`
+8. To support resetting passwords for users thought the User Management module, this application needs permissions to manage the users' passwords. To allow that, on the Azure Portal go to Azure Active Directory > Roles and administrators > Click on 'User administrator' > click on '+ Add assignment' to add your Application ID.
 
 <a name="provider-configuration"></a>
 ### Step 3: DNN provider installation and configuration
