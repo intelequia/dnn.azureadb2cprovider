@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DotNetNuke.Authentication.Azure.B2C</RootNamespace>
     <AssemblyName>DotNetNuke.Authentication.Azure.B2C</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
@@ -37,39 +37,40 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dnn.PersonaBar.Library, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Dnn.PersonaBar.Library.1.5.0.193\lib\net45\Dnn.PersonaBar.Library.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Dnn.PersonaBar.Library, Version=9.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Dnn.PersonaBar.Library.9.4.3\lib\net45\Dnn.PersonaBar.Library.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke, Version=9.3.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\DotNetNuke.Core.9.3.2\lib\net45\DotNetNuke.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="DotNetNuke, Version=9.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetNuke.Core.9.4.3\lib\net45\DotNetNuke.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke.Instrumentation, Version=9.3.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\DotNetNuke.Instrumentation.9.3.2\lib\net45\DotNetNuke.Instrumentation.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetNuke.DependencyInjection.9.4.3\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke.Log4Net, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\DotNetNuke.Instrumentation.9.3.2\lib\net45\DotNetNuke.Log4Net.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="DotNetNuke.Instrumentation, Version=9.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetNuke.Instrumentation.9.4.3\lib\net45\DotNetNuke.Instrumentation.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke.Web, Version=9.3.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\DotNetNuke.Web.9.3.2\lib\net45\DotNetNuke.Web.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="DotNetNuke.log4net, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetNuke.Instrumentation.9.4.3\lib\net45\DotNetNuke.log4net.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke.Web.Client, Version=9.3.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\DotNetNuke.Web.Client.9.3.2\lib\net45\DotNetNuke.Web.Client.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="DotNetNuke.Web, Version=9.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetNuke.Web.9.4.3\lib\net45\DotNetNuke.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetNuke.Web.Client, Version=9.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetNuke.Web.Client.9.4.3\lib\net45\DotNetNuke.Web.Client.dll</HintPath>
     </Reference>
     <Reference Include="DotNetNuke.WebUtility, Version=4.2.1.783, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\DotNetNuke.Web.9.3.2\lib\net45\DotNetNuke.WebUtility.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>packages\DotNetNuke.Web.9.4.3\lib\net45\DotNetNuke.WebUtility.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\DotNetNuke.Core.9.3.2\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>packages\DotNetNuke.Core.9.4.3\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.IdentityModel.Clients.ActiveDirectory.5.0.5\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll</HintPath>
     </Reference>
@@ -365,7 +366,7 @@
   </UsingTask>
   <Target Name="SampleTarget" BeforeTargets="PackageModule" Condition=" '$(Configuration)' == 'Release' ">
     <SetEnvironmentVariableTask Name="NODE_ENV" Value="production" />
-    <Exec Command="webpack -p" WorkingDirectory="AzureADB2C.Web" />
+    <Exec Command="webpack --mode production --env production" WorkingDirectory="AzureADB2C.Web" />
   </Target>
   <Target Name="AfterBuild" DependsOnTargets="PackageModule">
   </Target>
