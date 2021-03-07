@@ -57,3 +57,16 @@
 	<li>Added module settings to the user management module to enable or disable features</li>
 	<li>Fix to allow updating federated users</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.04.04</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Added group filtering option on scheduler sync</li>
+	<li>Added Chrome Extension example</li>
+	<li>User management module now allows to setup custom attributes to edit through the UI</li>
+	<li>User management module download users feature now uses the filter on the search box in addition to the one on the web.config</li>
+	<li>Fixed GetB2cCustomAttributeName function when using an extension attribute</li>
+	<li>Fix for impersonate feature on multi-portal scenario</li>
+	<li>Fix on role mappings management and scheduled task</li>
+	<li>Profile properties dropdown on mappings tab now shows properties from current portal instead of PortalId 0</li>
+	<li>Bumped package dependencies. Now DNN 9.4.3 is required as minimum</li>
+</ul>
