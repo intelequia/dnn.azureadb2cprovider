@@ -61,6 +61,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                     chkEnableDelete.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableDelete", "True"));
                     chkEnableImpersonate.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableImpersonate", "True"));
                     chkEnableExport.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableExport", "True"));
+                    txtCustomFields.Text = Utils.GetTabModuleSetting(TabModuleId, "CustomFields");
                 }
             }
             catch (Exception e)
@@ -78,6 +79,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableDelete", chkEnableDelete.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableImpersonate", chkEnableImpersonate.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableExport", chkEnableExport.Checked.ToString());
+                ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "CustomFields", txtCustomFields.Text.Trim());
             }
             catch (Exception e)
             {

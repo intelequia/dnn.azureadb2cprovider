@@ -89,6 +89,16 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.password = ko.observable("");
             this.sendEmail = ko.observable(true);
 
+            // User custom attributes
+            if (userManagement.customAttributes && userManagement.customAttributes !== "") {
+                $.each(userManagement.customAttributes.split(","),
+                    function (index, customAttribute) {
+                        var p = userManagement.customAttributesPrefix + customAttribute.replace(" ", "");
+                        that[customAttribute.replace(" ", "")] = ko.observable(model[p] || "");
+                    });
+            }
+            
+
             this.groups = ko.observableArray();
             this.groupsSimple = function () {
                 var g = [];
@@ -122,7 +132,6 @@ dnn.extend(dnn.adb2c.UserManagement,
             }; 
             this.identityIssuer = ko.computed(function () {
                 if (that.userIdentities() && that.userIdentities().length > 0) {
-                    console.log(that.userIdentities()[0].issuer.replace('.', ''));
                     return that.userIdentities()[0].issuer.replace('.', '');
                 }                    
                 return "";
@@ -190,15 +199,25 @@ dnn.extend(dnn.adb2c.UserManagement,
 
             this.update = function () {
                 that.userManagement.loading(true);
+
+                var u = {
+                    objectId: that.objectId(),
+                    displayName: that.displayName(),
+                    givenName: that.givenName(),
+                    surname: that.surname(),
+                    mail: that.mail(),
+                    preferredLanguage: that.preferredLanguage()
+                };
+
+                if (userManagement.customAttributes && userManagement.customAttributes !== "") {
+                    $.each(userManagement.customAttributes.split(","),
+                        function (index, customAttribute) {
+                            var p = userManagement.customAttributesPrefix + customAttribute.replace(" ", "");
+                            u[p] = that[customAttribute.replace(" ", "")]();
+                        });
+                }
                 that.userManagement.ajax("UpdateUser", {
-                    user: {
-                        objectId: that.objectId(),
-                        displayName: that.displayName(),
-                        givenName: that.givenName(),
-                        surname: that.surname(),
-                        mail: that.mail(),
-                        preferredLanguage: that.preferredLanguage()
-                    },
+                    user: u,
                     groups: that.groupsSimple()
                     },
                     function (data) {
@@ -270,6 +289,8 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.searchTimeout = null;
             this.loading = ko.observable(true);
             this.changingPassword = ko.observable(false);
+            this.customAttributes = dnn.getVar("customAttributes");
+            this.customAttributesPrefix = dnn.getVar("customAttributesPrefix");
 
 
             function setHeaders(xhr) {
@@ -310,7 +331,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                     closeOnConfirm: true
                 }, function () {
                     that.loading(true);
-                    that.ajax("Export", null,
+                        that.ajax("Export?search=" + that.searchText(), null,
                         function (data) {
                             if (data.downloadUrl) {
                                 window.location.replace(data.downloadUrl);
@@ -322,7 +343,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                         },
                         function (e) {
                             that.loading(false);
-                        }, null, "POST"
+                        }, null, "GET"
                     );
                 });
             };

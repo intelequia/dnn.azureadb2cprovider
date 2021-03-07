@@ -120,6 +120,12 @@
   <data name="ControlTitle_settings.Text" xml:space="preserve">
     <value>User Management Settings</value>
   </data>
+  <data name="lblCustomFields.Help" xml:space="preserve">
+    <value>Custom user attributes to show when editing the user (comma separated) </value>
+  </data>
+  <data name="lblCustomFields.Text" xml:space="preserve">
+    <value>Editable Custom User Attributes</value>
+  </data>
   <data name="lblEnableAdd.Help" xml:space="preserve">
     <value>Enable the module to add new users</value>
   </data>

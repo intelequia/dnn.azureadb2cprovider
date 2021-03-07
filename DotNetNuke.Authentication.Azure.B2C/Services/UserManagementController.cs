@@ -320,6 +320,21 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 user.OtherMails = new string[] { parameters.user.Mail };
+
+                // Custom Attributes
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
+                if (!string.IsNullOrEmpty(customAttributes))
+                {
+                    string[] attr = customAttributes.Split(',');
+                    foreach (var key in parameters.user.AdditionalData.Keys)
+                    {
+                        if (key.StartsWith("extension_") && attr.Any(x => key.EndsWith(x)))
+                        {
+                            user.AdditionalData.Add(key, parameters.user.AdditionalData[key]);
+                        }
+                    }
+                }
+
                 graphClient.UpdateUser(user);
 
                 // Update group membership
@@ -529,9 +544,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             return user;
         }
 
-        [HttpPost]
+        [HttpGet]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
-        public HttpResponseMessage Export()
+        public HttpResponseMessage Export(string search)
         {
             try
             {
@@ -546,6 +561,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 var query = "$orderby=displayName";
                 var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllUsers.Filter"];
+                if (!string.IsNullOrEmpty(search))
+                {
+                    if (!string.IsNullOrEmpty(filter))
+                    {
+                        filter += " and ";
+                    }
+                    filter += $"startswith(displayName, '{search}')";
+                }
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
                 {
@@ -560,16 +583,31 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     query = $"$filter={filter}";
                 }
 
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");                
+
                 var opId = Guid.NewGuid().ToString();
                 var filename = Path.Combine(Path.GetTempPath(), $"{opId}.tmp");
-                File.AppendAllText(filename, $"userPrincipalName,displayName,surname,givenName,issuer,mail,objectId,userType,jobTitle,department,accountEnabled,usageLocation,streetAddress,state,country,physicalDeliveryOfficeName,city,postalCode,telephoneNumber,mobile,ageGroup,consentProvidedForMinor,legalAgeGroupClassification\n", System.Text.Encoding.UTF8);
+                File.AppendAllText(filename, $"userPrincipalName,displayName,surname,givenName,issuer,mail,objectId,userType,jobTitle,department,accountEnabled,usageLocation,streetAddress,state,country,physicalDeliveryOfficeName,city,postalCode,telephoneNumber,mobile,ageGroup,legalAgeGroupClassification{(!string.IsNullOrEmpty(customAttributes) ? "," + customAttributes : "")}\n", System.Text.Encoding.UTF8);
                 var users = graphClient.GetAllUsers(query);
                 while (users.Values.Count > 0)
                 {
                     foreach (var user in users.Values)
                     {
                         var mail = user.Mail ?? user.OtherMails?.FirstOrDefault() ?? user.SignInNames?.FirstOrDefault()?.Value;
-                        File.AppendAllText(filename, $"{user.UserPrincipalName},{user.DisplayName},{user.Surname},{user.GivenName},{user.UserIdentities?.FirstOrDefault()?.Issuer},{mail},{user.ObjectId},{user.UserType},{user.JobTitle},{user.Department},{user.AccountEnabled},{user.UsageLocation},{user.StreetAddress},{user.State},{user.Country},\"{user.OfficeLocation}\",{user.City},{user.PostalCode},{user.BusinessPhones?.FirstOrDefault()},{user.MobilePhone},{user.AgeGroup},{user.LegalAgeGroupClassification}\n", System.Text.Encoding.UTF8);
+                        var userLine = $"{user.UserPrincipalName},{user.DisplayName},{user.Surname},{user.GivenName},{user.UserIdentities?.FirstOrDefault()?.Issuer},{mail},{user.ObjectId},{user.UserType},{user.JobTitle},{user.Department},{user.AccountEnabled},{user.UsageLocation},{user.StreetAddress},{user.State},{user.Country},\"{user.OfficeLocation}\",{user.City},{user.PostalCode},{user.BusinessPhones?.FirstOrDefault()},{user.MobilePhone},{user.AgeGroup},{user.LegalAgeGroupClassification}";
+
+                        foreach (string attr in customAttributes.Split(','))
+                        {
+                            userLine += ",";
+                            var extensionName = $"extension_{settings.B2cApplicationId.Replace("-", "")}_{attr}";
+                            if (user?.AdditionalData != null && user.AdditionalData.ContainsKey(extensionName))
+                            {
+                                userLine += $"{user.AdditionalData[extensionName]}";
+                            }
+                        }
+
+                        userLine += "\n";
+                        File.AppendAllText(filename, userLine, System.Text.Encoding.UTF8);
                     }
                     if (string.IsNullOrEmpty(users.ODataNextLink))
                         break;
@@ -577,9 +615,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 // Return the impersonation URL
+                var url = Request.RequestUri.ToString().ToLowerInvariant();
+                url = url.Substring(0, url.IndexOf("/export")) + "/downloadusers?id=" + opId;
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
-                    downloadUrl = Request.RequestUri.ToString().Replace("/Export", "/DownloadUsers") + "?id=" + opId
+                    downloadUrl = url
                 });
             }
             catch (Exception ex)

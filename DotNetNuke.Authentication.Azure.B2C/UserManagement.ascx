@@ -178,6 +178,13 @@
                         <label for="txtEmail"><% = LocalizeString("lblEmail") %> *</label>
                         <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
                     </div>
+                    <% foreach (string customField in CustomFields)
+                        { %>
+                    <div class="dnnFormItem">
+                        <label><% = customField %></label>
+                        <input type="text" id="txt<% = customField.Replace(" ", "") %>" class="full-width" data-bind="value: <% = customField.Replace(" ", "") %>" />
+                    </div>
+                    <% }   %>
                     <% if (EnableUpdate)
                         { %>
                     <div class="dnnFormItem">

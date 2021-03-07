@@ -93,6 +93,14 @@ namespace DotNetNuke.Authentication.Azure.B2C
             }
         }
 
+        public string[] CustomFields
+        {
+            get
+            {
+                return Utils.GetTabModuleSetting(TabModuleId, "CustomFields").Split(',');
+            }
+        }
+
         #region "Event Handlers"
 
         protected override void OnInit(EventArgs e)
@@ -126,6 +134,11 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 ClientAPI.RegisterClientVariable(Page, "ExportMessage", LocalizeString("ExportMessage"), true);
                 ClientAPI.RegisterClientVariable(Page, "YesDownload", LocalizeString("YesDownload"), true);
                 ClientAPI.RegisterClientVariable(Page, "Cancel", LocalizeString("Cancel"), true);
+                ClientAPI.RegisterClientVariable(Page, "customAttributes", Utils.GetTabModuleSetting(TabModuleId, "CustomFields").Replace(" ", ""), true);
+
+                var settings = new AzureConfig(AzureConfig.ServiceName, PortalId);
+                ClientAPI.RegisterClientVariable(Page, "customAttributesPrefix", $"extension_{settings.B2cApplicationId.Replace("-", "")}_", true);
+
             }
             catch (Exception exc)
             {

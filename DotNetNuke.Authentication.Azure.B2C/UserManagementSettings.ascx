@@ -27,6 +27,10 @@
 		        <dnn:label id="lblEnableExport" controlname="chkEnableExport" runat="server" />
 		        <asp:Checkbox ID="chkEnableExport" runat="server" />
 	        </div>
+			<div class="dnnFormItem">
+				<dnn:label id="lblCustomFields" controlname="txtCustomFields" runat="server" />
+				<asp:TextBox ID="txtCustomFields" runat="server" />
+			</div>
         </fieldset>
     </div>
 </div>
