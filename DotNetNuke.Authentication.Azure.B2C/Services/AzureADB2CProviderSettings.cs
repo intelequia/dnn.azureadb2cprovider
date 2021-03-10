@@ -75,6 +75,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public string RopcPolicy { get; set; }
         [DataMember(Name = "impersonatePolicy")]
         public string ImpersonatePolicy { get; set; }
+        [DataMember(Name = "autoAuthorize")]
+        public bool AutoAuthorize { get; set; }
+
 
 
         public static AzureADB2CProviderSettings LoadSettings(string service, int portalId)
@@ -88,6 +91,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 ApiSecret = config.APISecret,
                 RedirectUri = config.RedirectUri,
                 AutoRedirect = config.AutoRedirect,
+                AutoAuthorize = config.AutoAuthorize,
                 SignUpPolicy = config.SignUpPolicy,
                 ProfilePolicy = config.ProfilePolicy,
                 PasswordResetPolicy = config.PasswordResetPolicy,
@@ -118,6 +122,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 APISecret = settings.ApiSecret,
                 RedirectUri = settings.RedirectUri,
                 AutoRedirect = settings.AutoRedirect,
+                AutoAuthorize = settings.AutoAuthorize,
                 SignUpPolicy = settings.SignUpPolicy,
                 ProfilePolicy = settings.ProfilePolicy,
                 PasswordResetPolicy = settings.PasswordResetPolicy,

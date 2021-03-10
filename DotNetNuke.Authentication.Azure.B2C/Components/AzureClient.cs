@@ -705,7 +705,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         private void UpdateUserAndRoles(UserInfo userInfo)
         {
-            if (!userInfo.Membership.Approved && IsCurrentUserAuthorized())
+            if (Settings.AutoAuthorize && !userInfo.Membership.Approved && IsCurrentUserAuthorized())
             {
                 userInfo.Membership.Approved = true; // Delegate approval on Auth Provider
                 UserController.UpdateUser(userInfo.PortalID, userInfo);

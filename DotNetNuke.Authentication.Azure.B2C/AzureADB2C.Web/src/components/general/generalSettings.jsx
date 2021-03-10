@@ -46,6 +46,7 @@ class GeneralSettings extends Component {
             enabled: (key === "AADB2CProviderEnabled") ? !props.enabled : props.enabled,
             useGlobalSettings: (key === "UseGlobalSettings") ? !props.useGlobalSettings : props.useGlobalSettings,
             autoRedirect: (key === "AutoRedirect") ? !props.autoRedirect : props.autoRedirect,
+            autoAuthorize: (key === "AutoAuthorize") ? !props.autoAuthorize : props.autoAuthorize,
             apiKey: (key === "AppId") ? event.target.value : props.apiKey,
             apiSecret: (key === "AppSecret") ? event.target.value : props.apiSecret,
             redirectUri: (key === "RedirectUri") ? event.target.value: props.redirectUri,
@@ -71,6 +72,7 @@ class GeneralSettings extends Component {
             enabled: props.enabled,
             useGlobalSettings: props.useGlobalSettings,
             autoRedirect: props.autoRedirect,
+            autoAuthorize: props.autoAuthorize,
             apiKey: props.apiKey,
             apiSecret: props.apiSecret,
             redirectUri: props.redirectUri,
@@ -117,6 +119,12 @@ class GeneralSettings extends Component {
                         value={this.props.useGlobalSettings}
                         tooltipMessage={resx.get("lblUseGlobalSettings.Help")}
                         onChange={this.onSettingChange.bind(this, "UseGlobalSettings")} />
+                    <Switch label={resx.get("lblAutoAuthorize")}
+                        onText=""
+                        offText=""
+                        tooltipMessage={resx.get("lblAutoAuthorize.Help")}
+                        value={this.props.autoAuthorize}
+                        onChange={this.onSettingChange.bind(this, "AutoAuthorize")} />                        
                 </GridCell>
                 <GridSystem className="with-right-border top-half">
                     <GridCell columnSize={90}>
@@ -257,6 +265,7 @@ GeneralSettings.propTypes = {
     enabled: PropTypes.bool,
     useGlobalSettings: PropTypes.bool,
     autoRedirect: PropTypes.bool,
+    autoAuthorize: PropTypes.bool,
     apiKey: PropTypes.string,
     apiSecret: PropTypes.string,
     redirectUri: PropTypes.string,
@@ -275,6 +284,7 @@ function mapStateToProps(state) {
         enabled: state.settings.enabled,
         useGlobalSettings: state.settings.useGlobalSettings,
         autoRedirect: state.settings.autoRedirect,
+        autoAuthorize: state.settings.autoAuthorize,
         apiKey: state.settings.apiKey,
         apiSecret: state.settings.apiSecret,
         redirectUri: state.settings.redirectUri,

@@ -29,10 +29,10 @@ namespace Hello
             //    to the list of valid audiences
             // More info at https://docs.microsoft.com/es-es/azure/active-directory-b2c/configure-ropc
 
-            const string tenantName = "yourtenantname";
+            const string tenantName = "intelequiab2c";
             const string policyName = "b2c_1_ropc";
-            const string applicationId = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx";
-            const string helloDnnEndpoint = "https://yoursiteurl/DesktopModules/DotNetNuke.Authentication.Azure.B2C.Services/api/Hello/Test";
+            const string applicationId = "5de1c393-b373-450f-9ee2-b1a945d96d77";
+            const string helloDnnEndpoint = "https://b2c.dnndev.me/DesktopModules/DotNetNuke.Authentication.Azure.B2C.Services/api/Hello/Test";
 
             var tokenEndpoint = $"https://{tenantName}.b2clogin.com/{tenantName}.onmicrosoft.com/oauth2/v2.0/token?p={policyName}" 
                                 + $"&scope=openid+{applicationId}+offline_access&client_id={applicationId}&response_type=token+id_token&grant_type=password";

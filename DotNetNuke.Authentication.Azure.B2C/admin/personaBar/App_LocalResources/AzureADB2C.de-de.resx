@@ -489,4 +489,10 @@
   <data name="lblImpersonatePolicyName.Text" xml:space="preserve">
     <value>Name der Nachahmungsrichtlinie</value>
   </data>
+  <data name="lblAutoAuthorize.Help" xml:space="preserve">
+    <value>Wenn aktiviert, autorisieren Sie Benutzer nach der Anmeldung automatisch, unabhängig von den Einstellungen für die Portalbenutzerregistrierung</value>
+  </data>
+  <data name="lblAutoAuthorize.Text" xml:space="preserve">
+    <value>Benutzer nach Anmeldung automatisch autorisieren</value>
+  </data>
 </root>

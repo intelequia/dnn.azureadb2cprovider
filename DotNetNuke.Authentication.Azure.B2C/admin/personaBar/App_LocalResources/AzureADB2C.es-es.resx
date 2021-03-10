@@ -480,4 +480,11 @@
   <data name="lblImpersonatePolicyName.Text" xml:space="preserve">
     <value>Política de impersonalización</value>
   </data>
+  <data name="lblAutoAuthorize.Help" xml:space="preserve">
+    <value>Si está habilitado, autoriza automáticamente a los usuarios en DNN tras iniciar sesión independientemente de las opciones de registro del portal</value>
+  </data>
+  <data name="lblAutoAuthorize.Text" xml:space="preserve">
+    <value>Auto-Autorizar Usuarios</value>
+  </data>
+
 </root>
