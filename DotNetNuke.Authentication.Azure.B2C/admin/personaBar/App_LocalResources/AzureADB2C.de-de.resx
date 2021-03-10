@@ -495,4 +495,10 @@
   <data name="lblAutoAuthorize.Text" xml:space="preserve">
     <value>Benutzer nach Anmeldung automatisch autorisieren</value>
   </data>
+  <data name="lblOnErrorUri.Help" xml:space="preserve">
+    <value>Wenn angegeben, wird der Benutzer bei einem Azure AD-Auth-Fehler zur URL umgeleitet, anstatt die standardmäßige DNN-Anmeldeseite anzuzeigen.</value>
+  </data>
+  <data name="lblOnErrorUri.Text" xml:space="preserve">
+    <value>Bei Auth-Fehler Uri</value>
+  </data>  
 </root>

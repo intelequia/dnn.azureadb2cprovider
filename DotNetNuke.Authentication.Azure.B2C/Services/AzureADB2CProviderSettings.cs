@@ -39,6 +39,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public string ApiSecret { get; set; }
         [DataMember(Name = "redirectUri")]
         public string RedirectUri { get; set; }
+        [DataMember(Name = "onErrorUri")]
+        public string OnErrorUri { get; set; }
         [DataMember(Name = "autoRedirect")]
         public bool AutoRedirect { get; set; }
         [DataMember(Name = "enabled")]
@@ -91,6 +93,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 ApiSecret = config.APISecret,
                 RedirectUri = config.RedirectUri,
                 AutoRedirect = config.AutoRedirect,
+                OnErrorUri = config.OnErrorUri,
                 AutoAuthorize = config.AutoAuthorize,
                 SignUpPolicy = config.SignUpPolicy,
                 ProfilePolicy = config.ProfilePolicy,
@@ -121,6 +124,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 APIKey = settings.ApiKey,
                 APISecret = settings.ApiSecret,
                 RedirectUri = settings.RedirectUri,
+                OnErrorUri = settings.OnErrorUri,
                 AutoRedirect = settings.AutoRedirect,
                 AutoAuthorize = settings.AutoAuthorize,
                 SignUpPolicy = settings.SignUpPolicy,
