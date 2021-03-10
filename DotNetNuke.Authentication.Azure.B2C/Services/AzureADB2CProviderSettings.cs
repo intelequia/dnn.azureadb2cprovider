@@ -39,6 +39,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public string ApiSecret { get; set; }
         [DataMember(Name = "redirectUri")]
         public string RedirectUri { get; set; }
+        [DataMember(Name = "onErrorUri")]
+        public string OnErrorUri { get; set; }
         [DataMember(Name = "autoRedirect")]
         public bool AutoRedirect { get; set; }
         [DataMember(Name = "enabled")]

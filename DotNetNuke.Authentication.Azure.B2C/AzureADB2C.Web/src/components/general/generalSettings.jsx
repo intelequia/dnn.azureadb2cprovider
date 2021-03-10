@@ -49,7 +49,8 @@ class GeneralSettings extends Component {
             autoAuthorize: (key === "AutoAuthorize") ? !props.autoAuthorize : props.autoAuthorize,
             apiKey: (key === "AppId") ? event.target.value : props.apiKey,
             apiSecret: (key === "AppSecret") ? event.target.value : props.apiSecret,
-            redirectUri: (key === "RedirectUri") ? event.target.value: props.redirectUri,
+            redirectUri: (key === "RedirectUri") ? event.target.value : props.redirectUri,
+            onErrorUri: (key === "OnErrorUri") ? event.target.value : props.onErrorUri,
             tenantName: (key === "TenantName") ? event.target.value : props.tenantName,
             tenantId: (key === "TenantId") ? event.target.value : props.tenantId,
             signUpPolicy: (key === "SignUpPolicy") ? event.target.value : props.signUpPolicy,
@@ -76,6 +77,7 @@ class GeneralSettings extends Component {
             apiKey: props.apiKey,
             apiSecret: props.apiSecret,
             redirectUri: props.redirectUri,
+            onErrorUri: props.onErrorUri,
             tenantName: props.tenantName,
             tenantId: props.tenantId,
             signUpPolicy: props.signUpPolicy,
@@ -181,7 +183,15 @@ class GeneralSettings extends Component {
                             value={this.props.redirectUri}
                             onChange={this.onSettingChange.bind(this, "RedirectUri")}
                         />
-
+                        <SingleLineInputWithError
+                            withLabel={true}
+                            label={resx.get("lblOnErrorUri")}
+                            enabled={true}
+                            tooltipMessage={resx.get("lblOnErrorUri.Help")}
+                            errorMessage=""
+                            value={this.props.onErrorUri}
+                            onChange={this.onSettingChange.bind(this, "OnErrorUri")}
+                        />
                     </GridCell>
                     <GridCell columnSize={100}>
                         <h1>{resx.get("lblPolicies")}</h1>
@@ -269,6 +279,7 @@ GeneralSettings.propTypes = {
     apiKey: PropTypes.string,
     apiSecret: PropTypes.string,
     redirectUri: PropTypes.string,
+    onErrorUri: PropTypes.string,    
     tenantName: PropTypes.string,
     tenantId: PropTypes.string,
     signUpPolicy: PropTypes.string,
@@ -288,6 +299,7 @@ function mapStateToProps(state) {
         apiKey: state.settings.apiKey,
         apiSecret: state.settings.apiSecret,
         redirectUri: state.settings.redirectUri,
+        onErrorUri: state.settings.onErrorUri,
         tenantName: state.settings.tenantName,
         tenantId: state.settings.tenantId,
         signUpPolicy: state.settings.signUpPolicy,

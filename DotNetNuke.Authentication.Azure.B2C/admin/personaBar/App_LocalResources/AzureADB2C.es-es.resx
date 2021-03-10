@@ -486,5 +486,10 @@
   <data name="lblAutoAuthorize.Text" xml:space="preserve">
     <value>Auto-Autorizar Usuarios</value>
   </data>
-
+  <data name="lblOnErrorUri.Help" xml:space="preserve">
+    <value>Si se especifica, cuando se produce un error de autentificación de Azure AD el usuario es redirigido a la url en lugar de mostrar la página de inicio de sesión de DNN por defecto.</value>
+  </data>
+  <data name="lblOnErrorUri.Text" xml:space="preserve">
+    <value>Uri en errores de autorización</value>
+  </data>
 </root>

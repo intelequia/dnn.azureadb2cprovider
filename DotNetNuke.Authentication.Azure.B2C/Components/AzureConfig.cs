@@ -48,6 +48,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             APIKey = GetScopedSetting(Service + "_ApiKey", portalId, "");
             APISecret = GetScopedSetting(Service + "_ApiSecret", portalId, "");
             RedirectUri = GetScopedSetting(Service + "_RedirectUri", portalId, "");
+            OnErrorUri = GetScopedSetting(Service + "_OnErrorUri", portalId, "");
             TenantName = GetScopedSetting(Service + "_TenantName", portalId, "");
             TenantId = GetScopedSetting(Service + "_TenantId", portalId, "");
             SignUpPolicy = GetScopedSetting(Service + "_SignUpPolicy", portalId, "");
@@ -133,6 +134,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public string ImpersonatePolicy { get; set; }
         [SortOrder(21)]
         public bool AutoAuthorize { get; set; }
+        [SortOrder(22)]
+        public string OnErrorUri { get; set; }
 
 
         private static string GetCacheKey(string service, int portalId)
@@ -159,6 +162,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ApiKey", config.APIKey);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ApiSecret", config.APISecret);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_RedirectUri", config.RedirectUri);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_OnErrorUri", config.OnErrorUri);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_TenantName", config.TenantName);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_TenantId", config.TenantId);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AutoRedirect", config.AutoRedirect.ToString());
