@@ -97,7 +97,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
         {
             get
             {
-                return Utils.GetTabModuleSetting(TabModuleId, "CustomFields").Split(',');
+                return Utils.GetTabModuleSetting(TabModuleId, "CustomFields").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             }
         }
 
