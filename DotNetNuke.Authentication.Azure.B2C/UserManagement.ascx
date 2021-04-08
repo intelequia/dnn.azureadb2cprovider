@@ -60,7 +60,7 @@
                 <td>
                     <% if (EnableDelete)
                         { %>
-                    <a class="kblist-glyph segoemdl2 pull-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="click: remove"></a>   
+                    <a class="kblist-glyph segoemdl2 float-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="click: remove"></a>   
                     <% } %>
                 </td>
             </tr>

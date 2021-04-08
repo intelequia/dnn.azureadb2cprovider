@@ -62,6 +62,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                     chkEnableImpersonate.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableImpersonate", "True"));
                     chkEnableExport.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableExport", "True"));
                     txtCustomFields.Text = Utils.GetTabModuleSetting(TabModuleId, "CustomFields");
+                    txtGraphFilter.Text = Utils.GetTabModuleSetting(TabModuleId, "GraphFilter");
                 }
             }
             catch (Exception e)
@@ -80,6 +81,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableImpersonate", chkEnableImpersonate.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableExport", chkEnableExport.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "CustomFields", txtCustomFields.Text.Trim());
+                ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "GraphFilter", txtGraphFilter.Text.Trim());
             }
             catch (Exception e)
             {

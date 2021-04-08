@@ -14,12 +14,15 @@ using DotNetNuke.Services.Localization;
 using DotNetNuke.Web.Api;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Web.Security;
@@ -70,6 +73,16 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var query = "$orderby=displayName";
                 var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllUsers.Filter"];
+                var moduleFilter = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "GraphFilter");
+                if (!string.IsNullOrEmpty(moduleFilter))
+                {
+                    moduleFilter = ReplaceFilterTokens(moduleFilter);
+                    if (!string.IsNullOrEmpty(filter))
+                    {
+                        filter += " and ";
+                    }
+                    filter += moduleFilter;
+                }
                 if (!string.IsNullOrEmpty(search))
                 {
                     if (!string.IsNullOrEmpty(filter))
@@ -471,6 +484,49 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             message = message.Replace("[User:LastName]", user.Surname);
             message = message.Replace("[User:Password]", user.PasswordProfile.Password);
             return message;
+        }
+
+        private string ReplaceFilterTokens(string filter)
+        {
+            filter = filter.Replace("[Portal:PortalName]", PortalSettings.PortalName);
+            filter = filter.Replace("[Portal:URL]", Globals.AddHTTP(PortalSettings.DefaultPortalAlias));
+            filter = filter.Replace("[Portal:LogoURL]", $"{Globals.AddHTTP(PortalSettings.DefaultPortalAlias)}/Portals/{PortalSettings.PortalId}/{PortalSettings.LogoFile}");
+            filter = filter.Replace("[Portal:Copyright]", PortalSettings.FooterText.Replace("[year]", DateTime.Now.ToString("yyyy")));
+            filter = filter.Replace("[User:UserName]", UserInfo.Username);
+            filter = filter.Replace("[User:DisplayName]", UserInfo.DisplayName);
+            filter = filter.Replace("[User:FirstName]", UserInfo.FirstName);
+            filter = filter.Replace("[User:LastName]", UserInfo.LastName);
+
+            // Claims replacement
+            System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(
+                @"\[Claims:([_a-zA-Z][_a-zA-Z0-9]{0,128})\]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            System.Text.RegularExpressions.Match match = regex.Match(filter);
+            if (match.Success)
+            {
+                string t = GetBearerToken();
+                if (!string.IsNullOrEmpty(t))
+                {
+                    JwtSecurityToken token = new JwtSecurityToken(t);
+                    while (match.Success)
+                    {
+                        filter = filter.Replace(match.Groups[0].Value, 
+                            token.Claims.FirstOrDefault(x => x.Type == match.Groups[1].Value)?.Value);
+                        match = match.NextMatch();
+                    }
+                }
+            }
+            return filter;
+        }
+
+        internal static string GetBearerToken()
+        {
+            HttpCookie cookie = HttpContext.Current.Request.Cookies.Get("AzureB2CUserToken");
+            if (cookie == null)
+            {
+                return "";
+            }
+            NameValueCollection qparams = HttpUtility.ParseQueryString(cookie.Value);
+            return qparams["oauth_token"];
         }
 
 

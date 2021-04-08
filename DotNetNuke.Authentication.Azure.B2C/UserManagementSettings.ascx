@@ -31,6 +31,10 @@
 				<dnn:label id="lblCustomFields" controlname="txtCustomFields" runat="server" />
 				<asp:TextBox ID="txtCustomFields" runat="server" />
 			</div>
+			<div class="dnnFormItem">
+				<dnn:label id="lblGraphFilter" controlname="txtGraphFilter" runat="server" />
+				<asp:TextBox ID="txtGraphFilter" runat="server" />
+			</div>
         </fieldset>
     </div>
 </div>

@@ -156,6 +156,12 @@
   <data name="lblEnableUpdate.Text" xml:space="preserve">
     <value>Allow to update users</value>
   </data>
+  <data name="lblGraphFilter.Help" xml:space="preserve">
+    <value>Allows to specify a Microsoft Graph filter to the underlying queries</value>
+  </data>
+  <data name="lblGraphFilter.Text" xml:space="preserve">
+    <value>Graph Filter</value>
+  </data>
   <data name="UserManagementSettingsHeader.Text" xml:space="preserve">
     <value>User Management Settings</value>
   </data>
