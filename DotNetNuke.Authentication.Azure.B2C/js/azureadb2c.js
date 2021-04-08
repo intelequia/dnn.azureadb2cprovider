@@ -138,9 +138,9 @@ dnn.extend(dnn.adb2c.UserManagement,
             });
 
             this.addGroup = function () {
-                if (that.userManagement.selectedGroup() && (that.groups().length === 0 || that.groups().find(function (data) {
+                if (that.userManagement.selectedGroup() && (that.groups().length === 0 || !that.groups().find(function (data) {
                         return data.objectId() === that.userManagement.selectedGroup().objectId();
-                    }) === null)) {
+                    }))) {
                     var group = new dnn.adb2c.UserManagement.GroupModel(that);
                     group.displayName(that.userManagement.selectedGroup().displayName());
                     group.objectId(that.userManagement.selectedGroup().objectId());
