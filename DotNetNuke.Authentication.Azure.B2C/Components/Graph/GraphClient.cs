@@ -62,6 +62,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
 
         public GraphList<User> GetAllUsers(string query)
         {
+            //var result = SendGraphRequest("/users", query, apiVersion: GraphApiVersion.beta, consistencyLevel: "eventual");
             var result = SendAADGraphRequest("/users", query);
             return JsonConvert.DeserializeObject<GraphList<User>>(result);
         }
@@ -73,7 +74,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
 
         public void DeleteUser(string objectId)
         {
-            _ = SendAADGraphRequest("/users/" + objectId, httpMethod: HttpMethod.Delete);
+            _ = SendGraphRequest("/users/" + objectId, httpMethod: HttpMethod.Delete);
+
         }
 
         public User AddUser(NewUser newUser)
@@ -232,7 +234,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             }
         }
 
-        private string SendGraphRequest(string api, string query = null, string body = null, GraphApiVersion apiVersion = GraphApiVersion.latest, HttpMethod httpMethod = null)
+        private string SendGraphRequest(string api, string query = null, string body = null, GraphApiVersion apiVersion = GraphApiVersion.latest, HttpMethod httpMethod = null, string consistencyLevel = "")
         {
             // First, use ADAL to acquire a token using the app's identity (the credential)
             // The first parameter is the resource we want an access_token for; in this case, the Graph API.
@@ -241,15 +243,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             // For B2C user managment, be sure to use the 1.6 Graph API version.
             using (var http = new HttpClient())
             {
-                var url = msGraphEndpoint + (apiVersion == GraphApiVersion.latest ? msGraphVersion : "beta") + api;
+                var url = msGraphEndpoint + (apiVersion == GraphApiVersion.latest ? "v" + msGraphVersion : "beta") + "/" + Tenant + api;
                 if (!string.IsNullOrEmpty(query))
                 {
-                    url += "&" + query;
+                    url += "?" + query;
                 }
 
                 // Append the access token for the Graph API to the Authorization header of the request, using the Bearer scheme.
                 var request = new HttpRequestMessage(httpMethod ?? HttpMethod.Get, url);
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
+                if (!string.IsNullOrEmpty(consistencyLevel))
+                {
+                    request.Headers.Add("ConsistencyLevel", consistencyLevel);
+                }
                 if (!string.IsNullOrEmpty(body))
                 {
                     request.Content = new StringContent(body, Encoding.UTF8, "application/json");

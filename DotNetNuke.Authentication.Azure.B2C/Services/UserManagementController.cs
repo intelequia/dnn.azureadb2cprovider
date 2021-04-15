@@ -71,8 +71,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var query = "$orderby=displayName";
+                var query = "$select=displayName,accountEnabled,givenName,surName,userPrincipalName,id,mail,otherMails,signInNames,mailNickname,userType";
+                if (!string.IsNullOrEmpty(search))
+                {
+                    query += $"&$search=\"displayName:{search}\"";
+                }
                 var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllUsers.Filter"];
+                //if (!string.IsNullOrEmpty(search))
+                //{
+                //    if (!string.IsNullOrEmpty(filter))
+                //    {
+                //        filter += " and ";
+                //    }
+                //    filter += $"startswith(displayName, '{search}')";
+                //}
                 var moduleFilter = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "GraphFilter");
                 if (!string.IsNullOrEmpty(moduleFilter))
                 {
@@ -82,14 +94,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         filter += " and ";
                     }
                     filter += moduleFilter;
-                }
-                if (!string.IsNullOrEmpty(search))
-                {
-                    if (!string.IsNullOrEmpty(filter))
-                    {
-                        filter += " and ";
-                    }
-                    filter += $"startswith(displayName, '{search}')";
                 }
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
@@ -102,8 +106,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }                
                 if (!string.IsNullOrEmpty(filter))
                 {
-                    query = $"$filter={filter}";
+                    query += $"&$filter={filter}";
                 }
+                query += "&$orderby=displayName";
 
                 var users = graphClient.GetAllUsers(query);
                 return Request.CreateResponse(HttpStatusCode.OK, users.Values);
