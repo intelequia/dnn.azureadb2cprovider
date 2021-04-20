@@ -233,6 +233,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public Uri LogoutEndpoint { get; }
 
         private bool _autoMatchExistingUsers = false;
+        private bool _tokenAlreadyExchanged = false;
         public override bool AutoMatchExistingUsers { 
             get
             {
@@ -745,7 +746,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     new QueryParameter("p", PolicyName)
                 };
 
-                HttpContext.Current.Response.Redirect(AuthorizationEndpoint + "?" + parameters.ToNormalizedString(), false);
+                string authorizationUrl = AuthorizationEndpoint + "?" + parameters.ToNormalizedString();
+                Logger.Debug($"Authorizing. Redirecting to {authorizationUrl}");
+                HttpContext.Current.Response.Redirect(authorizationUrl, false);
                 return AuthorisationResult.RequestingCode;
             }
 
@@ -941,6 +944,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         private void ExchangeCodeForToken()
         {
+            if (_tokenAlreadyExchanged)
+                return;
             var parameters = new List<QueryParameter>
             {
                 new QueryParameter("grant_type", "authorization_code"),
@@ -949,11 +954,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 new QueryParameter("code", VerificationCode),
                 new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(CallbackUri.ToString()))
             };
-
+            Logger.Debug($"Exchanging code for token");
             var responseText = ExecuteWebRequest(TokenMethod, new Uri($"{TokenEndpoint.AbsoluteUri}?p={PolicyName}"), parameters.ToNormalizedString(), string.Empty);
-
+            Logger.Debug($"Exchange token response: {responseText}");
             AuthToken = GetToken(responseText);
             AuthTokenExpiry = GetExpiry(responseText);
+            _tokenAlreadyExchanged = true;
         }
 
         private string ExecuteWebRequest(HttpMethod method, Uri uri, string contentParameters, string authHeader)
@@ -962,6 +968,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
             if (method == HttpMethod.POST)
             {
+                Logger.Debug($"Executing webrequest: POST, {uri}, body={contentParameters}");
                 byte[] byteArray = Encoding.UTF8.GetBytes(contentParameters);
 
                 request = WebRequest.CreateDefault(uri);
@@ -986,7 +993,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
             else
             {
-                request = WebRequest.CreateDefault(GenerateRequestUri(uri.ToString(), contentParameters));
+                Uri requestUri = GenerateRequestUri(uri.ToString(), contentParameters);
+                Logger.Debug($"Executing webrequest: GET, {requestUri}");
+                request = WebRequest.CreateDefault(requestUri);
             }
 
             //Add Headers

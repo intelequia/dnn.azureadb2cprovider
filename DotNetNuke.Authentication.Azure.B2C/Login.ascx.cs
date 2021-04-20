@@ -74,6 +74,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
             registerItem.Visible = (Mode == AuthMode.Register);
 
 
+            _logger.Debug($"Login.OnInit: Request URL = {Request.RawUrl}");
+
             config = new AzureConfig(AzureConfig.ServiceName, PortalId);
             var hasVerificationCode = ((AzureClient)OAuthClient).IsCurrentService() && OAuthClient.HaveVerificationCode();
             if ((config.AutoRedirect && Request["legacy"] != "1") 
@@ -85,6 +87,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
 
         private void loginButton_Click(object sender, EventArgs e)
         {
+            _logger.Debug($"Login.loginButton_Click Start");
             // AADB2C90118: The user has forgotten their password ==> Login with forgot password policy
             if (!string.IsNullOrEmpty(Request["error"]) 
                 && !string.IsNullOrEmpty(Request["error_description"]) 
@@ -94,6 +97,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 // User clicked on Cancel when resetting the password => Redirect to the login page
                 if (Request["error_description"]?.IndexOf("AADB2C90091") > -1)
                 {
+                    _logger.Debug($"Login.loginButton_Click: AADB2C90091: The user has cancelled entering self-asserted information. User clicked on Cancel when resetting the password => Redirect to the login page");
                     Response.Redirect(Common.Utils.GetLoginUrl(PortalSettings.Current, Request), true);
                 }
                 else
@@ -117,9 +121,12 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 {
                     ((AzureClient)OAuthClient).Policy = AzureClient.PolicyEnum.PasswordResetPolicy;
                 }
+                _logger.Debug($"Login.loginButton_Click: Calling Authorize");
                 AuthorisationResult result = OAuthClient.Authorize();
+                _logger.Debug($"Login.loginButton_Click: result={result}");
                 if (result == AuthorisationResult.Denied)
                 {
+                    _logger.Debug($"Login control - Authorization has been denied");
                     if (string.IsNullOrEmpty(config.OnErrorUri))
                     {
                         UI.Skins.Skin.AddModuleMessage(this, Localization.GetString("PrivateConfirmationMessage", Localization.SharedResourceFile), ModuleMessage.ModuleMessageType.YellowWarning);
@@ -130,6 +137,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                     }
                 }
             }
+            _logger.Debug($"Login.loginButton_Click End");
         }
 
 
