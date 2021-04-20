@@ -70,3 +70,13 @@
 	<li>Profile properties dropdown on mappings tab now shows properties from current portal instead of PortalId 0</li>
 	<li>Bumped package dependencies. Now DNN 9.4.3 is required as minimum</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.04.05</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Added setting to enable/disable automatic authorization after login</li>
+	<li>Added option to redirect to a generic error page on Azure AD auth error</li>
+	<li>Added option for Microsoft Graph filters on User management settings</li>
+	<li>Added code to avoid doble token exchange requests and log4net tracing</li>
+	<li>Fix user management when no custom attributes have been specified</li>
+	<li>Fix adding multiple groups on User Management</li>
+</ul>

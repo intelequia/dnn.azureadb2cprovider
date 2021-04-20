@@ -1,6 +1,6 @@
 <dotnetnuke type="Package" version="5.0">
   <packages>
-    <package name="AzureADB2CProvider" type="Auth_System" version="01.04.04">
+    <package name="AzureADB2CProvider" type="Auth_System" version="01.04.05">
       <friendlyName>DNN Azure Active Directory B2C Provider</friendlyName>
       <description>
         The DNN Azure Active Directory B2C Provider is an Authentication provider for DNN Platform that uses Azure Active Directory B2C OAuth2 authentication to authenticate users.
@@ -188,7 +188,7 @@
       </components>
     </package>
 
-    <package name="AzureADB2CProvider" type="Module" version="01.04.04">
+    <package name="AzureADB2CProvider" type="Module" version="01.04.05">
       <friendlyName>DNN Azure Active Directory B2C User Management</friendlyName>
       <description>
         The DNN Azure Active Directory B2C Provider is an Authentication provider for DNN Platform that uses Azure Active Directory B2C OAuth2 authentication to authenticate users.
@@ -251,7 +251,7 @@
       </components>
     </package>
 
-    <package name="AzureADB2CProvider" type="Module" version="01.04.04">
+    <package name="AzureADB2CProvider" type="Module" version="01.04.05">
       <friendlyName>DNN Azure Active Directory B2C Impersonation</friendlyName>
       <description>
         The DNN Azure Active Directory B2C Provider is an Authentication provider for DNN Platform that uses Azure Active Directory B2C OAuth2 authentication to authenticate users.
