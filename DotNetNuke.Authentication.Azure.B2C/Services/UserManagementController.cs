@@ -594,9 +594,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         private User GetGraphUserForImpersonation(AzureConfig settings, GraphClient graphClient, UserMapping idUserMapping)
         {
             var usernameWithoutPrefix = settings.UsernamePrefixEnabled ? UserInfo.Username.Substring(AzureConfig.ServiceName.Length + 1) : UserInfo.Username;
-            var user = idUserMapping.B2cClaimName == "sub" ?
-                    graphClient.GetUser(usernameWithoutPrefix)
-                    : graphClient.GetAllUsers($"$filter={idUserMapping.GetB2cCustomAttributeName(settings.PortalID)} eq '{usernameWithoutPrefix}'").Values.FirstOrDefault();
+            User user;
+            if (idUserMapping.B2cClaimName == "sub")
+            {
+                user = graphClient.GetUser(usernameWithoutPrefix);
+            }
+            else if (idUserMapping.B2cClaimName.ToLowerInvariant() == "emails")
+            {
+                user = graphClient.GetAllUsers($"$filter=mail eq '{usernameWithoutPrefix}'").Values.FirstOrDefault();
+            }
+            else
+            {
+                user = graphClient.GetAllUsers($"$filter={idUserMapping.GetB2cCustomAttributeName(settings.PortalID)} eq '{usernameWithoutPrefix}'").Values.FirstOrDefault();
+            }
             return user;
         }
 

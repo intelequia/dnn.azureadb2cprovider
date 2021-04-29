@@ -580,7 +580,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     new QueryParameter("client_id", APIKey),
                     //new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/Impersonate")),
                     new QueryParameter("redirect_uri", string.IsNullOrEmpty(Settings.RedirectUri)
-                        ? HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/UserProfile")
+                        ? HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/Impersonate")
                         : HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() {
                         PortalId = PortalSettings.Current.PortalId,
