@@ -33,6 +33,42 @@ namespace DotNetNuke.Authentication.Azure.B2C
         protected global::System.Web.UI.WebControls.CheckBox chkEnableAdd;
 
         /// <summary>
+        /// lblEnableAddUsersByEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UserControl lblEnableAddUsersByEmail;
+
+        /// <summary>
+        /// chkEnableAddUsersByEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkEnableAddUsersByEmail;
+
+        /// <summary>
+        /// lblEnableAddUsersByUsername control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UserControl lblEnableAddUsersByUsername;
+
+        /// <summary>
+        /// chkEnableAddUsersByUsername control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkEnableAddUsersByUsername;
+
+        /// <summary>
         /// lblEnableUpdate control.
         /// </summary>
         /// <remarks>

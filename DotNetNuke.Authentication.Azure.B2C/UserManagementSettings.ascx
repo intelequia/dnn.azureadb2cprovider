@@ -12,6 +12,14 @@
 		        <asp:Checkbox ID="chkEnableAdd" runat="server" />
 	        </div>
 	        <div class="dnnFormItem">
+		        <dnn:label id="lblEnableAddUsersByEmail" controlname="chkEnableAddUsersByEmail" runat="server" />
+		        <asp:Checkbox ID="chkEnableAddUsersByEmail" runat="server" />
+	        </div>
+	        <div class="dnnFormItem">
+		        <dnn:label id="lblEnableAddUsersByUsername" controlname="chkEnableAddUsersByUsername" runat="server" />
+		        <asp:Checkbox ID="chkEnableAddUsersByUsername" runat="server" />
+	        </div>
+	        <div class="dnnFormItem">
 		        <dnn:label id="lblEnableUpdate" controlname="chkEnableUpdpate" runat="server" />
 		        <asp:Checkbox ID="chkEnableUpdate" runat="server" />
 	        </div>

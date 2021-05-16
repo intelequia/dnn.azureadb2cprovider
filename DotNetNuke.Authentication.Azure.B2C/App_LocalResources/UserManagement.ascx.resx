@@ -420,4 +420,7 @@ Thank you, we appreciate your support.
   <data name="ChangePasswordSubtitle.Text" xml:space="preserve">
     <value>You are going to change the password for </value>
   </data>
+  <data name="lblUserName.Text" xml:space="preserve">
+    <value>Username</value>
+  </data>
 </root>

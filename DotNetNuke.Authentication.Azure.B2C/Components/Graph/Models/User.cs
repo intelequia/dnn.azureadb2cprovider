@@ -255,6 +255,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
         public string UserPrincipalName { get; set; }
 
         /// <summary>
+        /// Gets or sets user principal name.
+        /// The user principal name (UPN) of the user. The UPN is an Internet-style login name for the user based on the Internet standard RFC 822. By convention, this should map to the user's email name. The general format is alias@domain, where domain must be present in the tenant’s collection of verified domains. This property is required when a user is created. The verified domains for the tenant can be accessed from the verifiedDomains property of organization. Supports $filter and $orderby.
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "username", Required = Newtonsoft.Json.Required.Default)]
+        public string Username { get; set; }
+
+        /// <summary>
         /// Gets or sets user type.
         /// A string value that can be used to classify user types in your directory, such as 'Member' and 'Guest'. Supports $filter.
         /// </summary>

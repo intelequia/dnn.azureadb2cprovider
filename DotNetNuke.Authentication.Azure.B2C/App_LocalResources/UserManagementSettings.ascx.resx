@@ -132,6 +132,18 @@
   <data name="lblEnableAdd.Text" xml:space="preserve">
     <value>Allow to add users</value>
   </data>
+  <data name="lblEnableAddUsersByEmail.Help" xml:space="preserve">
+    <value>Allow to add users by sign-in with e-mail address</value>
+  </data>
+  <data name="lblEnableAddUsersByEmail.Text" xml:space="preserve">
+    <value>Sign-in with e-mail addresses</value>
+  </data>
+  <data name="lblEnableAddUsersByUsername.Help" xml:space="preserve">
+    <value>Allow to add users by sign-in with username</value>
+  </data>
+  <data name="lblEnableAddUsersByUsername.Text" xml:space="preserve">
+    <value>Sign-in with usernames</value>
+  </data>
   <data name="lblEnableDelete.Help" xml:space="preserve">
     <value>Enable the module to delete users</value>
   </data>
