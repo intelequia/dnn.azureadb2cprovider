@@ -57,6 +57,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 if (!Page.IsPostBack)
                 {
                     chkEnableAdd.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableAdd", "True"));
+                    chkEnableAddUsersByEmail.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableAddUsersByEmail", "True"));
+                    chkEnableAddUsersByUsername.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableAddUsersByUsername", "False"));
                     chkEnableUpdate.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableUpdate", "True"));
                     chkEnableDelete.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableDelete", "True"));
                     chkEnableImpersonate.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableImpersonate", "True"));
@@ -76,6 +78,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
             try
             {
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableAdd", chkEnableAdd.Checked.ToString());
+                ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableAddUsersByEmail", chkEnableAddUsersByEmail.Checked.ToString());
+                ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableAddUsersByUsername", chkEnableAddUsersByUsername.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableUpdate", chkEnableUpdate.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableDelete", chkEnableDelete.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableImpersonate", chkEnableImpersonate.Checked.ToString());

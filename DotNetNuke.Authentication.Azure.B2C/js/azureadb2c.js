@@ -31,11 +31,12 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.userManagement = userManagement;
 
             this.accountEnabled = ko.observable(model.accountEnabled || true);
+            this.username = ko.observable((model.signInNames && model.signInNames.length > 0 && model.signInNames[0].type === "userName" ? model.signInNames[0].value : "") || "");
             this.displayName = ko.observable(model.displayName || "");
             this.givenName = ko.observable(model.givenName || "");
             this.mail = ko.observable(model.mail
                 || (model.otherMails && model.otherMails.length > 0 ? model.otherMails[0] : "")
-                || (model.signInNames && model.signInNames.length > 0 && model.signInNames[0].value ? model.signInNames[0].value : ""));
+                || (model.signInNames && model.signInNames.length > 0 && model.signInNames[0].type === "emailAddress" ? model.signInNames[0].value : ""));
             this.mailNickname = ko.observable(model.mailNickname || "");
             this.otherMails = ko.observableArray(model.otherMails || []);
             this.proxyAddresses = ko.observableArray(model.proxyAddresses || []);
@@ -117,7 +118,10 @@ dnn.extend(dnn.adb2c.UserManagement,
                 else if (that.userPrincipalName().startsWith("cpim_")) {
                     sub = " (Federated)";
                 }
-                if (that.signInNames() && that.signInNames().length > 0 && that.signInNames()[0].type === "emailAddress") {
+                if (that.signInNames() && that.signInNames().length > 0 && that.signInNames()[0].type === "userName") {
+                    return that.signInNames()[0].value + sub;
+                }
+                else if (that.signInNames() && that.signInNames().length > 0 && that.signInNames()[0].type === "emailAddress") {
                     return that.signInNames()[0].value + sub;
                 }
                 if (that.mail() !== "") {
@@ -158,6 +162,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                 that.userManagement.loading(true);
                 that.userManagement.ajax("AddUser", {
                     user: {
+                        username: that.username(),
                         displayName: that.displayName(),
                         givenName: that.givenName(),
                         surname: that.surname(),
@@ -173,6 +178,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                         that.userManagement.users.push(new dnn.adb2c.UserManagement.UserModel(that.userManagement, data));
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
+                        toastr.success("User '" + that.displayName() + "' successfully added");
                     },
                     function (e) {
                         that.userManagement.loading(false);
@@ -202,6 +208,7 @@ dnn.extend(dnn.adb2c.UserManagement,
 
                 var u = {
                     objectId: that.objectId(),
+                    username: that.username(),
                     displayName: that.displayName(),
                     givenName: that.givenName(),
                     surname: that.surname(),
@@ -223,6 +230,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                     function (data) {
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
+                        toastr.success("User '" + that.displayName() + "' successfully updated");
                     },
                     function (e) {
                         that.userManagement.loading(false);

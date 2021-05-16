@@ -64,6 +64,21 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 return bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableAdd", "True"));
             }
         }
+        public bool EnableAddUsersByEmail
+        {
+            get
+            {
+                return bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableAddUsersByEmail", "True"));
+            }
+        }
+        public bool EnableAddUsersByUsername
+        {
+            get
+            {
+                return bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableAddUsersByUsername", "False"));
+            }
+        }
+
         public bool EnableUpdate
         {
             get

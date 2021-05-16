@@ -168,17 +168,23 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
 
                 var newUser = new NewUser(parameters.user);
-                newUser.SignInNames.Add(new SignInName()
+                if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
+                    && !string.IsNullOrEmpty(newUser.Username))
                 {
-                    Type = "emailAddress",
-                    Value = newUser.Mail
-                });
-                newUser.PasswordProfile.Password = parameters.passwordType == "auto" 
-                    ? Membership.GeneratePassword(Membership.MinRequiredPasswordLength < 8 ? 8 : Membership.MinRequiredPasswordLength, 
-                        Membership.MinRequiredNonAlphanumericCharacters < 2 ? 2 : Membership.MinRequiredNonAlphanumericCharacters) 
+                    AddSignInName(newUser, "userName", newUser.Username);
+                }
+                if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByEmail", "True"))
+                    && !string.IsNullOrEmpty(newUser.Mail))
+                {
+                    AddSignInName(newUser, "emailAddress", newUser.Mail);
+                    newUser.OtherMails = new string[] { newUser.Mail };
+                }
+                newUser.PasswordProfile.Password = parameters.passwordType == "auto"
+                    ? Membership.GeneratePassword(Membership.MinRequiredPasswordLength < 8 ? 8 : Membership.MinRequiredPasswordLength,
+                        Membership.MinRequiredNonAlphanumericCharacters < 2 ? 2 : Membership.MinRequiredNonAlphanumericCharacters)
                     : parameters.password;
-                newUser.OtherMails = new string[] { newUser.Mail };
                 newUser.Mail = null;
+                newUser.Username = null;
 
                 // Add custom extension claim PortalId if configured
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
@@ -189,7 +195,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     {
                         newUser.AdditionalData.Add(b2cExtensionName, PortalSettings.PortalId);
                     }
-                }
+                }                
 
                 var user = graphClient.AddUser(newUser);
 
@@ -197,7 +203,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 UpdateGroupMemberShip(graphClient, user, parameters.groups);
 
                 // Send welcome email with password
-                if (parameters.sendEmail)
+                if (parameters.sendEmail && !string.IsNullOrEmpty(newUser.Mail))
                 {
                     SendWelcomeEmail(newUser);
                 }
@@ -313,26 +319,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
                 else
                 {
-                    var signInName = new SignInName()
+                    if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
+                        && !string.IsNullOrEmpty(parameters.user.Username))
                     {
-                        Type = "emailAddress",
-                        Value = parameters.user.Mail
-                    };
-                    if (user.SignInNames == null)
-                    {
-                        user.AdditionalData.Add("signInNames", signInName);
+                        AddSignInName(user, "userName", parameters.user.Username);
                     }
-                    else if (user.SignInNames.Count() == 0)
+
+                    if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
+                        && !string.IsNullOrEmpty(parameters.user.Mail))
                     {
-                        user.SignInNames.Add(signInName);
-                    }
-                    else
-                    {
-                        user.SignInNames[0] = signInName;
+                        AddSignInName(user, "userName", parameters.user.Mail);
+                        user.OtherMails = new string[] { parameters.user.Mail };
                     }
                 }
-
-                user.OtherMails = new string[] { parameters.user.Mail };
 
                 // Custom Attributes
                 var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
@@ -358,6 +357,31 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        private void AddSignInName(User user, string signInType, string signInValue)
+        {
+            var signInName = new SignInName()
+            {
+                Type = signInType,
+                Value = signInValue
+            };
+            if (user.SignInNames == null)
+            {
+                user.AdditionalData.Add("signInNames", signInName);
+            }
+            else
+            {
+                var current = user.SignInNames.FirstOrDefault(x => x.Type == signInType);
+                if (current == null)
+                {
+                    user.SignInNames.Add(signInName);
+                }
+                else
+                {
+                    current.Value = signInValue;
+                }
             }
         }
 
