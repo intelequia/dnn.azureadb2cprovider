@@ -80,3 +80,9 @@
 	<li>Fix user management when no custom attributes have been specified</li>
 	<li>Fix adding multiple groups on User Management</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.04.06</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Added support for B2C tenants using usernames instead of e-mails (or both) on login</li>
+	<li>Fix user management impersonation</li>
+</ul>
