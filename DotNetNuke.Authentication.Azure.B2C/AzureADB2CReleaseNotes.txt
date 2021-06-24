@@ -86,3 +86,8 @@
 	<li>Added support for B2C tenants using usernames instead of e-mails (or both) on login</li>
 	<li>Fix user management impersonation</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.04.07</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Fixed issue in the manifest causing a duplicate PK error during installation</li>
+</ul>
