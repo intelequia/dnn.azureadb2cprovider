@@ -98,7 +98,7 @@ To support the role and profile synchronization by internally using the Microsof
 ### Step 3: DNN provider installation and configuration
 It's important to remember that, if you want to use this module, you need a DNN deployment with  **version 9.3.0 or later**. 
 
-1. Download the DNN Azure AD provider from the Releases folder (i.e. AzureAdB2CProvider_01.00.00_Install.zip) https://github.com/davidjrh/dnn.azureadb2cprovider/releases
+1. Download the DNN Azure AD provider from the Releases folder (i.e. AzureAdB2CProvider_01.00.00_Install.zip) https://github.com/intelequia/dnn.azureadb2cprovider/releases
 2. Login into your DNN Platform website as a host user and install the provider from the `Host > Extensions` page
 3. Use the **Install Extension Wizard** to upload and install the file you downloaded in step 1. Once installed, you can setup the provider from the new settings page, under the section **Azure AD B2C** in the Persona Bar:
 
