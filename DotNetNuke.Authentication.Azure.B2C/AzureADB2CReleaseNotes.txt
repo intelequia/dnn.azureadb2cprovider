@@ -91,3 +91,8 @@
 <ul style="margin: 5px 0 0 30px">
 	<li>Fixed issue in the manifest causing a duplicate PK error during installation</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.04.08</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Added extensibility to the login stage, so that developers can add their own logic when the OAuth token is available and authorize or deny the login</li>
+</ul>
