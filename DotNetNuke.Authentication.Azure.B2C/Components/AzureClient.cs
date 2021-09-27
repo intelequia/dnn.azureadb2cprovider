@@ -163,6 +163,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
         }
 
+        public string UnauthorizedReason { get; set; }
+
         private string _userIdClaim;
         private string UserIdClaim
         {
@@ -790,11 +792,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     Logger.Debug("Calling external ILoginValidate.OnTokenReceived method");
                     try
                     {
+                        UnauthorizedReason = null;
                         LoginValidationAddIn.OnTokenReceived(AuthToken, HttpContext.Current);
                     }
                     catch (SecurityTokenException e)
                     {
                         Logger.Error("ILoginValidate.OnTokenReceived unauthorized this login", e);
+                        UnauthorizedReason = e.Message;
                         authResult = AuthorisationResult.Denied;
                     }
                     catch (Exception e)

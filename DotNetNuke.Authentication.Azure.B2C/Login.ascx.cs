@@ -133,7 +133,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
                     }
                     else
                     {
-                        Response.Redirect($"{config.OnErrorUri}?error=Denied&error_description={HttpContext.Current.Server.UrlEncode(Localization.GetString("PrivateConfirmationMessage", Localization.SharedResourceFile))}");
+                        var errorMessage = !string.IsNullOrEmpty(((AzureClient)OAuthClient).UnauthorizedReason) ? ((AzureClient)OAuthClient).UnauthorizedReason : Localization.GetString("PrivateConfirmationMessage", Localization.SharedResourceFile);
+                        Response.Redirect($"{config.OnErrorUri}?error=Denied&error_description={HttpContext.Current.Server.UrlEncode(errorMessage)}");
                     }
                 }
             }
