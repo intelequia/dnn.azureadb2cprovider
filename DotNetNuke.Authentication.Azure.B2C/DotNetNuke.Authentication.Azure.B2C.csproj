@@ -330,7 +330,12 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\DotNetNuke.Authentication.Azure.B2C.Extensibility\DotNetNuke.Authentication.Azure.B2C.Extensibility.csproj">
+      <Project>{42445032-9098-4160-930d-4127dc292695}</Project>
+      <Name>DotNetNuke.Authentication.Azure.B2C.Extensibility</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <Extension>zip</Extension>
