@@ -509,7 +509,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
                     var portal = PortalController.Instance.GetPortal(user.PortalID);
                     //var portalSettings = new PortalSettings(portal.PortalID);
-                    var httpAlias = PortalAliasController.Instance.GetPortalAliasesByPortalId(portal.PortalID).ToList().FirstOrDefault().HTTPAlias;
+                    var httpAlias = PortalAliasController.Instance.GetPortalAliasesByPortalId(portal.PortalID).ToList().FirstOrDefault(x => x.IsPrimary).HTTPAlias;
                     return $"{HttpContext.Current.Request.Url.Scheme}://{httpAlias}";
                 }
             }
