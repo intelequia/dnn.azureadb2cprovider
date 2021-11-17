@@ -752,9 +752,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 return AuthorisationResult.Denied;
             }
-
-            if (!string.IsNullOrEmpty(HttpContext.Current.Request.UrlReferrer?.Query)
-                && HttpContext.Current.Request.UrlReferrer.Query.IndexOf("p=" + Settings.PasswordResetPolicy + "&") > -1)
+            var state = new State(HttpContext.Current.Request["state"]);
+            if (state.IsResetPassword || (!string.IsNullOrEmpty(HttpContext.Current.Request.UrlReferrer?.Query)
+                && HttpContext.Current.Request.UrlReferrer.Query.IndexOf("p=" + Settings.PasswordResetPolicy + "&") > -1))
             {
                 Policy = PolicyEnum.PasswordResetPolicy;
             }
@@ -768,7 +768,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() {
                         PortalId = Settings.PortalID,
-                        Culture = PortalSettings.Current.CultureCode
+                        Culture = PortalSettings.Current.CultureCode,
+                        IsResetPassword = Policy == PolicyEnum.PasswordResetPolicy
                     }.ToString())),
                     new QueryParameter("response_type", "code"),
                     new QueryParameter("response_mode", "query"),
@@ -1000,7 +1001,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         private void ExchangeCodeForToken()
         {
             if (_tokenAlreadyExchanged)
-                return;
+                return;            
             var parameters = new List<QueryParameter>
             {
                 new QueryParameter("grant_type", "authorization_code"),

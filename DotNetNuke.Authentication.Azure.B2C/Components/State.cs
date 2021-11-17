@@ -11,6 +11,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             Culture = "";
             RedirectUrl = "";
             IsUserProfile = false;
+            IsImpersonate = false;  
+            IsResetPassword = false;
         }
         public State(string s)
         {
@@ -19,6 +21,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             Culture = "";
             RedirectUrl = "";
             IsUserProfile = false;
+            IsImpersonate = false;
+            IsResetPassword = false;
             ParseState(s);
         }
         public string Service { get; set; }
@@ -27,6 +31,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public string RedirectUrl { get; set; }
         public bool IsUserProfile { get; set; }
         public bool IsImpersonate { get; set; }
+        public bool IsResetPassword { get; set; }
 
         public override string ToString()
         {
@@ -54,6 +59,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (IsImpersonate)
             {
                 s += ";i=1";
+            }
+            if (IsResetPassword)
+            {
+                s += ";rp=1";
             }
             return s;
         }
@@ -86,6 +95,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                             break;
                         case "i":
                             IsImpersonate = item[1] == "1";
+                            break;
+                        case "rp":
+                            IsResetPassword = item[1] == "1";
                             break;
                         default:
                             break;
