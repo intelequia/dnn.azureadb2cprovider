@@ -152,6 +152,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
+            catch (AggregateException ex)
+            {
+                Logger.Error(ex);
+                var aex = ex as AggregateException;
+                if (aex?.InnerException as Microsoft.Graph.ServiceException != null)
+                {
+                    var sex = (Microsoft.Graph.ServiceException) aex.InnerException;
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, $"{sex.Error.Code}: {sex.Error.Message}");
+                }
+                else
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                }
+            }
             catch (Exception ex)
             {
                 Logger.Error(ex);
@@ -454,6 +468,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
                 AzureADB2CProviderSettings.SaveAdvancedSettings(AzureConfig.ServiceName, PortalId, settings);
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
+            }
+            catch (AggregateException ex)
+            {
+                Logger.Error(ex);
+                var aex = ex as AggregateException;
+                if (aex?.InnerException as Microsoft.Graph.ServiceException != null)
+                {
+                    var sex = (Microsoft.Graph.ServiceException)aex.InnerException;
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, $"{sex.Error.Code}: {sex.Error.Message}");
+                }
+                else
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                }
             }
             catch (Exception ex)
             {

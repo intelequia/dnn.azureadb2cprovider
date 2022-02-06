@@ -57,10 +57,10 @@
                 <td class="userName" data-bind="event: { click: $parent.updateUser }">
                     <div data-bind="text: usernameToDisplay, css: identityIssuer" ></div>
                 </td>
-                <td>
+                <td class="userManagement actions">
                     <% if (EnableDelete)
                         { %>
-                    <a class="kblist-glyph segoemdl2 float-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="click: remove"></a>   
+                    <a class="kblist-glyph segoemdl2 float-right fa fa-trash" data-bind="click: remove">Delete</a>   
                     <% } %>
                 </td>
             </tr>
@@ -143,7 +143,7 @@
                         <div data-bind="foreach: groups">
                             <div class="b2c-groups-row">
                                 <span data-bind="text: displayName"></span>
-                                <a class="kblist-glyph segoemdl2 float-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="attr: { 'data-oid': objectId }, click: $parent.removeGroup"></a>   
+                                <a class="kblist-glyph segoemdl2 float-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="attr: { 'data-oid': id }, click: $parent.removeGroup"></a>   
                             </div> 
                         </div>
                         <!-- ko if: groups().length == 0 -->
@@ -218,7 +218,7 @@
                         <div data-bind="foreach: groups">
                             <div class="b2c-groups-row">
                                 <span data-bind="text: displayName"></span>
-                                <a class="kblist-glyph segoemdl2 float-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="attr: { 'data-oid': objectId }, click: $parent.removeGroup"></a>   
+                                <a class="kblist-glyph segoemdl2 float-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="attr: { 'data-oid': id }, click: $parent.removeGroup"></a>   
                             </div>
                         </div>
                         <!-- ko if: groups().length == 0 -->

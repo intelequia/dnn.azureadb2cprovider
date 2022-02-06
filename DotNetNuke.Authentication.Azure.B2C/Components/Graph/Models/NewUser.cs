@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Graph;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class NewUser: User
+    public class NewUser : User
     {
         public NewUser()
         {
@@ -34,45 +35,25 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models
 
         private void Initialize(bool initializeForAdd = true)
         {
+            if (AdditionalData == null)
+            {
+                AdditionalData = new Dictionary<string, object>();
+            }
             if (initializeForAdd)
             {
                 AccountEnabled = true;
-                SignInNames = new List<SignInName>();
-                CreationType = "LocalAccount";
+                if (Identities == null)
+                {
+                    Identities = new List<ObjectIdentity>();
+                }
             }
             PasswordPolicies = "DisablePasswordExpiration";
             PasswordProfile = new PasswordProfile()
             {
-                ForceChangePasswordNextLogin = false
+                ForceChangePasswordNextSignIn = false
             };
         }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "creationType", Required = Required.Default)]
-        public string CreationType { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "passwordProfile", Required = Required.Default)]
-        public PasswordProfile PasswordProfile { get; set; }
-
-    }
-
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class SignInName
-    {
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "type", Required = Required.Default)]
-        public string Type { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "value", Required = Required.Default)]
-        public string Value { get; set; }
-    }
-
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class PasswordProfile
-    {
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "password", Required = Required.Default)]
-        public string Password { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "forceChangePasswordNextLogin", Required = Required.Default)]
-        public bool ForceChangePasswordNextLogin { get; set; }
     }
 
 }

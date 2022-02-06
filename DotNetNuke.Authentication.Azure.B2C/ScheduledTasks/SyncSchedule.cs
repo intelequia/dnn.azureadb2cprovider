@@ -149,21 +149,15 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 }
 
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var query = "$orderby=displayName";
-                var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllGroups.Filter"];
-                if (!string.IsNullOrEmpty(filter))
-                {
-                    query = $"$filter={filter}";
-                }
                 // Add roles from AAD B2C
-                var aadGroups = graphClient.GetAllGroups(query);
-                var allaadGroups = new List<Components.Graph.Models.Group>();
-                if (aadGroups != null && aadGroups.Values != null)
+                var aadGroups = graphClient.GetAllGroups();
+                var allaadGroups = new List<Microsoft.Graph.Group>();
+                if (aadGroups != null)
                 {
-                    var groupPrefix = settings.GroupNamePrefixEnabled ? "AzureB2C-" : "";
-                    while (aadGroups.Values.Count > 0)
+                    var groupPrefix = settings.GroupNamePrefixEnabled ? $"{AzureConfig.ServiceName}-" : "";
+                    while (aadGroups != null && aadGroups.Count > 0)
                     {
-                        var groups = aadGroups.Values;
+                        var groups = aadGroups.CurrentPage.ToList();
                         allaadGroups.AddRange(groups);
                         if (customRoleMappings != null && customRoleMappings.Count > 0)
                         {
@@ -198,9 +192,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                             }
                         }
 
-                        if (string.IsNullOrEmpty(aadGroups.ODataNextLink))
-                            break;
-                        aadGroups = graphClient.GetNextGroups(aadGroups.ODataNextLink);
+                        aadGroups = aadGroups.NextPageRequest?.GetSync();
                     }
                 }
                 // Let's remove DNN roles imported from B2C that no longer exists in B2C
@@ -218,12 +210,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 foreach (var dnnRole in dnnB2cRoles)
                 {
                     if (allaadGroups.Count == 0
-                        || aadGroups.Values.FirstOrDefault(x => x.DisplayName == (settings.GroupNamePrefixEnabled ? dnnRole.RoleName.Substring("AzureB2C-".Length) : dnnRole.RoleName)) == null)
+                        || aadGroups.FirstOrDefault(x => x.DisplayName == (settings.GroupNamePrefixEnabled ? dnnRole.RoleName.Substring($"{AzureConfig.ServiceName}-".Length) : dnnRole.RoleName)) == null)
                     {
                         try
                         {
                             RoleController.Instance.DeleteRole(dnnRole);
-                            // This is a workaround to a bug in DNN where RoleSettings is not deleted when a role is deleted
+                            // This is a workaround due to a bug in DNN where RoleSettings are not deleted when a role is deleted
                             DotNetNuke.Data.DataContext.Instance().Execute(System.Data.CommandType.Text, $"DELETE {DotNetNuke.Data.DataProvider.Instance().DatabaseOwner}{DotNetNuke.Data.DataProvider.Instance().ObjectQualifier}RoleSettings WHERE RoleID = @0", dnnRole.RoleID);
                             groupsDeleted++;
                         }

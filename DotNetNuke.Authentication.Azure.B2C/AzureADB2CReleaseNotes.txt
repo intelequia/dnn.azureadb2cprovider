@@ -96,3 +96,11 @@
 <ul style="margin: 5px 0 0 30px">
 	<li>Added extensibility to the login stage, so that developers can add their own logic when the OAuth token is available and authorize or deny the login</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.05.00</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Removed Azure AD Graph dependency. Now all working with Microsoft Graph API</li>
+	<li>Removed default user profile property mappings from installation</li>
+	<li>Fix for to avoid issues with case sensitive collations on databases</li>
+	<li>Fixed bug creating a duplicated desktop module definition during the install, causing a DNN error when editing pages</li>
+</ul>
