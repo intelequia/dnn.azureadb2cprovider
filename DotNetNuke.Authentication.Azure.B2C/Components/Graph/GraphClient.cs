@@ -1,4 +1,5 @@
-﻿using DotNetNuke.Instrumentation;
+﻿using DotNetNuke.Authentication.Azure.B2C.Components.Models;
+using DotNetNuke.Instrumentation;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using System;
@@ -27,11 +28,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
 
         public string CustomUserAttributes { get; set; }
         public string B2CApplicationId { get; set; }
+        public UserMapping PortalIdUserMapping { get; set; }
 
-        public GraphClient(string clientId, string clientSecret, string tenant, string customUserAttributes = "", string b2cApplicationId = "")
+        public GraphClient(string clientId, string clientSecret, string tenant, string customUserAttributes = "", string b2cApplicationId = "", UserMapping portalIdUserMapping = null)
         {
             CustomUserAttributes = customUserAttributes;
             B2CApplicationId = b2cApplicationId;
+            PortalIdUserMapping = portalIdUserMapping;
             _app = ConfidentialClientApplicationBuilder
                     .Create(clientId)
                     .WithClientSecret(clientSecret)
@@ -97,6 +100,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             if (string.IsNullOrEmpty(c))
             {
                 c = ConfigurationManager.AppSettings["AzureADB2C.CustomUserExtensions"] ?? "";
+            }
+            if (PortalIdUserMapping != null 
+                && !string.IsNullOrEmpty(PortalIdUserMapping?.GetB2cCustomClaimName())
+                && !c.Split(',').Any(x => x.ToLowerInvariant() == PortalIdUserMapping?.GetB2cCustomClaimName()))
+            {
+                c = c + (string.IsNullOrEmpty(c) ? "" : ",") + PortalIdUserMapping?.GetB2cCustomClaimName();
             }
             return string.Join(",", c.Split(',').Select(x => GetExtensionAttributeName(x)));
         }

@@ -70,7 +70,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId);
+                var portalIdUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalIdUserMapping);
                 var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllUsers.Filter"];
                 var moduleFilter = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "GraphFilter");
                 if (!string.IsNullOrEmpty(moduleFilter))
@@ -89,15 +90,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         filter += " and ";
                     }
                     filter += $"startswith(displayName, '{search}')";
-                }
-                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
-                if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
+                }                
+                if (portalIdUserMapping != null && !string.IsNullOrEmpty(portalIdUserMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
                 {
                     if (!string.IsNullOrEmpty(filter))
                     {
                         filter += " and ";
                     }
-                    filter += $"{userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
+                    filter += $"{portalIdUserMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
                 }
 
                 var users = graphClient.GetAllUsers(filter);
@@ -162,7 +162,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId);
+                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, userMapping);
 
                 var newUser = new NewUser(parameters.user);
 
@@ -191,7 +192,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     : parameters.password;
 
                 // Add custom extension claim PortalId if configured
-                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null)
                 {
                     var b2cExtensionName = userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId);
@@ -240,16 +240,17 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
+                var portalIdUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalIdUserMapping);
 
                 // Validate permissions
                 var user = graphClient.GetUser(parameters.user.Id);
-                string portalUserMappingB2cCustomClaimName = portalUserMapping?.GetB2cCustomClaimName();
-                if (!UserInfo.IsSuperUser && portalUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
+                string portalUserMappingB2cCustomClaimName = portalIdUserMapping?.GetB2cCustomClaimName();
+                if (!UserInfo.IsSuperUser && portalIdUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
                 {
-                    if (!user.AdditionalData.ContainsKey(portalUserMapping.GetB2cCustomClaimName())
-                        || (int)(long)user.AdditionalData[portalUserMapping.GetB2cCustomClaimName()] != PortalSettings.PortalId)
+                    if (!user.AdditionalData.ContainsKey(portalIdUserMapping.GetB2cCustomClaimName())
+                        || (int)(long)user.AdditionalData[portalIdUserMapping.GetB2cCustomClaimName()] != PortalSettings.PortalId)
                     {
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
                     }
@@ -293,8 +294,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId);
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalUserMapping);
 
                 // Validate permissions
                 var user = graphClient.GetUser(parameters.user.Id);
@@ -405,8 +406,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId);
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalUserMapping);                
 
                 // Validate permissions
                 var user = graphClient.GetUser(parameters.user.Id);
@@ -561,8 +562,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId);
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalUserMapping);
                 var idUserMapping = UserMappingsRepository.Instance.GetUserMapping("Id", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
 
                 if (string.IsNullOrEmpty(settings.ImpersonatePolicy))
@@ -637,8 +638,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId);
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalUserMapping);
                 var idUserMapping = UserMappingsRepository.Instance.GetUserMapping("Id", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
 
                 var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllUsers.Filter"];
