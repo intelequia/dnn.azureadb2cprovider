@@ -21,6 +21,7 @@
 
 #endregion
 
+using DotNetNuke.Instrumentation;
 using DotNetNuke.Web.Api;
 using System;
 using System.Net;
@@ -39,6 +40,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
     public class HelloController : DnnApiController
     {
+        private static readonly ILog _logger = LoggerSource.Instance.GetLogger(typeof(HelloController));
+
         [HttpGet]
         [DnnAuthorize(AuthTypes = "JWT")]  
         public HttpResponseMessage Test()
@@ -49,6 +52,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }

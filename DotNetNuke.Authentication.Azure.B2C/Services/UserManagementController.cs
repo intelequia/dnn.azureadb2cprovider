@@ -7,6 +7,7 @@ using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common;
 using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Users;
+using DotNetNuke.Instrumentation;
 using DotNetNuke.Security;
 using DotNetNuke.Services.Localization;
 using DotNetNuke.Web.Api;
@@ -30,6 +31,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 {
     public class UserManagementController: DnnApiController
     {
+        private static readonly ILog _logger = LoggerSource.Instance.GetLogger(typeof(UserManagementController));
+
         private string LocalResourceFile
         {
             get
@@ -58,6 +61,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -105,6 +109,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -137,6 +142,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -216,6 +222,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -273,6 +280,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -359,6 +367,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -431,6 +440,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -468,6 +478,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -603,6 +614,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -698,6 +710,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -732,6 +745,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }

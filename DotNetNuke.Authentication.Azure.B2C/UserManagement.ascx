@@ -60,7 +60,7 @@
                 <td class="userManagement actions">
                     <% if (EnableDelete)
                         { %>
-                    <a class="kblist-glyph segoemdl2 float-right fa fa-trash" data-bind="click: remove">Delete</a>   
+                    <a data-bind="click: remove"> <i class="kblist-glyph segoemdl2 float-right fa fa-trash"></i> <% = LocalizeString("Delete") %></a>   
                     <% } %>
                 </td>
             </tr>

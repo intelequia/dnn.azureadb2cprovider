@@ -98,10 +98,10 @@ dnn.extend(dnn.adb2c.UserManagement,
 
             // User custom attributes
             if (userManagement.customAttributes && userManagement.customAttributes !== "") {
-                $.each(userManagement.customAttributes.split(","),
+                $.each(userManagement.customAttributes.split(","), 
                     function (index, customAttribute) {
                         var p = userManagement.customAttributesPrefix + customAttribute.replace(" ", "");
-                        that[customAttribute.replace(" ", "")] = ko.observable(model[p] || "");
+                        that[customAttribute.replace(" ", "")] = ko.observable((model && model.AdditionalData) ? model.AdditionalData[p] || "" : "");
                     });
             }
             
@@ -286,6 +286,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                     sendEmail: that.sendEmail()
                 },
                     function (data) {
+                        toastr.success(dnn.getVar("UserPasswordUpdatedMessage"));
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
                     },

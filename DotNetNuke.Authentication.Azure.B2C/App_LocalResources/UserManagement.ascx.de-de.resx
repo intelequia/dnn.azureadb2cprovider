@@ -420,4 +420,10 @@ Thank you, we appreciate your support.
   <data name="ChangePasswordSubtitle.Text" xml:space="preserve">
     <value>Sie werden das Passwort für </value>
   </data>
+  <data name="DeleteUser.Text" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="UserPasswordUpdatedMessage.Text" xml:space="preserve">
+    <value>Das Benutzerkennwort wurde aktualisiert</value>
+  </data>
 </root>
