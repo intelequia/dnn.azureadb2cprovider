@@ -10,7 +10,7 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.userManagement = userManagement;
             this.id = ko.observable(model.Id || "");
             this.displayName = ko.observable(model.DisplayName || "");
-            this.objectType = ko.observable(model.IbjectType || "");
+            this.objectType = ko.observable(model.ObjectType || "");
             //this.odataType = ko.observable(model["odata.type"] || "");
 
             this.toSimple = function () {
