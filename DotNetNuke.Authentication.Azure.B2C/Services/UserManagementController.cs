@@ -5,13 +5,14 @@ using DotNetNuke.Authentication.Azure.B2C.Components.Graph.Models;
 using DotNetNuke.Authentication.Azure.B2C.Components.Models;
 using DotNetNuke.Authentication.Azure.B2C.Data;
 using DotNetNuke.Common;
-using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Users;
+using DotNetNuke.Instrumentation;
 using DotNetNuke.Security;
-using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.Localization;
 using DotNetNuke.Web.Api;
+using Microsoft.Graph;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -22,7 +23,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Web.Security;
@@ -31,6 +31,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 {
     public class UserManagementController: DnnApiController
     {
+        private static readonly ILog _logger = LoggerSource.Instance.GetLogger(typeof(UserManagementController));
+
         private string LocalResourceFile
         {
             get
@@ -54,11 +56,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
                 var query = "";
 
-                var users = graphClient.GetAllGroups(query);
-                return Request.CreateResponse(HttpStatusCode.OK, users.Values);
+                var groups = graphClient.GetAllGroups(query);
+                return Request.CreateResponse(HttpStatusCode.OK, groups.ToList());
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -70,8 +73,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             try
             {
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var query = "$orderby=displayName";
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
+                var portalIdUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalIdUserMapping);
                 var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllUsers.Filter"];
                 var moduleFilter = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "GraphFilter");
                 if (!string.IsNullOrEmpty(moduleFilter))
@@ -90,26 +94,22 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         filter += " and ";
                     }
                     filter += $"startswith(displayName, '{search}')";
-                }
-                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
-                if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
+                }                
+                if (portalIdUserMapping != null && !string.IsNullOrEmpty(portalIdUserMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
                 {
                     if (!string.IsNullOrEmpty(filter))
                     {
                         filter += " and ";
                     }
-                    filter += $"{userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
-                }
-                if (!string.IsNullOrEmpty(filter))
-                {
-                    query = $"$filter={filter}";
+                    filter += $"{portalIdUserMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
                 }
 
-                var users = graphClient.GetAllUsers(query);
-                return Request.CreateResponse(HttpStatusCode.OK, users.Values);
+                var users = graphClient.GetAllUsers(filter);
+                return Request.CreateResponse(HttpStatusCode.OK, users.ToList());
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -138,10 +138,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 var groups = graphClient.GetUserGroups(objectId);
-                return Request.CreateResponse(HttpStatusCode.OK, groups.Values);
+                return Request.CreateResponse(HttpStatusCode.OK, groups.ToList());
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -164,30 +165,39 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 {
                     return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to add users");
                 }
+
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
+                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, userMapping);
 
                 var newUser = new NewUser(parameters.user);
-                if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
-                    && !string.IsNullOrEmpty(newUser.Username))
+
+                if (newUser?.Identities == null || newUser.Identities.Count() != 1)
                 {
-                    AddSignInName(newUser, "userName", newUser.Username);
+                    throw new ApplicationException("Identity is required");
+                }
+                // Ensure  user is on this tenant
+                var identity = newUser.Identities.FirstOrDefault();
+                identity.Issuer = $"{settings.TenantName}.onmicrosoft.com";
+
+                if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
+                    && !string.IsNullOrEmpty(newUser.UserPrincipalName))
+                {
+                    AddIdentity(newUser, $"{settings.TenantName}.onmicrosoft.com", "userName", newUser.UserPrincipalName);
                 }
                 if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByEmail", "True"))
                     && !string.IsNullOrEmpty(newUser.Mail))
                 {
-                    AddSignInName(newUser, "emailAddress", newUser.Mail);
+                    AddIdentity(newUser, $"{settings.TenantName}.onmicrosoft.com", "emailAddress", newUser.Mail);
                     newUser.OtherMails = new string[] { newUser.Mail };
                 }
                 newUser.PasswordProfile.Password = parameters.passwordType == "auto"
                     ? Membership.GeneratePassword(Membership.MinRequiredPasswordLength < 8 ? 8 : Membership.MinRequiredPasswordLength,
                         Membership.MinRequiredNonAlphanumericCharacters < 2 ? 2 : Membership.MinRequiredNonAlphanumericCharacters)
                     : parameters.password;
-                newUser.Mail = null;
-                newUser.Username = null;
 
                 // Add custom extension claim PortalId if configured
-                var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null)
                 {
                     var b2cExtensionName = userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId);
@@ -212,6 +222,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -236,16 +247,17 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
+                var portalIdUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalIdUserMapping);
 
                 // Validate permissions
-                var user = graphClient.GetUser(parameters.user.ObjectId);
-                string portalUserMappingB2cCustomClaimName = portalUserMapping?.GetB2cCustomClaimName();
-                if (!UserInfo.IsSuperUser && portalUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
+                var user = graphClient.GetUser(parameters.user.Id);
+                string portalUserMappingB2cCustomClaimName = portalIdUserMapping?.GetB2cCustomClaimName();
+                if (!UserInfo.IsSuperUser && portalIdUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
                 {
-                    if (!user.AdditionalData.ContainsKey(portalUserMapping.GetB2cCustomClaimName())
-                        || (int)(long)user.AdditionalData[portalUserMapping.GetB2cCustomClaimName()] != PortalSettings.PortalId)
+                    if (!user.AdditionalData.ContainsKey(portalIdUserMapping.GetB2cCustomClaimName())
+                        || (int)(long)user.AdditionalData[portalIdUserMapping.GetB2cCustomClaimName()] != PortalSettings.PortalId)
                     {
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to modify this user");
                     }
@@ -256,7 +268,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         Membership.MinRequiredNonAlphanumericCharacters < 2 ? 2 : Membership.MinRequiredNonAlphanumericCharacters)
                     : parameters.password;
 
-                newUser.AdditionalData.Clear();
                 graphClient.UpdateUserPassword(newUser);
 
                 // Send welcome email with password
@@ -269,6 +280,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -289,11 +301,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalUserMapping);
 
                 // Validate permissions
-                var user = graphClient.GetUser(parameters.user.ObjectId);
+                var user = graphClient.GetUser(parameters.user.Id);
                 string portalUserMappingB2cCustomClaimName = portalUserMapping?.GetB2cCustomClaimName();
                 if (!UserInfo.IsSuperUser && portalUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
                 {
@@ -314,28 +327,26 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 if (user.UserPrincipalName.StartsWith("cpim_")) // Is a federated user?
                 {
                     // Can't modify this properties on federated users
-                    user.UserIdentities = null;
-                    user.SignInNames = null;
+                    user.Identities = null;
                 }
                 else
                 {
                     if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
-                        && !string.IsNullOrEmpty(parameters.user.Username))
+                        && !string.IsNullOrEmpty(parameters.user.UserPrincipalName))
                     {
-                        AddSignInName(user, "userName", parameters.user.Username);
+                        AddIdentity(user, $"{settings.TenantName}.onmicrosoft.com", "userName", parameters.user.UserPrincipalName);
                     }
 
                     if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
                         && !string.IsNullOrEmpty(parameters.user.Mail))
                     {
-                        AddSignInName(user, "emailAddress", parameters.user.Mail);
+                        AddIdentity(user, $"{settings.TenantName}.onmicrosoft.com", "emailAddress", parameters.user.Mail);
                         user.OtherMails = new string[] { parameters.user.Mail };
                     }
                 }
 
                 // Custom Attributes
-                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
-                if (!string.IsNullOrEmpty(customAttributes))
+                if (!string.IsNullOrEmpty(customAttributes) && parameters.user.AdditionalData != null)
                 {
                     string[] attr = customAttributes.Split(',');
                     foreach (var key in parameters.user.AdditionalData.Keys)
@@ -356,33 +367,35 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
-        private void AddSignInName(User user, string signInType, string signInValue)
+        private void AddIdentity(User user, string issuer, string signInType, string issuerAssignedId)
         {
-            var signInName = new SignInName()
+            var identity = new ObjectIdentity()
             {
-                Type = signInType,
-                Value = signInValue
+                Issuer = issuer,
+                SignInType = signInType,
+                IssuerAssignedId = issuerAssignedId
             };
-            if (user.SignInNames == null)
+            if (user.Identities == null)
             {
-                user.AdditionalData.Add("signInNames", signInName);
+                user.Identities = new List<ObjectIdentity>();
+            }
+
+            var identities = user.Identities.ToList();
+            var current = identities.FirstOrDefault(x => x.SignInType == signInType);
+            if (current == null)
+            {
+                identities.Add(identity);
             }
             else
             {
-                var current = user.SignInNames.FirstOrDefault(x => x.Type == signInType);
-                if (current == null)
-                {
-                    user.SignInNames.Add(signInName);
-                }
-                else
-                {
-                    current.Value = signInValue;
-                }
+                current.IssuerAssignedId = issuerAssignedId;
             }
+            user.Identities = identities;
         }
 
         public class ForceChangePasswordParameters
@@ -401,11 +414,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalUserMapping);                
 
                 // Validate permissions
-                var user = graphClient.GetUser(parameters.user.ObjectId);
+                var user = graphClient.GetUser(parameters.user.Id);
                 // Check user is from current portal, if PortalId is an extension name
                 string portalUserMappingB2cCustomClaimName = portalUserMapping?.GetB2cCustomClaimName();
                 if (!UserInfo.IsSuperUser && portalUserMapping != null && !string.IsNullOrEmpty(portalUserMappingB2cCustomClaimName))
@@ -426,6 +440,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -433,7 +448,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
         public class RemoveParameters
         {
-            public string objectId { get; set; }
+            public string id { get; set; }
         }
         [HttpPost]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
@@ -448,11 +463,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
                 var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                graphClient.DeleteUser(parameters.objectId);
+                graphClient.DeleteUser(parameters.id);
 
                 // Delete user if exist locally
-                var usernamePrefix = settings.UsernamePrefixEnabled ? "AzureB2C-" : "";
-                var userInfo = UserController.GetUserByName(PortalSettings.PortalId, $"{usernamePrefix}{parameters.objectId}");
+                var usernamePrefix = settings.UsernamePrefixEnabled ? $"{AzureConfig.ServiceName}-" : "";
+                var userInfo = UserController.GetUserByName(PortalSettings.PortalId, $"{usernamePrefix}{parameters.id}");
                 if (userInfo != null)
                 {                    
                     UserController.DeleteUser(ref userInfo, false, true);
@@ -463,27 +478,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
         private static void UpdateGroupMemberShip(GraphClient graphClient, User user, List<Group> userGroups)
         {
-            var groups = graphClient.GetAllGroups("");
-            foreach (var group in groups.Values)
-            {
-                var groupMembers = graphClient.GetGroupMembers(group.ObjectId);
-                if (groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
-                    && !userGroups.Any(x => x.ObjectId == group.ObjectId))
-                {
-                    graphClient.RemoveGroupMember(group.ObjectId, user.ObjectId);
-                }
-                if (!groupMembers.Values.Any(u => u.ObjectId == user.ObjectId)
-                    && userGroups.Any(x => x.ObjectId == group.ObjectId))
-                {
-                    graphClient.AddGroupMember(group.ObjectId, user.ObjectId);
-                }
-            }
+            graphClient.UpdateGroupMembers(user, userGroups);
         }
 
         private void SendWelcomeEmail(NewUser user)
@@ -502,7 +504,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             message = message.Replace("[Portal:URL]", Globals.AddHTTP(PortalSettings.DefaultPortalAlias));
             message = message.Replace("[Portal:LogoURL]", $"{Globals.AddHTTP(PortalSettings.DefaultPortalAlias)}/Portals/{PortalSettings.PortalId}/{PortalSettings.LogoFile}");
             message = message.Replace("[Portal:Copyright]", PortalSettings.FooterText.Replace("[year]", DateTime.Now.ToString("yyyy")));
-            message = message.Replace("[User:UserName]", user.SignInNames.FirstOrDefault().Value);
+            message = message.Replace("[User:UserName]", user.Identities.FirstOrDefault().IssuerAssignedId);
             message = message.Replace("[User:DisplayName]", user.DisplayName);
             message = message.Replace("[User:FirstName]", user.GivenName);
             message = message.Replace("[User:LastName]", user.Surname);
@@ -570,8 +572,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalUserMapping);
                 var idUserMapping = UserMappingsRepository.Instance.GetUserMapping("Id", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
 
                 if (string.IsNullOrEmpty(settings.ImpersonatePolicy))
@@ -598,7 +601,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 user.AdditionalData.Add($"extension_{settings.B2cApplicationId.Replace("-", "")}_canImpersonate", true);
                 // HACK: Avoid error "Property alternativeSecurityIds value is required but is empty or missing." when using
                 // federated users
-                user.UserIdentities = null; 
+                //user.UserIdentities = null; 
                 graphClient.UpdateUser(user);
 
                 // Return the impersonation URL
@@ -611,6 +614,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -625,11 +629,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             else if (idUserMapping.B2cClaimName.ToLowerInvariant() == "emails")
             {
-                user = graphClient.GetAllUsers($"$filter=signInNames/any(c:c/value eq '{usernameWithoutPrefix}')").Values.FirstOrDefault();
+                user = graphClient.GetAllUsers($"identities/any(c:c/issuer eq '{settings.TenantName}.onmicrosoft.com' and c/issuerAssignedId eq '{usernameWithoutPrefix}')").FirstOrDefault();
             }
             else
             {
-                user = graphClient.GetAllUsers($"$filter={idUserMapping.GetB2cCustomAttributeName(settings.PortalID)} eq '{usernameWithoutPrefix}'").Values.FirstOrDefault();
+                user = graphClient.GetAllUsers($"{idUserMapping.GetB2cCustomAttributeName(settings.PortalID)} eq '{usernameWithoutPrefix}'").FirstOrDefault();
             }
             return user;
         }
@@ -645,11 +649,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     return Request.CreateResponse(HttpStatusCode.Forbidden, "You are not allowed to export users");
                 }
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");
                 var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId, customAttributes, settings.B2cApplicationId, portalUserMapping);
                 var idUserMapping = UserMappingsRepository.Instance.GetUserMapping("Id", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
 
-                var query = "$orderby=displayName";
                 var filter = ConfigurationManager.AppSettings["AzureADB2C.GetAllUsers.Filter"];
                 if (!string.IsNullOrEmpty(search))
                 {
@@ -668,23 +672,17 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     }
                     filter += $"{userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
                 }
-                if (!string.IsNullOrEmpty(filter))
-                {
-                    query = $"$filter={filter}";
-                }
-
-                var customAttributes = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "CustomFields").Replace(" ", "");                
 
                 var opId = Guid.NewGuid().ToString();
                 var filename = Path.Combine(Path.GetTempPath(), $"{opId}.tmp");
-                File.AppendAllText(filename, $"userPrincipalName,displayName,surname,givenName,issuer,mail,objectId,userType,jobTitle,department,accountEnabled,usageLocation,streetAddress,state,country,physicalDeliveryOfficeName,city,postalCode,telephoneNumber,mobile,ageGroup,legalAgeGroupClassification{(!string.IsNullOrEmpty(customAttributes) ? "," + customAttributes : "")}\n", System.Text.Encoding.UTF8);
-                var users = graphClient.GetAllUsers(query);
-                while (users.Values.Count > 0)
+                System.IO.File.AppendAllText(filename, $"userPrincipalName,displayName,surname,givenName,issuer,mail,objectId,userType,jobTitle,department,accountEnabled,usageLocation,streetAddress,state,country,physicalDeliveryOfficeName,city,postalCode,telephoneNumber,mobile,ageGroup,legalAgeGroupClassification{(!string.IsNullOrEmpty(customAttributes) ? "," + customAttributes : "")}\n", System.Text.Encoding.UTF8);
+                var users = graphClient.GetAllUsers(filter);
+                while (users != null && users.Count > 0)
                 {
-                    foreach (var user in users.Values)
+                    foreach (var user in users)
                     {
-                        var mail = user.Mail ?? user.OtherMails?.FirstOrDefault() ?? user.SignInNames?.FirstOrDefault()?.Value;
-                        var userLine = $"{user.UserPrincipalName},{user.DisplayName},{user.Surname},{user.GivenName},{user.UserIdentities?.FirstOrDefault()?.Issuer},{mail},{user.ObjectId},{user.UserType},{user.JobTitle},{user.Department},{user.AccountEnabled},{user.UsageLocation},{user.StreetAddress},{user.State},{user.Country},\"{user.OfficeLocation}\",{user.City},{user.PostalCode},{user.BusinessPhones?.FirstOrDefault()},{user.MobilePhone},{user.AgeGroup},{user.LegalAgeGroupClassification}";
+                        var mail = user.Mail ?? user.OtherMails?.FirstOrDefault() ?? user.Identities?.FirstOrDefault()?.IssuerAssignedId;
+                        var userLine = $"{user.UserPrincipalName},{user.DisplayName},{user.Surname},{user.GivenName},{user.Identities?.FirstOrDefault()?.Issuer},{mail},{user.Id},{user.UserType},{user.JobTitle},{user.Department},{user.AccountEnabled},{user.UsageLocation},{user.StreetAddress},{user.State},{user.Country},\"{user.OfficeLocation}\",{user.City},{user.PostalCode},{user.BusinessPhones?.FirstOrDefault()},{user.MobilePhone},{user.AgeGroup},{user.LegalAgeGroupClassification}";
 
                         foreach (string attr in customAttributes.Split(','))
                         {
@@ -697,14 +695,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         }
 
                         userLine += "\n";
-                        File.AppendAllText(filename, userLine, System.Text.Encoding.UTF8);
+                        System.IO.File.AppendAllText(filename, userLine, System.Text.Encoding.UTF8);
                     }
-                    if (string.IsNullOrEmpty(users.ODataNextLink))
-                        break;
-                    users = graphClient.GetNextUsers(users.ODataNextLink);
+                    users = users.NextPageRequest?.GetSync();
                 }
 
-                // Return the impersonation URL
+                // Return the download URL
                 var url = Request.RequestUri.ToString().ToLowerInvariant();
                 url = url.Substring(0, url.IndexOf("/export")) + "/downloadusers?id=" + opId;
                 return Request.CreateResponse(HttpStatusCode.OK, new
@@ -714,6 +710,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -725,21 +722,16 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             try
             {
-                var settings = new AzureConfig(AzureConfig.ServiceName, PortalSettings.PortalId);
-                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
-                var portalUserMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
-                var idUserMapping = UserMappingsRepository.Instance.GetUserMapping("Id", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
-
                 if (string.IsNullOrEmpty(id))
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "Operation not found");
                 }
                 var filename = Path.Combine(Path.GetTempPath(), $"{id}.tmp");
-                if (!File.Exists(filename) || !(File.GetCreationTimeUtc(filename) > DateTime.UtcNow.AddMinutes(-1)))
+                if (!System.IO.File.Exists(filename) || !(System.IO.File.GetCreationTimeUtc(filename) > DateTime.UtcNow.AddMinutes(-1)))
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "Operation not found");
                 }
-                var dataBytes = File.ReadAllBytes(filename);
+                var dataBytes = System.IO.File.ReadAllBytes(filename);
                 var dataStream = new MemoryStream(dataBytes);
                     
                 var result = new HttpResponseMessage(HttpStatusCode.OK);
@@ -753,6 +745,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }

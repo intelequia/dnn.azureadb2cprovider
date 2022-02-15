@@ -73,7 +73,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 FirstName = this.FirstName,
                 LastName = this.LastName,
                 Email = this.Email,
-                Username = usernamePrefixEnabled ? $"AzureB2C-{this.Id}" : this.Id
+                Username = usernamePrefixEnabled ? $"{AzureConfig.ServiceName}-{this.Id}" : this.Id
             };
         }
 

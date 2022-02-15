@@ -423,4 +423,10 @@ Thank you, we appreciate your support.
   <data name="lblUserName.Text" xml:space="preserve">
     <value>Username</value>
   </data>
+  <data name="DeleteUser.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="UserPasswordUpdatedMessage.Text" xml:space="preserve">
+    <value>User password has been updated</value>
+  </data>
 </root>

@@ -8,85 +8,89 @@ dnn.extend(dnn.adb2c.UserManagement,
                 model = {};
 
             this.userManagement = userManagement;
-            this.objectId = ko.observable(model.objectId || "");
-            this.displayName = ko.observable(model.displayName || "");
-            this.objectType = ko.observable(model.objectType || "");
+            this.id = ko.observable(model.Id || "");
+            this.displayName = ko.observable(model.DisplayName || "");
+            this.objectType = ko.observable(model.ObjectType || "");
             //this.odataType = ko.observable(model["odata.type"] || "");
 
             this.toSimple = function () {
                 return {
-                    objectId: that.objectId(),
-                    displayName: that.displayName,
-                    objectType: that.objectType
+                    id: that.id(),
+                    displayName: that.displayName(),
+                    objectType: that.objectType()
                 };
             };
 
         },
-        UserModel: function (userManagement, model) {
+        UserModel: function (userManagement, model, addByUsername) {
             var that = this;
 
             if (!model)
                 model = {};
 
             this.userManagement = userManagement;
+            this.isAddingByUsername = ko.observable(addByUsername || false);
+            this.identities = ko.observable(model.Identities || null);
+            this.identityIsUsername = ko.computed(function () {
+                return that.identities() && that.identities().length > 0 && that.identities()[0].SignInType === "userName";
+            });
 
-            this.accountEnabled = ko.observable(model.accountEnabled || true);
-            this.username = ko.observable((model.signInNames && model.signInNames.filter(x => x.type === "userName").length > 0 ?
-                model.signInNames.filter(x => x.type === "userName")[0].value : "") || "");
-            this.displayName = ko.observable(model.displayName || "");
-            this.givenName = ko.observable(model.givenName || "");
-            this.mail = ko.observable(model.mail
-                || (model.otherMails && model.otherMails.length > 0 ? model.otherMails[0] : "")
-                || (model.signInNames && model.signInNames.filter(x => x.type === "emailAddress").length > 0 ?
-                    model.signInNames.filter(x => x.type === "emailAddress")[0].value : ""));
-            this.mailNickname = ko.observable(model.mailNickname || "");
-            this.otherMails = ko.observableArray(model.otherMails || []);
-            this.proxyAddresses = ko.observableArray(model.proxyAddresses || []);
-            this.showInAddressList = ko.observable(model.showInAddressList || false);
-            this.surname = ko.observable(model.surname || "");
-            this.userPrincipalName = ko.observable(model.userPrincipalName || "");
-            this.userType = ko.observable(model.userType || "");
-            this.objectId = ko.observable(model.objectId || "");
+            this.accountEnabled = ko.observable(model.AccountEnabled || true);
+            this.displayName = ko.observable(model.DisplayName || "");
+            this.givenName = ko.observable(model.GivenName || "");
+            this.mail = ko.observable(model.Mail
+                || (model.OtherMails && model.OtherMails.length > 0 ? model.OtherMails[0] : "")
+                || (model.Identities && model.Identities.length > 0 && model.Identities[0].IssuerAssignedId ? model.Identities[0].IssuerAssignedId : ""));
+            this.username = ko.observable(model.Identities && model.Identities.length > 0 && model.Identities[0].IssuerAssignedId ? model.Identities[0].IssuerAssignedId : "");
+
+            this.mailNickname = ko.observable(model.MailNickname || "");
+            this.otherMails = ko.observableArray(model.OtherMails || []);
+            this.proxyAddresses = ko.observableArray(model.ProxyAddresses || []);
+            this.showInAddressList = ko.observable(model.ShowInAddressList || false);
+            this.surname = ko.observable(model.Surname || "");
+            this.userPrincipalName = ko.observable(model.UserPrincipalName || "");
+            this.userType = ko.observable(model.UserType || "");
+            this.id = ko.observable(model.Id || "");
             //this.odataType = ko.observable(model.@odata.type || "");
-            this.assignedLicenses = ko.observable(model.assignedLicenses || null);
-            this.assignedPlans = ko.observable(model.assignedPlans || null);
-            this.objectType = ko.observable(model.objectType || "");
-            this.deletionTimestamp = ko.observable(model.deletionTimestamp || null);
-            this.ageGroup = ko.observable(model.ageGroup || null);
-            this.city = ko.observable(model.city || null);
-            this.companyName = ko.observable(model.companyName || null);
-            this.consentProvidedForMinor = ko.observable(model.consentProvidedForMinor || null);
-            this.country = ko.observable(model.country || null);
-            this.createdDateTime = ko.observable(model.createdDateTime || null);
-            this.creationType = ko.observable(model.creationType || null);
-            this.department = ko.observable(model.department || null);
-            this.dirSyncEnabled = ko.observable(model.dirSyncEnabled || null);
-            this.employeeId = ko.observable(model.employeeId || null);
-            this.facsimileTelephoneNumber = ko.observable(model.facsimileTelephoneNumber || null);
-            this.immutableId = ko.observable(model.immutableId || null);
-            this.isCompromised = ko.observable(model.isCompromised || null);
-            this.jobTitle = ko.observable(model.jobTitle || null);
-            this.lastDirSyncTime = ko.observable(model.lastDirSyncTime || null);
-            this.legalAgeGroupClassification = ko.observable(model.legalAgeGroupClassification || null);
-            this.mobile = ko.observable(model.mobile || null);
-            this.onPremisesDistinguishedName = ko.observable(model.onPremisesDistinguishedName || null);
-            this.onPremisesSecurityIdentifier = ko.observable(model.onPremisesSecurityIdentifier || null);
-            this.passwordPolicies = ko.observable(model.passwordPolicies || null);
-            this.passwordProfile = ko.observable(model.passwordProfile || null);
-            this.physicalDeliveryOfficeName = ko.observable(model.physicalDeliveryOfficeName || null);
-            this.postalCode = ko.observable(model.postalCode || null);            
-            this.preferredLanguage = ko.observable(model.preferredLanguage || "en");
-            this.provisionedPlans = ko.observable(model.provisionedPlans || null);
-            this.provisionedErrors = ko.observable(model.provisionedErrors || null);
-            this.refreshTokensValidFromDateTime = ko.observable(model.refreshTokensValidFromDateTime || null);
-            this.signInNames = ko.observable(model.signInNames || null);
-            this.sipProxyAddress = ko.observable(model.sipProxyAddress || null);
-            this.telephoneNumber = ko.observable(model.telephoneNumber || null);
-            this.thumbnailPhoto = ko.observable(model.thumbnailPhoto || null);
-            this.usageLocation = ko.observable(model.usageLocation || null);
-            this.userIdentities = ko.observable(model.userIdentities || null);
-            this.userState = ko.observable(model.userState || null);
-            this.userStateChangedOn = ko.observable(model.userStateChangedOn || null);
+            this.assignedLicenses = ko.observable(model.AssignedLicenses || null);
+            this.assignedPlans = ko.observable(model.AssignedPlans || null);
+            this.objectType = ko.observable(model.ObjectType || "");
+            this.deletionTimestamp = ko.observable(model.DeletionTimestamp || null);
+            this.ageGroup = ko.observable(model.AgeGroup || null);
+            this.city = ko.observable(model.City || null);
+            this.companyName = ko.observable(model.CompanyName || null);
+            this.consentProvidedForMinor = ko.observable(model.ConsentProvidedForMinor || null);
+            this.country = ko.observable(model.Country || null);
+            this.createdDateTime = ko.observable(model.CreatedDateTime || null);
+            this.creationType = ko.observable(model.CreationType || null);
+            this.department = ko.observable(model.Department || null);
+            this.dirSyncEnabled = ko.observable(model.DirSyncEnabled || null);
+            this.employeeId = ko.observable(model.EmployeeId || null);
+            this.facsimileTelephoneNumber = ko.observable(model.FacsimileTelephoneNumber || null);
+            this.immutableId = ko.observable(model.ImmutableId || null);
+            this.isCompromised = ko.observable(model.IsCompromised || null);
+            this.jobTitle = ko.observable(model.JobTitle || null);
+            this.lastDirSyncTime = ko.observable(model.LastDirSyncTime || null);
+            this.legalAgeGroupClassification = ko.observable(model.LegalAgeGroupClassification || null);
+            this.mobile = ko.observable(model.Mobile || null);
+            this.onPremisesDistinguishedName = ko.observable(model.OnPremisesDistinguishedName || null);
+            this.onPremisesSecurityIdentifier = ko.observable(model.OnPremisesSecurityIdentifier || null);
+            this.passwordPolicies = ko.observable(model.PasswordPolicies || null);
+            this.passwordProfile = ko.observable(model.PasswordProfile || null);
+            this.physicalDeliveryOfficeName = ko.observable(model.PhysicalDeliveryOfficeName || null);
+            this.postalCode = ko.observable(model.PostalCode || null);            
+            this.preferredLanguage = ko.observable(model.PreferredLanguage || "en");
+            this.provisionedPlans = ko.observable(model.ProvisionedPlans || null);
+            this.provisionedErrors = ko.observable(model.ProvisionedErrors || null);
+            this.refreshTokensValidFromDateTime = ko.observable(model.RefreshTokensValidFromDateTime || null);
+            this.signInNames = ko.observable(model.SignInNames || null);
+            this.sipProxyAddress = ko.observable(model.SipProxyAddress || null);
+            this.telephoneNumber = ko.observable(model.TelephoneNumber || null);
+            this.thumbnailPhoto = ko.observable(model.ThumbnailPhoto || null);
+            this.usageLocation = ko.observable(model.UsageLocation || null);
+            this.userIdentities = ko.observable(model.UserIdentities || null);
+            this.userState = ko.observable(model.UserState || null);
+            this.userStateChangedOn = ko.observable(model.UserStateChangedOn || null);
 
             this.passwordType = ko.observable("auto");
             this.password = ko.observable("");
@@ -94,10 +98,10 @@ dnn.extend(dnn.adb2c.UserManagement,
 
             // User custom attributes
             if (userManagement.customAttributes && userManagement.customAttributes !== "") {
-                $.each(userManagement.customAttributes.split(","),
+                $.each(userManagement.customAttributes.split(","), 
                     function (index, customAttribute) {
                         var p = userManagement.customAttributesPrefix + customAttribute.replace(" ", "");
-                        that[customAttribute.replace(" ", "")] = ko.observable(model[p] || "");
+                        that[customAttribute.replace(" ", "")] = ko.observable((model && model.AdditionalData) ? model.AdditionalData[p] || "" : "");
                     });
             }
             
@@ -120,11 +124,11 @@ dnn.extend(dnn.adb2c.UserManagement,
                 else if (that.userPrincipalName().startsWith("cpim_")) {
                     sub = " (Federated)";
                 }
-                if (that.signInNames() && that.signInNames().length > 0 && that.signInNames()[0].type === "userName") {
-                    return that.signInNames()[0].value + sub;
+                if (that.identities() && that.identities().length > 0 && that.identities()[0].SignInType === "userName") {
+                    return that.identities()[0].IssuerAssignedId + sub;
                 }
-                else if (that.signInNames() && that.signInNames().length > 0 && that.signInNames()[0].type === "emailAddress") {
-                    return that.signInNames()[0].value + sub;
+                else if (that.identities() && that.identities().length > 0 && that.identities()[0].SignInType === "emailAddress") {
+                    return that.identities()[0].IssuerAssignedId + sub;
                 }
                 if (that.mail() !== "") {
                     return that.mail() + sub;
@@ -137,47 +141,65 @@ dnn.extend(dnn.adb2c.UserManagement,
                     that.displayName(that.givenName() + " " + that.surname());
             }; 
             this.identityIssuer = ko.computed(function () {
-                if (that.userIdentities() && that.userIdentities().length > 0) {
-                    return that.userIdentities()[0].issuer.replace('.', '');
+                if (that.identities() && that.identities().length > 0) {
+                    return that.identities()[0].Issuer.replace('.', '');
                 }                    
                 return "";
             });
 
             this.addGroup = function () {
                 if (that.userManagement.selectedGroup() && (that.groups().length === 0 || !that.groups().find(function (data) {
-                        return data.objectId() === that.userManagement.selectedGroup().objectId();
+                        return data.id() === that.userManagement.selectedGroup().id();
                     }))) {
                     var group = new dnn.adb2c.UserManagement.GroupModel(that);
                     group.displayName(that.userManagement.selectedGroup().displayName());
-                    group.objectId(that.userManagement.selectedGroup().objectId());
+                    group.id(that.userManagement.selectedGroup().id());
                     that.groups.push(group);
+                    that.groups.valueHasMutated();
                 }
             };
 
             this.removeGroup = function (g,t) {
                 that.groups.remove(function (group) {
-                    return group.objectId() === t.target.attributes["data-oid"].value;
+                    return group.id() === t.target.attributes["data-oid"].value;
                 }); 
             };
 
             this.addUser = function () {
+                var g = that.groupsSimple();
+
                 that.userManagement.loading(true);
+
+                var identity = that.isAddingByUsername() ?
+                    {
+                        "@odata.type": "microsoft.graph.objectIdentity",
+                        issuerAssignedId: that.username(),
+                        signInType: "userName"
+                    } :
+                    {
+                        "@odata.type": "microsoft.graph.objectIdentity",
+                        issuerAssignedId: that.mail(),
+                        signInType: "emailAddress"
+                    };
+
+                var u = {
+                    displayName: that.displayName(),
+                    givenName: that.givenName(),
+                    surname: that.surname(),
+                    mail: that.mail(),
+                    identities: [identity]
+                };
+
                 that.userManagement.ajax("AddUser", {
-                    user: {
-                        username: that.username(),
-                        displayName: that.displayName(),
-                        givenName: that.givenName(),
-                        surname: that.surname(),
-                        mail: that.mail(),
-                        preferredLanguage: that.preferredLanguage()
-                    },
+                    user: u,
                     passwordType: that.passwordType(),
                     password: that.password(),
                     sendEmail: that.sendEmail(),
-                    groups: that.groupsSimple()
+                    groups: g
                 },
                     function (data) {
                         that.userManagement.users.push(new dnn.adb2c.UserManagement.UserModel(that.userManagement, data));
+                        that.userManagement.users.valueHasMutated();
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
                         toastr.success("User '" + that.displayName() + "' successfully added");
@@ -192,7 +214,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                 that.userManagement.loading(true);
                 that.userManagement.ajax("ForceChangePassword", {
                     user: {
-                        objectId: that.objectId()
+                        id: that.id()
                     }
                 },
                     function (data) {
@@ -206,10 +228,22 @@ dnn.extend(dnn.adb2c.UserManagement,
             };
 
             this.update = function () {
+                var g = that.groupsSimple();
+
                 that.userManagement.loading(true);
 
                 var u = {
-                    objectId: that.objectId(),
+                    id: that.id(),
+                    displayName: that.displayName(),
+                    givenName: that.givenName(),
+                    surname: that.surname(),
+                    mail: that.mail(),
+                    identities: that.identities(),
+                    accountEnabled: that.accountEnabled()
+                };
+
+                var u = {
+                    id: that.id(),
                     username: that.username(),
                     displayName: that.displayName(),
                     givenName: that.givenName(),
@@ -218,16 +252,17 @@ dnn.extend(dnn.adb2c.UserManagement,
                     preferredLanguage: that.preferredLanguage()
                 };
 
+                u["additionalData"] = {};
                 if (userManagement.customAttributes && userManagement.customAttributes !== "") {
                     $.each(userManagement.customAttributes.split(","),
                         function (index, customAttribute) {
                             var p = userManagement.customAttributesPrefix + customAttribute.replace(" ", "");
-                            u[p] = that[customAttribute.replace(" ", "")]();
+                            u.additionalData[p] = that[customAttribute.replace(" ", "")]();
                         });
                 }
                 that.userManagement.ajax("UpdateUser", {
                     user: u,
-                    groups: that.groupsSimple()
+                    groups: g
                     },
                     function (data) {
                         that.userManagement.hideTab();
@@ -244,13 +279,14 @@ dnn.extend(dnn.adb2c.UserManagement,
                 that.userManagement.loading(true);
                 that.userManagement.ajax("ChangePassword", {
                     user: {
-                        objectId: that.objectId()
+                        id: that.id()
                     },
                     passwordType: that.passwordType(),
                     password: that.password(),
                     sendEmail: that.sendEmail()
                 },
                     function (data) {
+                        toastr.success(dnn.getVar("UserPasswordUpdatedMessage"));
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
                     },
@@ -274,7 +310,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                 }, function () {
                     that.userManagement.loading(true);
                     that.userManagement.ajax("Remove", {
-                        objectId: that.objectId()
+                        id: that.id()
                     },
                         function (data) {
                             that.userManagement.refresh();
@@ -387,13 +423,16 @@ dnn.extend(dnn.adb2c.UserManagement,
                         $.each(data,
                             function (index, group) {
                                 that.groups.push(new dnn.adb2c.UserManagement.GroupModel(that, group));
+                                that.groups.valueHasMutated();  
                             });
                         ajax("GetAllUsers?search=" + that.searchText(), null,
                             function (data) {
                                 that.users.removeAll();
+                                that.users.valueHasMutated();
                                 $.each(data,
                                     function (index, user) {
                                         that.users.push(new dnn.adb2c.UserManagement.UserModel(that, user));
+                                        that.users.valueHasMutated();
                                     });
                                 that.loading(false);
                             },
@@ -419,6 +458,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                             $.each(data,
                                 function (index, user) {
                                     that.users.push(new dnn.adb2c.UserManagement.UserModel(that, user));
+                                    that.users.valueHasMutated()
                                 });
                             that.loading(false);
                         },
@@ -440,13 +480,13 @@ dnn.extend(dnn.adb2c.UserManagement,
             };
             this.addUser = function (evt) {
                 that.selectedUser(null);
-                that.newUser(new dnn.adb2c.UserManagement.UserModel(that));
+                that.newUser(new dnn.adb2c.UserManagement.UserModel(that, undefined, false));
                 that.showTab();                
             };
             this.updateUser = function (evt) {
                 that.newUser(null);
                 that.changingPassword(false);
-                ajax("GetUserGroups?objectId=" + evt.objectId(), null,
+                ajax("GetUserGroups?objectId=" + evt.id(), null,
                     function (data) {
                         evt.groups.removeAll();
                         $.each(data,
@@ -469,6 +509,12 @@ dnn.extend(dnn.adb2c.UserManagement,
 
             this.changePassword = function () {
                 that.changingPassword(true);
+            };
+
+            window.onkeydown = function keyPress(e) {
+                if (e.key === "Escape" && $(".b2c-overlay").css("display") === "block") {
+                    that.hideTab();
+                }
             };
 
             this.refresh();

@@ -1,10 +1,8 @@
 <dotnetnuke type="Package" version="5.0">
   <packages>
-    <package name="AzureADB2CProvider" type="Auth_System" version="01.04.08">
+    <package name="AzureADB2CProvider" type="Auth_System" version="01.05.00">
       <friendlyName>DNN Azure Active Directory B2C Provider</friendlyName>
-      <description>
-        The DNN Azure Active Directory B2C Provider is an Authentication provider for DNN Platform that uses Azure Active Directory B2C OAuth2 authentication to authenticate users.
-      </description>
+      <description>The DNN Azure Active Directory B2C Provider is an Authentication provider for DNN Platform that uses Azure Active Directory B2C OAuth2 authentication to authenticate users.</description>
       <iconFile>~/DesktopModules/AuthenticationServices/AzureB2C/Images/azure.png</iconFile>
       <owner>
         <name>Intelequia</name>
@@ -16,7 +14,7 @@
       <releaseNotes src="AzureADB2CReleaseNotes.txt"/>
       <azureCompatible>true</azureCompatible>
       <dependencies>
-        <dependency type="CoreVersion">09.03.00</dependency>
+        <dependency type="CoreVersion">09.04.03</dependency>
         <dependency type="ManagedPackage" version="01.00.00">Dnn.PersonaBar.UI</dependency>
       </dependencies>
 
@@ -67,6 +65,66 @@
               <path>bin</path>
               <name>Microsoft.IdentityModel.JsonWebTokens.dll</name>
             </assembly>
+			  <assembly>
+				  <path>bin</path>
+				  <name>Microsoft.Graph.dll</name>
+			  </assembly>
+			  <assembly>
+				  <path>bin</path>
+				  <name>Microsoft.Graph.Core.dll</name>
+			  </assembly>
+			  <assembly>
+				  <path>bin</path>
+				  <name>Microsoft.Identity.Client.dll</name>
+			  </assembly>
+			  <assembly>
+				  <path>bin</path>
+				  <name>Microsoft.Bcl.AsyncInterfaces.dll</name>
+			  </assembly>
+			  <assembly>
+				  <path>bin</path>
+				  <name>Azure.Core.dll</name>
+			  </assembly>
+			  <assembly>
+				  <path>bin</path>
+				  <name>System.Text.Json.dll</name>
+			  </assembly>
+			  <assembly>
+				  <path>bin</path>
+				  <name>System.Threading.Tasks.Extensions.dll</name>
+			  </assembly>
+			  <assembly>
+				  <path>bin</path>
+				  <name>System.Text.Encodings.Web.dll</name>
+			  </assembly>
+			  <assembly>
+				  <name>System.ValueTuple.dll</name>
+				  <path>bin</path>
+			  </assembly>
+			  <assembly>
+				  <name>System.Memory.dll</name>
+				  <path>bin</path>
+			  </assembly>
+			  <assembly>
+				  <path>bin</path>
+				  <name>System.Memory.Data.dll</name>
+			  </assembly>
+			  <assembly>
+				  <name>System.Diagnostics.DiagnosticSource.dll</name>
+				  <path>bin</path>
+			  </assembly>
+			  <assembly>
+				  <name>System.Runtime.CompilerServices.Unsafe.dll</name>
+				  <path>bin</path>
+			  </assembly>
+			  <assembly>
+				  <name>System.Buffers.dll</name>
+				  <path>bin</path>
+			  </assembly>
+			  <assembly>
+				  <name>System.Numerics.Vectors.dll</name>
+				  <path>bin</path>
+			  </assembly>			  
           </assemblies>
         </component>
         <component type="ResourceFile">
@@ -151,36 +209,6 @@
           </desktopModule>
         </component>
 
-        <component type="Module">
-          <desktopModule>
-            <moduleName>AzureAD.B2C.Impersonate</moduleName>
-            <foldername>AzureAD.B2C.Impersonate</foldername>
-            <businessControllerClass>DotNetNuke.Authentication.Azure.B2C.Components.FeatureController</businessControllerClass>
-            <supportedFeatures>
-              <supportedFeature type="Upgradeable" />
-            </supportedFeatures>
-            <moduleDefinitions>
-              <moduleDefinition>
-                <friendlyName>AzureAD.B2C.Impersonate</friendlyName>
-                <defaultCacheTime>0</defaultCacheTime>
-                <moduleControls>
-                  <moduleControl>
-                    <controlKey />
-                    <controlSrc>DesktopModules/AuthenticationServices/AzureB2C/Impersonate.ascx</controlSrc>
-                    <supportsPartialRendering>False</supportsPartialRendering>
-                    <controlTitle />
-                    <controlType>View</controlType>
-                    <iconFile />
-                    <helpUrl />
-                    <viewOrder>0</viewOrder>
-                  </moduleControl>
-                </moduleControls>
-              </moduleDefinition>
-            </moduleDefinitions>
-          </desktopModule>
-        </component>
-
-
         <component type="Config">
           <config>
             <configFile>web.config</configFile>
@@ -222,11 +250,9 @@
       </components>
     </package>
 
-    <package name="AzureADB2CProvider" type="Module" version="01.04.08">
+    <package name="AzureADB2CProvider" type="Module" version="01.05.00">
       <friendlyName>DNN Azure Active Directory B2C User Management</friendlyName>
-      <description>
-        The DNN Azure Active Directory B2C Provider is an Authentication provider for DNN Platform that uses Azure Active Directory B2C OAuth2 authentication to authenticate users.
-      </description>
+      <description>The DNN Azure Active Directory B2C Provider is an Authentication provider for DNN Platform that uses Azure Active Directory B2C OAuth2 authentication to authenticate users.</description>
       <iconFile>~/DesktopModules/AuthenticationServices/AzureB2C/Images/azure.png</iconFile>
       <owner>
         <name>Intelequia</name>
@@ -238,7 +264,7 @@
       <releaseNotes src="AzureADB2CReleaseNotes.txt"/>
       <azureCompatible>true</azureCompatible>
       <dependencies>
-        <dependency type="CoreVersion">09.03.00</dependency>
+        <dependency type="CoreVersion">09.04.03</dependency>
       </dependencies>
 
       <components>
@@ -284,6 +310,56 @@
         </component>
       </components>
     </package>
+
+	<package name="AzureADB2CProvider" type="Module" version="01.05.00">
+		<friendlyName>DNN Azure Active Directory B2C Impersonate</friendlyName>
+		<description>The DNN Azure Active Directory B2C Provider is an Authentication provider for DNN Platform that uses Azure Active Directory B2C OAuth2 authentication to authenticate users.</description>
+		<iconFile>~/DesktopModules/AuthenticationServices/AzureB2C/Images/azure.png</iconFile>
+		<owner>
+			<name>Intelequia</name>
+			<organization>Intelequia Software Solutions</organization>
+			<url>http://intelequia.com</url>
+			<email>info@intelequia.com</email>
+		</owner>
+		<license src="AzureADB2CLicense.txt" />
+		<releaseNotes src="AzureADB2CReleaseNotes.txt"/>
+		<azureCompatible>true</azureCompatible>
+		<dependencies>
+			<dependency type="CoreVersion">09.04.03</dependency>
+		</dependencies>
+
+		<components>
+
+			<component type="Module">
+				<desktopModule>
+					<moduleName>AzureAD.B2C.Impersonate</moduleName>
+					<foldername>AzureAD.B2C.Impersonate</foldername>
+					<businessControllerClass>DotNetNuke.Authentication.Azure.B2C.Components.FeatureController</businessControllerClass>
+					<supportedFeatures>
+						<supportedFeature type="Upgradeable" />
+					</supportedFeatures>
+					<moduleDefinitions>
+						<moduleDefinition>
+							<friendlyName>AzureAD.B2C.Impersonate</friendlyName>
+							<defaultCacheTime>0</defaultCacheTime>
+							<moduleControls>
+								<moduleControl>
+									<controlKey />
+									<controlSrc>DesktopModules/AuthenticationServices/AzureB2C/Impersonate.ascx</controlSrc>
+									<supportsPartialRendering>False</supportsPartialRendering>
+									<controlTitle />
+									<controlType>View</controlType>
+									<iconFile />
+									<helpUrl />
+									<viewOrder>0</viewOrder>
+								</moduleControl>
+							</moduleControls>
+						</moduleDefinition>
+					</moduleDefinitions>
+				</desktopModule>
+			</component>
+		</components>
+	</package>
 
   </packages>
 </dotnetnuke>

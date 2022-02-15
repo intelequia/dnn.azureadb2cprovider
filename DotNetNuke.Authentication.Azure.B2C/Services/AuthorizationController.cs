@@ -1,6 +1,7 @@
 ﻿using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Common;
 using DotNetNuke.Entities.Portals;
+using DotNetNuke.Instrumentation;
 using DotNetNuke.Web.Api;
 using System;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 {
     public class AuthorizationController : DnnApiController
     {
+        private static readonly ILog _logger = LoggerSource.Instance.GetLogger(typeof(AuthorizationController));
+
         [HttpGet]
         [AllowAnonymous]
         public HttpResponseMessage RedirectToPortal()
@@ -67,6 +70,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
