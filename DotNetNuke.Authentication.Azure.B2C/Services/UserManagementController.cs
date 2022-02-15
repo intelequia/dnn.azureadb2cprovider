@@ -629,7 +629,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             else if (idUserMapping.B2cClaimName.ToLowerInvariant() == "emails")
             {
-                user = graphClient.GetAllUsers($"signInNames/any(c:c/value eq '{usernameWithoutPrefix}')").FirstOrDefault();
+                user = graphClient.GetAllUsers($"identities/any(c:c/issuer eq '{settings.TenantName}.onmicrosoft.com' and c/issuerAssignedId eq '{usernameWithoutPrefix}')").FirstOrDefault();
             }
             else
             {
