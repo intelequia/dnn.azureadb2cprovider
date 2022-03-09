@@ -104,3 +104,10 @@
 	<li>Fix for to avoid issues with case sensitive collations on databases</li>
 	<li>Fixed bug creating a duplicated desktop module definition during the install, causing a DNN error when editing pages</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.05.01</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Fixed impersonation error for new users with no extension fields set</li>
+	<li>Fix error on group sync scheduler task</li>
+	<li>Removed Microsoft.IdentityModel.Clients.ActiveDirectory depedency</li>
+</ul>
