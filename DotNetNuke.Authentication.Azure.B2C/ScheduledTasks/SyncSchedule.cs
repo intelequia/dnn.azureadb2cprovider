@@ -210,7 +210,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 foreach (var dnnRole in dnnB2cRoles)
                 {
                     if (allaadGroups.Count == 0
-                        || aadGroups.FirstOrDefault(x => x.DisplayName == (settings.GroupNamePrefixEnabled ? dnnRole.RoleName.Substring($"{AzureConfig.ServiceName}-".Length) : dnnRole.RoleName)) == null)
+                        || allaadGroups.FirstOrDefault(x => x.DisplayName == 
+                            (settings.GroupNamePrefixEnabled 
+                            ? dnnRole.RoleName.Substring($"{AzureConfig.ServiceName}-".Length) 
+                            : dnnRole.RoleName)) == null)
                     {
                         try
                         {
