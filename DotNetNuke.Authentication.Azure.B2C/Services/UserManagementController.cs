@@ -585,6 +585,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 // Validate permissions
                 // Allow the current user to impersonate by setting canImpersonate
                 var user = GetGraphUserForImpersonation(settings, graphClient, idUserMapping);
+                if (user == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, "User not found on Azure AD B2C, can't impersonate with this user. Only users registered on Azure AD B2C can Impersonate.");
+                }
 
                 // Check user is from current portal, if PortalId is an extension name
                 string portalUserMappingB2cCustomClaimName = portalUserMapping?.GetB2cCustomClaimName();
@@ -597,7 +601,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     }
                 }
 
-                user.AdditionalData.Clear();
+                if (user.AdditionalData == null)
+                {
+                    user.AdditionalData = new Dictionary<string, object>();
+                }
+                else
+                {
+                    user.AdditionalData.Clear();
+                }
                 user.AdditionalData.Add($"extension_{settings.B2cApplicationId.Replace("-", "")}_canImpersonate", true);
                 // HACK: Avoid error "Property alternativeSecurityIds value is required but is empty or missing." when using
                 // federated users
