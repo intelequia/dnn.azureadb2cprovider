@@ -332,13 +332,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 else
                 {
                     if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
-                        && !string.IsNullOrEmpty(parameters.user.UserPrincipalName))
+                        && !string.IsNullOrEmpty(parameters.user.Mail)
+                        && !parameters.user.Mail.Contains("@"))
                     {
-                        AddIdentity(user, $"{settings.TenantName}.onmicrosoft.com", "userName", parameters.user.UserPrincipalName);
+                        AddIdentity(user, $"{settings.TenantName}.onmicrosoft.com", "userName", parameters.user.Mail);
                     }
 
-                    if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
-                        && !string.IsNullOrEmpty(parameters.user.Mail))
+                    if (!string.IsNullOrEmpty(parameters.user.Mail)
+                        && parameters.user.Mail.Contains("@"))
                     {
                         AddIdentity(user, $"{settings.TenantName}.onmicrosoft.com", "emailAddress", parameters.user.Mail);
                         user.OtherMails = new string[] { parameters.user.Mail };
