@@ -832,7 +832,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 authTokenCookie.Values[OAuthTokenKey] = AuthToken;
             }
             authTokenCookie.Expires = expireCookie ? DateTime.Now.AddYears(-30) : DateTime.Now.Add(AuthTokenExpiry);
-            HttpContext.Current.Response.SetCookie(authTokenCookie);
+            HttpContext.Current.Response.Cookies.Add(authTokenCookie);
         }
 
         private List<string> GetDnnB2cRoles()
