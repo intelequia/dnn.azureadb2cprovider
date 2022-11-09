@@ -89,7 +89,22 @@ To support the role and profile synchronization by internally using the Microsof
     * **Application type**: Select "Web app / API" (notice that Web Applications and Web API’s are considered the same type of application as far as Azure AD is concerned)
     * **Sign-On URL**: This is the URL where user can sign in and use your app. In a typical DNN site, this should be something like "http://mysite.com/Login". You can change this URL later.
 4. <a name="applicationid"></a> When finished, click **Create**. Azure AD assigns a unique **Application ID** to your application, and you're taken to your application's main registration page.
-5. Click on the name of the app we've just created and then on "All settings" > "Required permissions" > "Windows Azure Active Directory". Ensure that the app has, at least, **Sign in and read user profile** checked, in the **Delegated permissions** section.
+5. Click on the name of the app we've just created and then on "All settings" > "API permissions" > "Microsoft Graph". Ensure that the app has, at least the following API Permissions over the MS Graph API:
+    * Delegated
+        * offline_access
+        * openid    
+    * Application
+        * Application.Read.All
+        * Group.Read.All
+        * GroupMember.Read.All
+        * User.Read.All   
+        
+   If you want to use the User Management module, to manage B2C users from the DNN UI, you should also setup these other permissions:
+    * Application
+        * Group.ReadWrite.All
+        * GroupMember.ReadWrite.All
+        * User.ReadWrite.All
+
 6. Click on the **Grant permissions** button and then click on "Yes" to grant the permissions in all the accounts in the current directory.
 7. <a name="getaadkey"></a> Now on the **Settings** page, under the **keys** section, create a new key with the desired expiration. Click on Save and then copy the key to a secure location. `IMPORTANT: you won't be able to copy this key later, so copy it now or generate a new one when needed.`
 8. To support resetting passwords for users thought the User Management module, this application needs permissions to manage the users' passwords. To allow that, on the Azure Portal go to Azure Active Directory > Roles and administrators > Click on 'User administrator' > click on '+ Add assignment' to add your Application ID.
