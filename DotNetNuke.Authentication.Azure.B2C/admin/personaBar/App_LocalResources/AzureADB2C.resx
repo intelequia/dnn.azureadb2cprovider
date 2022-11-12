@@ -151,7 +151,7 @@
     <value>You must specify the Azure AD B2C Tenant Name</value>
   </data>
   <data name="lblTenantName.Help" xml:space="preserve">
-    <value>Azure Active Directory B2C tenant name (&amp;lt;TenantName&amp;gt;.onmicrosoft.com). Don't include the ".onmicrosoft.com" part, just the tenant name</value>
+    <value>Azure Active Directory B2C tenant name (&amp;lt;TenantName&amp;gt;.onmicrosoft.com). Don't include the ".onmicrosoft.com" part, just the tenant name. If you are using Azure AD B2C with a custom domain, type your custom domain instead (i.e. login.mydomain.com)</value>
   </data>
   <data name="lblTenantId.Text" xml:space="preserve">
     <value>Tenant ID</value>

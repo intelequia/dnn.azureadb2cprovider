@@ -74,9 +74,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public const string RoleSettingsB2cPropertyName = "IdentitySource";
         public const string RoleSettingsB2cPropertyValue = "Azure-B2C";
 
-        private const string TokenEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/token";
-        private const string LogoutEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/logout?p={2}&post_logout_redirect_uri={3}";
-        internal const string AuthorizationEndpointPattern = "https://{0}.b2clogin.com/{1}/oauth2/v2.0/authorize";
+        private const string TokenEndpointPattern = "https://{0}/{1}/oauth2/v2.0/token";
+        private const string LogoutEndpointPattern = "https://{0}/{1}/oauth2/v2.0/logout?p={2}&post_logout_redirect_uri={3}";
+        internal const string AuthorizationEndpointPattern = "https://{0}/{1}/oauth2/v2.0/authorize";
         private const string GraphEndpointPattern = "https://graph.windows.net/{0}";
 
         private static readonly ILog Logger = LoggerSource.Instance.GetLogger(typeof(AzureClient));
@@ -290,9 +290,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             
             if (!string.IsNullOrEmpty(Settings.TenantName) && !string.IsNullOrEmpty(Settings.TenantId))
             {
-                TokenEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.TokenEndpointPattern", TokenEndpointPattern), Settings.TenantName, Settings.TenantId));  
-                LogoutEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.LogoutEndpointPattern", LogoutEndpointPattern), Settings.TenantName, Settings.TenantId, Settings.SignUpPolicy, UrlEncode(HttpContext.Current.Request.Url.ToString())));
-                AuthorizationEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.AuthorizationEndpointPattern", AuthorizationEndpointPattern), Settings.TenantName, Settings.TenantId));
+                var tenantName = Settings.TenantName;
+                if (!tenantName.Contains("."))
+                {
+                    tenantName += ".b2clogin.com";
+                }
+                TokenEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.TokenEndpointPattern", TokenEndpointPattern), tenantName, Settings.TenantId));  
+                LogoutEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.LogoutEndpointPattern", LogoutEndpointPattern), tenantName, Settings.TenantId, Settings.SignUpPolicy, UrlEncode(HttpContext.Current.Request.Url.ToString())));
+                AuthorizationEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.AuthorizationEndpointPattern", AuthorizationEndpointPattern), tenantName, Settings.TenantId));
                 MeGraphEndpoint = new Uri(string.Format(Utils.GetAppSetting("AzureADB2C.GraphEndpointPattern", GraphEndpointPattern), Settings.TenantId));
             }
 

@@ -151,7 +151,7 @@
     <value>Sie müssen den Azure AD B2C-Mandantennamen angeben</value>
   </data>
   <data name="lblTenantName.Help" xml:space="preserve">
-    <value>Azure Active Directory B2C-Mandantenname (&amp;lt;TenantName&amp;gt;.onmicrosoft.com). Geben Sie nicht den Teil ".onmicrosoft.com" an, sondern nur den Namen des Mandanten.</value>
+    <value>Azure Active Directory B2C-Mandantenname (&amp;lt;TenantName&amp;gt;.onmicrosoft.com). Geben Sie nicht den Teil ".onmicrosoft.com" an, sondern nur den Namen des Mandanten. Wenn Sie Azure AD B2C mit einer benutzerdefinierten Domäne verwenden, geben Sie stattdessen Ihre benutzerdefinierte Domäne ein (z. B. login.mydomain.com)</value>
   </data>
   <data name="lblTenantId.Text" xml:space="preserve">
     <value>Mandanten ID</value>
@@ -500,5 +500,5 @@
   </data>
   <data name="lblOnErrorUri.Text" xml:space="preserve">
     <value>Bei Auth-Fehler Uri</value>
-  </data>  
+  </data>
 </root>

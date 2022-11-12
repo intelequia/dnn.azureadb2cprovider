@@ -179,17 +179,22 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
                 // Ensure  user is on this tenant
                 var identity = newUser.Identities.FirstOrDefault();
-                identity.Issuer = $"{settings.TenantName}.onmicrosoft.com";
+                var tenantName = settings.TenantName;
+                if (!tenantName.Contains("."))
+                {
+                    tenantName += ".onmicrosoft.com";
+                }
+                identity.Issuer = tenantName;
 
                 if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
                     && !string.IsNullOrEmpty(newUser.UserPrincipalName))
                 {
-                    AddIdentity(newUser, $"{settings.TenantName}.onmicrosoft.com", "userName", newUser.UserPrincipalName);
+                    AddIdentity(newUser, tenantName, "userName", newUser.UserPrincipalName);
                 }
                 if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByEmail", "True"))
                     && !string.IsNullOrEmpty(newUser.Mail))
                 {
-                    AddIdentity(newUser, $"{settings.TenantName}.onmicrosoft.com", "emailAddress", newUser.Mail);
+                    AddIdentity(newUser, tenantName, "emailAddress", newUser.Mail);
                     newUser.OtherMails = new string[] { newUser.Mail };
                 }
                 newUser.PasswordProfile.Password = parameters.passwordType == "auto"
@@ -331,17 +336,22 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
                 else
                 {
+                    var tenantName = settings.TenantName;
+                    if (!tenantName.Contains("."))
+                    {
+                        tenantName += ".onmicrosoft.com";
+                    }
                     if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
                         && !string.IsNullOrEmpty(parameters.user.Mail)
                         && !parameters.user.Mail.Contains("@"))
                     {
-                        AddIdentity(user, $"{settings.TenantName}.onmicrosoft.com", "userName", parameters.user.Mail);
+                        AddIdentity(user, tenantName, "userName", parameters.user.Mail);
                     }
 
                     if (!string.IsNullOrEmpty(parameters.user.Mail)
                         && parameters.user.Mail.Contains("@"))
                     {
-                        AddIdentity(user, $"{settings.TenantName}.onmicrosoft.com", "emailAddress", parameters.user.Mail);
+                        AddIdentity(user, tenantName, "emailAddress", parameters.user.Mail);
                         user.OtherMails = new string[] { parameters.user.Mail };
                     }
                 }
@@ -641,7 +651,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
             else if (idUserMapping.B2cClaimName.ToLowerInvariant() == "emails")
             {
-                user = graphClient.GetAllUsers($"identities/any(c:c/issuer eq '{settings.TenantName}.onmicrosoft.com' and c/issuerAssignedId eq '{usernameWithoutPrefix}')").FirstOrDefault();
+                var tenantName = settings.TenantName;
+                if (!tenantName.Contains("."))
+                {
+                    tenantName += ".onmicrosoft.com";
+                }
+                user = graphClient.GetAllUsers($"identities/any(c:c/issuer eq '{tenantName}' and c/issuerAssignedId eq '{usernameWithoutPrefix}')").FirstOrDefault();
             }
             else
             {
