@@ -119,7 +119,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         {
             var config = new AzureConfig(service, portalId)
             {
-                TenantName = settings.TenantName.ToLowerInvariant().Trim().Replace(".onmicrosoft.com", ""),
+                TenantName = settings.TenantName.ToLowerInvariant().Trim().Replace(".onmicrosoft.com", "").Replace(".b2clogin.com", ""),
                 TenantId = settings.TenantId,
                 APIKey = settings.ApiKey,
                 APISecret = settings.ApiSecret,

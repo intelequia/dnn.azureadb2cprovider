@@ -111,3 +111,14 @@
 	<li>Fix error on group sync scheduler task</li>
 	<li>Removed Microsoft.IdentityModel.Clients.ActiveDirectory depedency</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.06.00</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>The module now requires DNN v9.11 or later</li>
+	<li>Updated dependencies to latest versions</li>
+	<li>Updated Dnn.React.Common dependency to 9.11</li>
+	<li>Fix to update users by Username in the User Management module</li>
+	<li>Fix to correctly expire the B2C cookie with the token expiration date</li>
+	<li>Upgraded project to .NET 4.8</li>
+	<li>Updated Sample SPA Web Client to use 9.11 or later</li>
+</ul>

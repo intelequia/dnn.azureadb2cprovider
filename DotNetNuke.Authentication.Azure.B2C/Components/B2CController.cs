@@ -83,7 +83,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (currentConfig == null)
             {
                 var ropcPolicyName = !string.IsNullOrEmpty(azureB2cConfig.RopcPolicy) ? azureB2cConfig.RopcPolicy : DefaultRopcPolicy;
-                var tokenConfigurationUrl = $"https://{azureB2cConfig.TenantName}.b2clogin.com/{azureB2cConfig.TenantId}/.well-known/openid-configuration?p={ropcPolicyName}";
+                var tenantName = azureB2cConfig.TenantName;
+                if (!tenantName.Contains("."))
+                {
+                    tenantName += ".b2clogin.com";
+                }
+                var tokenConfigurationUrl = $"https://{tenantName}/{azureB2cConfig.TenantId}/.well-known/openid-configuration?p={ropcPolicyName}";
                 var _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(tokenConfigurationUrl, new OpenIdConnectConfigurationRetriever());
                 var _config = _configManager.GetConfigurationAsync().Result;
                 Config.Add(portalId, new B2CControllerConfiguration(ropcPolicyName, _config));
