@@ -36,6 +36,16 @@
     </DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Legacy|AnyCPU'">
+    <OutputPath>bin\Release Legacy\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>1591</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Azure.Core, Version=1.18.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
       <HintPath>packages\Azure.Core.1.18.0\lib\net461\Azure.Core.dll</HintPath>
@@ -388,7 +398,7 @@
     <Error Condition="!Exists('..\DotNetNuke.Authentication.Azure.B2C\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\DotNetNuke.Authentication.Azure\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>IF $(ConfigurationName)==Debug copy $(TargetDir)$(TargetName).* c:\websites\b2c.dnndev.me\bin /Y</PostBuildEvent>
+    <PostBuildEvent>IF "$(ConfigurationName)"=="Debug" copy $(TargetDir)$(TargetName).* c:\websites\b2c.dnndev.me\bin /Y</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\.build\ModulePackage.Targets" />
   <Import Project="..\DotNetNuke.Authentication.Azure.B2C\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('..\DotNetNuke.Authentication.Azure.B2C\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
@@ -406,8 +416,12 @@
   </UsingTask>
   <Target Name="SampleTarget" BeforeTargets="PackageModule" Condition=" '$(Configuration)' == 'Release' ">
     <SetEnvironmentVariableTask Name="NODE_ENV" Value="production" />
+    <Exec Command="webpack --mode production --env production" WorkingDirectory="AzureADB2C.Web" />
+  </Target>
+  <Target Name="SampleTargetLegacy" BeforeTargets="PackageModule" Condition=" '$(Configuration)' == 'Release Legacy' ">
+    <SetEnvironmentVariableTask Name="NODE_ENV" Value="production" />
     <SetEnvironmentVariableTask Name="NODE_OPTIONS" Value="--openssl-legacy-provider" />
-	<Exec Command="webpack --mode production --env production" WorkingDirectory="AzureADB2C.Web" />
+    <Exec Command="webpack --mode production --env production" WorkingDirectory="AzureADB2C.Web" />
   </Target>
   <Target Name="AfterBuild" DependsOnTargets="PackageModule">
   </Target>
