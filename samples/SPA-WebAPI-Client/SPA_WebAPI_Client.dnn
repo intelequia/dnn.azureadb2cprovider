@@ -1,6 +1,6 @@
 <dotnetnuke type="Package" version="5.0">
   <packages>
-    <package name="SPA_WebAPI_Client" type="Module" version="00.00.01">
+    <package name="SPA_WebAPI_Client" type="Module" version="00.00.02">
       <friendlyName>SPA_WebAPI_Client</friendlyName>
       <description>SPA_WebAPI_Client</description>
       <iconFile>~/Icons/Sigma/Software_32X32_Standard.png</iconFile>
@@ -13,7 +13,7 @@
       <license src="License.txt"></license>
       <releaseNotes src="ReleaseNotes.txt"></releaseNotes>
       <dependencies>
-        <dependency type="CoreVersion">09.03.02</dependency>
+        <dependency type="CoreVersion">09.11.00</dependency>
       </dependencies>
       <components>
         <component type="ResourceFile">
