@@ -501,4 +501,16 @@
   <data name="lblOnErrorUri.Text" xml:space="preserve">
     <value>On Auth Error Uri</value>
   </data>
+  <data name="lblUserSyncEnabled" xml:space="preserve">
+    <value>User Sync</value>
+  </data>
+  <data name="TabSynchronization.Text" xml:space="preserve">
+    <value>Synchronization</value>
+  </data>
+  <data name="TabMore.Text" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="lblUserSyncEnabled.Help" xml:space="preserve">
+    <value>Enables the user synchronization for this portal</value>
+  </data>
 </root>
