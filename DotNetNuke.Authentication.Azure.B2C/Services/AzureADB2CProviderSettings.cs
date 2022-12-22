@@ -81,6 +81,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public string ImpersonatePolicy { get; set; }
         [DataMember(Name = "autoAuthorize")]
         public bool AutoAuthorize { get; set; }
+        [DataMember(Name = "autoMatchExistingUsers")]
+        public bool AutoMatchExistingUsers { get; set; }
 
 
 
@@ -97,6 +99,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 AutoRedirect = config.AutoRedirect,
                 OnErrorUri = config.OnErrorUri,
                 AutoAuthorize = config.AutoAuthorize,
+                AutoMatchExistingUsers = config.AutoMatchExistingUsers,
                 SignUpPolicy = config.SignUpPolicy,
                 ProfilePolicy = config.ProfilePolicy,
                 PasswordResetPolicy = config.PasswordResetPolicy,
@@ -130,6 +133,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 OnErrorUri = settings.OnErrorUri,
                 AutoRedirect = settings.AutoRedirect,
                 AutoAuthorize = settings.AutoAuthorize,
+                AutoMatchExistingUsers = settings.AutoMatchExistingUsers,
                 SignUpPolicy = settings.SignUpPolicy,
                 ProfilePolicy = settings.ProfilePolicy,
                 PasswordResetPolicy = settings.PasswordResetPolicy,

@@ -281,6 +281,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public override bool AutoMatchExistingUsers { 
             get
             {
+                if (_autoMatchExistingUsers == false)
+                {
+                    return Settings.AutoMatchExistingUsers;
+                }
                 return _autoMatchExistingUsers;
             }
         }
@@ -402,24 +406,24 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             };
 
             // Store checks in variables to increase readability and avoid executing the same logic more than once.
-            bool isFirstNameEmpty = string.IsNullOrEmpty(user.AzureFirstName);
-            bool isLastNameEmpty = string.IsNullOrEmpty(user.AzureLastName);
+            bool noFirstName = string.IsNullOrEmpty(user.AzureFirstName);
+            bool noLastName = string.IsNullOrEmpty(user.AzureLastName);
 
             // If no display name, try to get it from the first and last name.
             if (string.IsNullOrEmpty(user.AzureDisplayName))
             {
-                user.AzureDisplayName = !isFirstNameEmpty ? user.AzureFirstName + (!isLastNameEmpty ? " " + user.AzureLastName : "") : "";
+                user.AzureDisplayName = !noFirstName ? user.AzureFirstName + (!noLastName ? " " + user.AzureLastName : "") : "";
                 return user; // We don't need to run the rest of the code if there's no display name.
             }
 
             // If no first name, try and get it from the display name.
-            if (isFirstNameEmpty)
+            if (noFirstName)
             {
                 user.AzureFirstName = Utils.GetFirstName(user.AzureDisplayName);
             }
 
             // If no last name, try and get it from the display name.
-            if (isLastNameEmpty)
+            if (noLastName)
             {
                 user.AzureLastName = Utils.GetLastName(user.AzureDisplayName);
             }

@@ -513,4 +513,10 @@
   <data name="lblUserSyncEnabled.Help" xml:space="preserve">
     <value>Enables the user synchronization for this portal</value>
   </data>
+  <data name="lblAutoMatchExistingUsers.Help" xml:space="preserve">
+    <value>If enabled, logging in with Azure AD B2C, by providing a username identical to an existing user created on DNN, will automatically bind that user to the the one in Azure AD B2C.</value>
+  </data>
+	<data name="lblAutoMatchExistingUsers.Text" xml:space="preserve">
+    <value>Auto-Match Existing Users</value>
+  </data>
 </root>
