@@ -20,19 +20,20 @@ BEGIN
 		 SELECT 'PortalId', '', PortalId, -1, GETDATE(), -1, GETDATE()
 		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
-
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
 		 SELECT 'Id', 'sub', PortalID, -1, GETDATE(), -1, GETDATE()
 		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
-
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
 		 SELECT 'FirstName', 'given_name', PortalId, -1, GETDATE(), -1, GETDATE()
 		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
-
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
 		 SELECT 'LastName', 'family_name', PortalId, -1, GETDATE(), -1, GETDATE()
+		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
+
+	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])
+		 SELECT 'DisplayName', 'name', PortalId, -1, GETDATE(), -1, GETDATE()
 		   FROM (Select PortalId FROM {databaseOwner}[{objectQualifier}Portals] UNION SELECT PortalId = -1) p
 
 	INSERT INTO {databaseOwner}[{objectQualifier}AzureB2C_UserMappings] ([DnnPropertyName],[B2cClaimName],[PortalId],[CreatedByUserId],[CreatedOnDate],[LastModifiedByUserId],[LastModifiedOnDate])

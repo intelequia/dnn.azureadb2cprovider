@@ -281,11 +281,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public override bool AutoMatchExistingUsers { 
             get
             {
+                // This works for now, but it may have to be changed if returning false is always desired when _autoMatchExistingUsers is false
                 if (_autoMatchExistingUsers == false)
                 {
                     return Settings.AutoMatchExistingUsers;
                 }
-                return _autoMatchExistingUsers;
+                return true;
             }
         }
 
