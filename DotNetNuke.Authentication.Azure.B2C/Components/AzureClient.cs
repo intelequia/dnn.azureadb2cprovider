@@ -395,7 +395,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             var claims = JwtIdToken.Claims.ToArray();
             EnsureClaimExists(claims, EmailClaimName);
             EnsureClaimExists(claims, UserIdClaim);
-            EnsureClaimExists(claims, "oid");       // we need this claim to make calls to AAD Graph
+            EnsureClaimExists(claims, "sub");       // we need this claim to make calls to AAD Graph
 
             var user = new AzureUserData()
             {
