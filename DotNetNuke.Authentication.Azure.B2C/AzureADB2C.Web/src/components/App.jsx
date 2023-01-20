@@ -4,7 +4,8 @@ import { connect } from "react-redux";
 import {PersonaBarPage, PersonaBarPageHeader, PersonaBarPageBody, DnnTabs as Tabs} from "@dnnsoftware/dnn-react-common";
 import SettingsActions from "../actions/settings";
 import GeneralSettings from "./general";
-import SyncSettings from "./sync";
+import SyncSettings from "./advanced/sync";
+import MoreSettings from "./advanced/more";
 import ProfileMappings from "./profileMappings";
 import UserMappings from "./userMappings";
 import RoleMappings from "./roleMappings";
@@ -38,7 +39,15 @@ class App extends Component {
                             selectedIndex={this.props.selectedTab}
                             tabHeaders={[resx.get("GeneralSettings"),resx.get("AdvancedSettings"), resx.get("Mappings")]}>
                             <GeneralSettings />
-                            <SyncSettings />
+                            <Tabs onSelect={this.onSelectSubTab.bind(this) }
+                                selectedIndex={this.props.selectedMappingSubTab}
+                                tabHeaders={[
+                                    resx.get("TabSynchronization"),
+                                    resx.get("TabMore")]}
+                                type="secondary">
+                                <SyncSettings />
+                                <MoreSettings />
+                            </Tabs>
                             <Tabs onSelect={this.onSelectSubTab.bind(this) }
                                 selectedIndex={this.props.selectedMappingSubTab}
                                 tabHeaders={[resx.get("TabUserMappings"),

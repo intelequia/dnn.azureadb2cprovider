@@ -107,7 +107,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 if (_customClaimsMappings == null)
                 {
                     _customClaimsMappings = ProfileMappingsRepository.Instance.GetProfileMappings(GetCalculatedPortalId()).ToList();
-                }
+                }                
                 return _customClaimsMappings;
             }
         }
@@ -209,6 +209,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
         }
 
+        private string _displayNameClaimName;
+        private string DisplayNameClaimName
+        {
+            get
+            {
+                if (_displayNameClaimName == null)
+                {
+                    var displayNameMapping = UserMappingsRepository.Instance.GetUserMapping("DisplayName", GetCalculatedPortalId());
+                    _displayNameClaimName = (displayNameMapping != null) ? displayNameMapping.B2cClaimName : JwtRegisteredClaimNames.Name;
+                }
+                return _displayNameClaimName;
+            }
+        }
+
         private string _emailClaimName;
         private string EmailClaimName
         {
@@ -267,7 +281,12 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public override bool AutoMatchExistingUsers { 
             get
             {
-                return _autoMatchExistingUsers;
+                // This works for now, but it may have to be changed if returning false is always desired when _autoMatchExistingUsers is false
+                if (_autoMatchExistingUsers == false)
+                {
+                    return Settings.AutoMatchExistingUsers;
+                }
+                return true;
             }
         }
 
@@ -379,8 +398,6 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 return null;
             }
             var claims = JwtIdToken.Claims.ToArray();
-            EnsureClaimExists(claims, FirstNameClaimName);
-            EnsureClaimExists(claims, LastNameClaimName);
             EnsureClaimExists(claims, EmailClaimName);
             EnsureClaimExists(claims, UserIdClaim);
             EnsureClaimExists(claims, "sub");       // we need this claim to make calls to AAD Graph
@@ -389,10 +406,34 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 AzureFirstName = claims.FirstOrDefault(x => x.Type == FirstNameClaimName)?.Value,
                 AzureLastName = claims.FirstOrDefault(x => x.Type == LastNameClaimName)?.Value,
+                AzureDisplayName = claims.FirstOrDefault(x => x.Type == DisplayNameClaimName)?.Value,
                 Email = claims.FirstOrDefault(x => x.Type == EmailClaimName)?.Value,
                 Id = claims.FirstOrDefault(x => x.Type == UserIdClaim).Value
             };
-            user.AzureDisplayName = $"{user.AzureFirstName} {user.AzureLastName}";
+
+            // Store checks in variables to increase readability and avoid executing the same logic more than once.
+            bool noFirstName = string.IsNullOrEmpty(user.AzureFirstName);
+            bool noLastName = string.IsNullOrEmpty(user.AzureLastName);
+
+            // If no display name, try to get it from the first and last name.
+            if (string.IsNullOrEmpty(user.AzureDisplayName))
+            {
+                user.AzureDisplayName = !noFirstName ? user.AzureFirstName + (!noLastName ? " " + user.AzureLastName : "") : "";
+                return user; // We don't need to run the rest of the code if there's no display name.
+            }
+
+            // If no first name, try and get it from the display name.
+            if (noFirstName)
+            {
+                user.AzureFirstName = Utils.GetFirstName(user.AzureDisplayName);
+            }
+
+            // If no last name, try and get it from the display name.
+            if (noLastName)
+            {
+                user.AzureLastName = Utils.GetLastName(user.AzureDisplayName);
+            }
+
             return user;
         }
 
@@ -1015,7 +1056,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 Logger.Warn($"Error while synchronizing user profile picture from user {aadUserId}", e);
             }
         }
-        private static string GetExtensionFromMediaContentType(string contentType)
+        internal static string GetExtensionFromMediaContentType(string contentType)
         {
             switch (contentType)
             {

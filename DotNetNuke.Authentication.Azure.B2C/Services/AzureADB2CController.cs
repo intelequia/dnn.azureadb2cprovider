@@ -448,15 +448,15 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
         }
 
-        // POST: api/RedisCaching/UpdateGeneralSettings
+        // POST: api/RedisCaching/UpdateAdvancedSyncSettings
         /// <summary>
-        /// Updates the general settings
+        /// Updates the settings in the Synchronization subtab of the Advanced Settings tab
         /// </summary>
         /// <param name="settings"></param>
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public HttpResponseMessage UpdateAdvancedSettings(AzureADB2CProviderSettings settings)
+        public HttpResponseMessage UpdateAdvancedSyncSettings(AzureADB2CProviderSettings settings)
         {
             try
             {
@@ -466,7 +466,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     if (config.UseGlobalSettings || config.UseGlobalSettings != settings.UseGlobalSettings)
                         return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
                 }
-                AzureADB2CProviderSettings.SaveAdvancedSettings(AzureConfig.ServiceName, PortalId, settings);
+                AzureADB2CProviderSettings.SaveAdvancedSyncSettings(AzureConfig.ServiceName, PortalId, settings);
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
             }
             catch (AggregateException ex)
@@ -490,6 +490,47 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             }
         }
 
+        // POST: api/RedisCaching/UpdateAdvancedMoreSettings
+        /// <summary>
+        /// Updates the settings in the More subtab of the Advanced Settings tab
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage UpdateAdvancedMoreSettings(AzureADB2CProviderSettings settings)
+        {
+            try
+            {
+                if (!UserInfo.IsSuperUser)
+                {
+                    var config = new AzureConfig(AzureConfig.ServiceName, PortalId);
+                    if (config.UseGlobalSettings || config.UseGlobalSettings != settings.UseGlobalSettings)
+                        return Request.CreateResponse(HttpStatusCode.Forbidden, "Only super users can change this setting");
+                }
+                AzureADB2CProviderSettings.SaveAdvancedMoreSettings(AzureConfig.ServiceName, PortalId, settings);
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
+            }
+            catch (AggregateException ex)
+            {
+                Logger.Error(ex);
+                var aex = ex as AggregateException;
+                if (aex?.InnerException as Microsoft.Graph.ServiceException != null)
+                {
+                    var sex = (Microsoft.Graph.ServiceException)aex.InnerException;
+                    return Request.CreateResponse(HttpStatusCode.Forbidden, $"{sex.Error.Code}: {sex.Error.Message}");
+                }
+                else
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
 
         private void AddUserProfilePage(int portalId, bool setAsPortalUserProfile)

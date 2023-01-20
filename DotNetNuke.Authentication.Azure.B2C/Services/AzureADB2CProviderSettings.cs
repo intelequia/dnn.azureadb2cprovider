@@ -61,6 +61,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public string JwtAudiences { get; set; }
         [DataMember(Name = "roleSyncEnabled")]
         public bool RoleSyncEnabled { get; set; }
+        [DataMember(Name = "userSyncEnabled")]
+        public bool UserSyncEnabled { get; set; }
         [DataMember(Name = "profileSyncEnabled")]
         public bool ProfileSyncEnabled { get; set; }
         [DataMember(Name = "jwtAuthEnabled")]
@@ -79,6 +81,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         public string ImpersonatePolicy { get; set; }
         [DataMember(Name = "autoAuthorize")]
         public bool AutoAuthorize { get; set; }
+        [DataMember(Name = "autoMatchExistingUsers")]
+        public bool AutoMatchExistingUsers { get; set; }
 
 
 
@@ -95,6 +99,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 AutoRedirect = config.AutoRedirect,
                 OnErrorUri = config.OnErrorUri,
                 AutoAuthorize = config.AutoAuthorize,
+                AutoMatchExistingUsers = config.AutoMatchExistingUsers,
                 SignUpPolicy = config.SignUpPolicy,
                 ProfilePolicy = config.ProfilePolicy,
                 PasswordResetPolicy = config.PasswordResetPolicy,
@@ -104,6 +109,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 UseGlobalSettings = config.UseGlobalSettings,
                 JwtAudiences = config.JwtAudiences,
                 RoleSyncEnabled = config.RoleSyncEnabled,
+                UserSyncEnabled = config.UserSyncEnabled,
                 ProfileSyncEnabled = config.ProfileSyncEnabled,
                 JwtAuthEnabled = config.JwtAuthEnabled,
                 ApiResource = config.APIResource,
@@ -127,6 +133,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 OnErrorUri = settings.OnErrorUri,
                 AutoRedirect = settings.AutoRedirect,
                 AutoAuthorize = settings.AutoAuthorize,
+                AutoMatchExistingUsers = settings.AutoMatchExistingUsers,
                 SignUpPolicy = settings.SignUpPolicy,
                 ProfilePolicy = settings.ProfilePolicy,
                 PasswordResetPolicy = settings.PasswordResetPolicy,
@@ -139,20 +146,29 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             AzureConfig.UpdateConfig(config);
         }
 
-        public static void SaveAdvancedSettings(string service, int portalId, AzureADB2CProviderSettings settings)
+        public static void SaveAdvancedSyncSettings(string service, int portalId, AzureADB2CProviderSettings settings)
         {
             var config = new AzureConfig(service, portalId)
             {
                 AADApplicationId = settings.AadAppClientId,
                 AADApplicationKey = settings.AadAppSecret,
-                JwtAudiences = settings.JwtAudiences,
                 RoleSyncEnabled = settings.RoleSyncEnabled,
+                UserSyncEnabled = settings.UserSyncEnabled,
                 ProfileSyncEnabled = settings.ProfileSyncEnabled,
-                JwtAuthEnabled = settings.JwtAuthEnabled,
-                APIResource = settings.ApiResource + (!string.IsNullOrEmpty(settings.ApiResource.Trim()) && !settings.ApiResource.EndsWith("/") ? "/" : ""),
-                Scopes = settings.Scopes,
                 UsernamePrefixEnabled = settings.UsernamePrefixEnabled,
                 GroupNamePrefixEnabled = settings.GroupNamePrefixEnabled
+            };
+
+            AzureConfig.UpdateConfig(config);
+        }
+        public static void SaveAdvancedMoreSettings(string service, int portalId, AzureADB2CProviderSettings settings)
+        {
+            var config = new AzureConfig(service, portalId)
+            {
+                JwtAudiences = settings.JwtAudiences,
+                JwtAuthEnabled = settings.JwtAuthEnabled,
+                APIResource = settings.ApiResource + (!string.IsNullOrEmpty(settings.ApiResource.Trim()) && !settings.ApiResource.EndsWith("/") ? "/" : ""),
+                Scopes = settings.Scopes
             };
 
             AzureConfig.UpdateConfig(config);

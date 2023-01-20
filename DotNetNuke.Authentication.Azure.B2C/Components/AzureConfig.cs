@@ -60,6 +60,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             AADApplicationKey = GetScopedSetting(Service + "_AADApplicationKey", portalId, "");
             JwtAudiences = GetScopedSetting(Service + "_JwtAudiences", portalId, "");
             RoleSyncEnabled = bool.Parse(GetScopedSetting(Service + "_RoleSyncEnabled", portalId, "false"));
+            UserSyncEnabled = bool.Parse(GetScopedSetting(Service + "_UserSyncEnabled", portalId, "false"));
             ProfileSyncEnabled = bool.Parse(GetScopedSetting(Service + "_ProfileSyncEnabled", portalId, "false"));
             JwtAuthEnabled = bool.Parse(GetScopedSetting(Service + "_JwtAuthEnabled", portalId, "false"));
             APIResource = GetScopedSetting(Service + "_APIResource", portalId, "");
@@ -70,6 +71,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             RopcPolicy = GetScopedSetting(Service + "_RopcPolicy", portalId, "");
             ImpersonatePolicy = GetScopedSetting(Service + "_ImpersonatePolicy", portalId, "");
             AutoAuthorize = bool.Parse(GetScopedSetting(Service + "_AutoAuthorize", portalId, "true"));
+            AutoMatchExistingUsers = bool.Parse(GetScopedSetting(Service + "_AutoMatchExistingUsers", portalId, "false"));
         }
 
         public static string GetSetting(string service, string key, int portalId, string defaultValue)
@@ -136,7 +138,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public bool AutoAuthorize { get; set; }
         [SortOrder(22)]
         public string OnErrorUri { get; set; }
-
+        [SortOrder(23)]
+        public bool UserSyncEnabled { get; set; }
+        [SortOrder(24)]
+        public bool AutoMatchExistingUsers { get; set; }
 
         private static string GetCacheKey(string service, int portalId)
         {
@@ -174,6 +179,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AADApplicationKey",config.AADApplicationKey);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_JwtAudiences", config.JwtAudiences);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_RoleSyncEnabled", config.RoleSyncEnabled.ToString());
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_UserSyncEnabled", config.UserSyncEnabled.ToString());
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ProfileSyncEnabled", config.ProfileSyncEnabled.ToString());
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_JwtAuthEnabled", config.JwtAuthEnabled.ToString());
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_APIResource", config.APIResource);
@@ -183,6 +189,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_RopcPolicy", config.RopcPolicy);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ImpersonatePolicy", config.ImpersonatePolicy);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AutoAuthorize", config.AutoAuthorize.ToString());
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AutoMatchExistingUsers", config.AutoMatchExistingUsers.ToString());
 
             config.B2cApplicationId = UpdateB2CApplicationId(config);
 

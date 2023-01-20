@@ -161,6 +161,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Common
             return (string) settings[settingKey];
         }
 
+        public static string GetFirstName(string displayName)
+        {
+            return displayName.Split(' ')
+                .First();
+        }
+
+        public static string GetLastName(string displayName)
+        {
+            return displayName.Split(' ')
+                .Skip(1)
+                .Aggregate("", (current, next) => current + " " + next);
+        }
+
     }
 
 }

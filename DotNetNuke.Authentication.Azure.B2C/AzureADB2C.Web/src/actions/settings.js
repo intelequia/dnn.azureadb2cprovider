@@ -34,6 +34,7 @@ const settingsActions = {
                         useGlobalSettings: data.useGlobalSettings,
                         autoRedirect: data.autoRedirect,
                         autoAuthorize: data.autoAuthorize,
+                        autoMatchExistingUsers: data.autoMatchExistingUsers,
                         apiKey: data.apiKey,
                         apiSecret: data.apiSecret,
                         redirectUri: data.redirectUri,
@@ -47,6 +48,7 @@ const settingsActions = {
                         aadAppSecret: data.aadAppSecret,
                         jwtAudiences: data.jwtAudiences,
                         roleSyncEnabled: data.roleSyncEnabled,
+                        userSyncEnabled: data.userSyncEnabled,
                         profileSyncEnabled: data.profileSyncEnabled,
                         jwtAuthEnabled: data.jwtAuthEnabled,
                         apiResource: data.apiResource,
@@ -83,9 +85,9 @@ const settingsActions = {
             });
         };
     },
-    updateAdvancedSettings(payload, callback, failureCallback) {
+    updateAdvancedSyncSettings(payload, callback, failureCallback) {
         return (dispatch) => {
-            ApplicationService.updateAdvancedSettings(payload, data => {
+            ApplicationService.updateAdvancedSyncSettings(payload, data => {
                 dispatch({
                     type: ActionTypes.UPDATED_SETTINGS,
                     data: {
@@ -101,7 +103,26 @@ const settingsActions = {
                 }
             });
         };
-    },    
+    },
+    updateAdvancedMoreSettings(payload, callback, failureCallback) {
+        return (dispatch) => {
+            ApplicationService.updateAdvancedMoreSettings(payload, data => {
+                dispatch({
+                    type: ActionTypes.UPDATED_SETTINGS,
+                    data: {
+                        clientModified: false
+                    }
+                });
+                if (callback) {
+                    callback(data);
+                }
+            }, data => {
+                if (failureCallback) {
+                    failureCallback(data);
+                }
+            });
+        };
+    },
     settingsClientModified(settings) {
         return (dispatch) => {
             dispatch({
@@ -111,6 +132,7 @@ const settingsActions = {
                     useGlobalSettings: settings.useGlobalSettings,
                     autoRedirect: settings.autoRedirect,
                     autoAuthorize: settings.autoAuthorize,
+                    autoMatchExistingUsers: settings.autoMatchExistingUsers,
                     apiKey: settings.apiKey,
                     apiSecret: settings.apiSecret,
                     redirectUri: settings.redirectUri,
@@ -124,6 +146,7 @@ const settingsActions = {
                     aadAppSecret: settings.aadAppSecret,
                     jwtAudiences: settings.jwtAudiences,
                     roleSyncEnabled: settings.roleSyncEnabled,
+                    userSyncEnabled: settings.userSyncEnabled,
                     profileSyncEnabled: settings.profileSyncEnabled,
                     jwtAuthEnabled: settings.jwtAuthEnabled,
                     apiResource: settings.apiResource,
