@@ -923,94 +923,90 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             try
             {
                 var syncOnlyMappedRoles = (CustomRoleMappings != null && CustomRoleMappings.Count > 0);
+                var groupPrefix = PrefixServiceToGroupName ? $"{Service}-" : "";
 
                 var aadGroups = GraphClient.GetUserGroups(aadUserId);
-
-                if (aadGroups != null)
+                var groups = new List<Microsoft.Graph.Group>();
+                while (aadGroups != null && aadGroups.Count > 0)
                 {
-                    var groupPrefix = PrefixServiceToGroupName ? $"{Service}-" : "";
-                    while (aadGroups != null && aadGroups.Count > 0)
+                    groups.AddRange(aadGroups.CurrentPage.OfType<Microsoft.Graph.Group>().ToList());
+                    aadGroups = aadGroups.NextPageRequest?.GetSync();
+                }
+
+                var filter = ConfigurationManager.AppSettings["AzureADB2C.GetUserGroups.Filter"];
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    var onlyGroups = filter.Split(';');
+                    var g = new List<Microsoft.Graph.Group>();
+                    foreach (var f in onlyGroups)
                     {
-                        var groups = aadGroups.CurrentPage.OfType<Microsoft.Graph.Group>().ToList();
-
-                        var filter = ConfigurationManager.AppSettings["AzureADB2C.GetUserGroups.Filter"];
-                        if (!string.IsNullOrEmpty(filter))
-                        {
-                            var onlyGroups = filter.Split(';');
-                            var g = new List<Microsoft.Graph.Group>();
-                            foreach (var f in onlyGroups)
-                            {
-                                var r = groups.Where(x => x.DisplayName.StartsWith(f));
-                                if (r.Count() > 0)
-                                    g.AddRange(r);
-                            }
-                            groups = g;
-                        }
-
-
-                        if (syncOnlyMappedRoles)
-                        {
-                            groupPrefix = "";
-                            var b2cRoles = CustomRoleMappings.Select(rm => rm.B2cRoleName);
-                            groups.RemoveAll(x => !b2cRoles.Contains(x.DisplayName));
-                        }
-
-                        var dnnB2cRoles = GetDnnB2cRoles();
-                        // In DNN, remove user from roles where the user doesn't belong to in AAD (we'll take care only the roles that we are synchronizing with B2C)
-                        foreach (var dnnUserRole in userInfo.Roles.Where(role => dnnB2cRoles.Contains(role)))
-                        {
-                            var aadGroupName = dnnUserRole;
-                            var roleName = dnnUserRole;
-                            var mapping = CustomRoleMappings?.FirstOrDefault(x => x.DnnRoleName == dnnUserRole);
-                            if (mapping != null)
-                            {
-                                aadGroupName = mapping.B2cRoleName;
-                                roleName = mapping.DnnRoleName;
-                            }
-                            if (groups.FirstOrDefault(aadGroup => $"{groupPrefix}{aadGroup.DisplayName}" == aadGroupName) == null)
-                            {
-                                var role = RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, roleName);
-                                RoleController.DeleteUserRole(userInfo, role, PortalSettings.Current, false);
-                            }
-                        }
-
-                        foreach (var group in groups)
-                        {
-                            var roleToAssign = syncOnlyMappedRoles ? CustomRoleMappings.Find(r => r.B2cRoleName == group.DisplayName).DnnRoleName : $"{groupPrefix}{group.DisplayName}";
-                            var dnnRole = RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, roleToAssign);
-
-                            if (dnnRole == null)
-                            {
-                                // Create role
-                                var roleId = AddRole($"{groupPrefix}{group.DisplayName}", group.Description, true);
-                                dnnRole = RoleController.Instance.GetRoleById(PortalSettings.Current.PortalId, roleId);
-                                // Add user to Role
-                                RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId,
-                                                                    userInfo.UserID,
-                                                                    roleId,
-                                                                    RoleStatus.Approved,
-                                                                    false,
-                                                                    group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DotNetNuke.Common.Utilities.Null.NullDate,
-                                                                    DotNetNuke.Common.Utilities.Null.NullDate);
-                            }
-                            else
-                            {
-                                // If user doesn't belong to that DNN role, let's add it
-                                if (!userInfo.Roles.Contains(roleToAssign))
-                                {
-                                    RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId,
-                                                                        userInfo.UserID,
-                                                                        dnnRole.RoleID,
-                                                                        Security.Roles.RoleStatus.Approved,
-                                                                        false,
-                                                                        group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DateTime.Today,
-                                                                        DotNetNuke.Common.Utilities.Null.NullDate);
-                                }
-                            }
-                        }
-                        aadGroups = aadGroups.NextPageRequest?.GetSync();
+                        var r = groups.Where(x => x.DisplayName.StartsWith(f));
+                        if (r.Count() > 0)
+                            g.AddRange(r);
                     }
-                 }
+                    groups = g;
+                }
+
+                if (syncOnlyMappedRoles)
+                {
+                    groupPrefix = "";
+                    var b2cRoles = CustomRoleMappings.Select(rm => rm.B2cRoleName);
+                    groups.RemoveAll(x => !b2cRoles.Contains(x.DisplayName));
+                }
+
+                var dnnB2cRoles = GetDnnB2cRoles();
+                // In DNN, remove user from roles where the user doesn't belong to in AAD (we'll take care only the roles that we are synchronizing with B2C)
+                foreach (var dnnUserRole in userInfo.Roles.Where(role => dnnB2cRoles.Contains(role)))
+                {
+                    var aadGroupName = dnnUserRole;
+                    var roleName = dnnUserRole;
+                    var mapping = CustomRoleMappings?.FirstOrDefault(x => x.DnnRoleName == dnnUserRole);
+                    if (mapping != null)
+                    {
+                        aadGroupName = mapping.B2cRoleName;
+                        roleName = mapping.DnnRoleName;
+                    }
+                    if (groups.FirstOrDefault(aadGroup => $"{groupPrefix}{aadGroup.DisplayName}" == aadGroupName) == null)
+                    {
+                        var role = RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, roleName);
+                        RoleController.DeleteUserRole(userInfo, role, PortalSettings.Current, false);
+                    }
+                }
+
+                foreach (var group in groups)
+                {
+                    var roleToAssign = syncOnlyMappedRoles ? CustomRoleMappings.Find(r => r.B2cRoleName == group.DisplayName).DnnRoleName : $"{groupPrefix}{group.DisplayName}";
+                    var dnnRole = RoleController.Instance.GetRoleByName(PortalSettings.Current.PortalId, roleToAssign);
+
+                    if (dnnRole == null)
+                    {
+                        // Create role
+                        var roleId = AddRole($"{groupPrefix}{group.DisplayName}", group.Description, true);
+                        dnnRole = RoleController.Instance.GetRoleById(PortalSettings.Current.PortalId, roleId);
+                        // Add user to Role
+                        RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId,
+                                                            userInfo.UserID,
+                                                            roleId,
+                                                            RoleStatus.Approved,
+                                                            false,
+                                                            group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DotNetNuke.Common.Utilities.Null.NullDate,
+                                                            DotNetNuke.Common.Utilities.Null.NullDate);
+                    }
+                    else
+                    {
+                        // If user doesn't belong to that DNN role, let's add it
+                        if (!userInfo.Roles.Contains(roleToAssign))
+                        {
+                            RoleController.Instance.AddUserRole(PortalSettings.Current.PortalId,
+                                                                userInfo.UserID,
+                                                                dnnRole.RoleID,
+                                                                Security.Roles.RoleStatus.Approved,
+                                                                false,
+                                                                group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DateTime.Today,
+                                                                DotNetNuke.Common.Utilities.Null.NullDate);
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {

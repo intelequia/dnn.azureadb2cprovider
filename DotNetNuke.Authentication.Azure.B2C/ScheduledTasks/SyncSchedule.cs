@@ -12,6 +12,7 @@ using DotNetNuke.Security.Roles;
 using DotNetNuke.Services.Authentication;
 using DotNetNuke.Services.FileSystem;
 using DotNetNuke.Services.Scheduling;
+using DotNetNuke.UI.UserControls;
 using Microsoft.Graph;
 using System;
 using System.Collections.Generic;
@@ -382,23 +383,33 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                         {
                             try
                             {
-                                // TODO?: Comprobar si se pueden fusionar los tries
-                                // TODO?: Meter aadUser como parametro directamente
                                 var userName = userPrefix + GetPropertyValueByClaimName(aadUser, userMappings.FirstOrDefault(x => x.DnnPropertyName == "Id")?.B2cClaimName);
                                 var displayName = GetPropertyValueByClaimName(aadUser, userMappings.FirstOrDefault(x => x.DnnPropertyName == "DisplayName")?.B2cClaimName);
                                 var firstName = GetPropertyValueByClaimName(aadUser, userMappings.FirstOrDefault(x => x.DnnPropertyName == "FirstName")?.B2cClaimName);
                                 var lastName = GetPropertyValueByClaimName(aadUser, userMappings.FirstOrDefault(x => x.DnnPropertyName == "LastName")?.B2cClaimName);
                                 var eMail = GetPropertyValueByClaimName(aadUser, userMappings.FirstOrDefault(x => x.DnnPropertyName == "Email")?.B2cClaimName);
 
-                                // If no first name, try and get it from the display name.
-                                if (string.IsNullOrEmpty(firstName))
+                                // Store checks in variables to increase readability and avoid executing the same logic more than once.
+                                bool noFirstName = string.IsNullOrEmpty(firstName);
+                                bool noLastName = string.IsNullOrEmpty(lastName);
+
+                                // If no display name, try to get it from the first and last name.
+                                if (string.IsNullOrEmpty(displayName))
                                 {
-                                    firstName = Utils.GetFirstName(displayName);
+                                    displayName = !noFirstName ? firstName + (!noLastName ? " " + lastName : "") : "";
                                 }
-                                // If no last name, try and get it from the display name.
-                                if (string.IsNullOrEmpty(lastName))
+                                else
                                 {
-                                    lastName = Utils.GetLastName(displayName);
+                                    // If no first name, try and get it from the display name.
+                                    if (noFirstName)
+                                    {
+                                        firstName = Utils.GetFirstName(displayName);
+                                    }
+                                    // If no last name, try and get it from the display name.
+                                    if (noLastName)
+                                    {
+                                        lastName = Utils.GetLastName(displayName);
+                                    }
                                 }
 
                                 var dnnUser = UserController.GetUserByName(portalId, userName);
