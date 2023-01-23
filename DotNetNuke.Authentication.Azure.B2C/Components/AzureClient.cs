@@ -278,15 +278,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         private bool _autoMatchExistingUsers = false;
         private bool _tokenAlreadyExchanged = false;
-        public override bool AutoMatchExistingUsers { 
+        public override bool AutoMatchExistingUsers
+        { 
             get
             {
-                // This works for now, but it may have to be changed if returning false is always desired when _autoMatchExistingUsers is false
-                if (_autoMatchExistingUsers == false)
-                {
-                    return Settings.AutoMatchExistingUsers;
-                }
-                return true;
+                // Will always return true if _autoMatchExistingUsers is true
+                // Otherwise, it will return the value specified in the settings
+                // This code would have to be changed if we wanted it to always return false whenever _autoMatchExistingUsers is false
+                return _autoMatchExistingUsers || Settings.AutoMatchExistingUsers;
             }
         }
 
