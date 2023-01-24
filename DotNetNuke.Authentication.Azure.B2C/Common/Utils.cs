@@ -171,7 +171,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Common
         {
             return displayName.Split(' ')
                 .Skip(1)
-                .Aggregate("", (current, next) => current + " " + next);
+                .Aggregate("", (current, next) => current + " " + next)
+                .TrimStart(' ');
         }
 
     }
