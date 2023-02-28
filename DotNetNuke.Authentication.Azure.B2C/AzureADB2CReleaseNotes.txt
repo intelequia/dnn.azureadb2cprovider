@@ -129,5 +129,5 @@
 	<li>Implementation of AutoMatchExistingUsers: if a user is found in the local database with the same email address as the one in Azure AD, the user will be automatically matched with the Azure AD user. This option is disabled by default</li>
 	<li>Fixed a bug that prevented users from being correctly removed from a role</li>
 	<li>Added DisplayName as one of the default user mappings</li>
-	<li>Added code to handle a situation where a display name is not provided by generating from the first and last names</li>
+	<li>Added code to handle a situation where a display name is not provided, by generating it from the first and last names</li>
 </ul>
