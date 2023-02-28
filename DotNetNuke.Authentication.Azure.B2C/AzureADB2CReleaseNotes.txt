@@ -122,3 +122,12 @@
 	<li>Upgraded project to .NET 4.8</li>
 	<li>Updated Sample SPA Web Client to use 9.11 or later</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.07.00</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>New option to allow scheduled user sync (in the same way that groups are synced in background). Be aware that this option can be resource intensive and should be used with caution</li>
+	<li>Implementation of AutoMatchExistingUsers: if a user is found in the local database with the same email address as the one in Azure AD, the user will be automatically matched with the Azure AD user. This option is disabled by default</li>
+	<li>Fixed a bug that prevented users from being correctly removed from a role</li>
+	<li>Added DisplayName as one of the default user mappings</li>
+	<li>Added code to handle a situation where a display name is not provided by generating from the first and last names</li>
+</ul>
