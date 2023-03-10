@@ -33,6 +33,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer", accessToken
             );
+            string version = CustomAttributeExtensions.GetCustomAttribute<AssemblyFileVersionAttribute>((Assembly.GetExecutingAssembly()))?.Version;
+            requestMessage.Headers.Add("User-Agent", $"DNN Azure AD B2C Provider (v{version})");            
         }
     }
 }
