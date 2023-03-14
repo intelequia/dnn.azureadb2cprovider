@@ -51,7 +51,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 #if DEBUG
             var uiUrl = "http://localhost:8080/dist";
 #else
-            var uiUrl = "/DesktopModules/Admin/Dnn.PersonaBar/Modules/Dnn.AzureADB2C";            
+            var uiUrl = "./Modules/Dnn.AzureADB2C";            
 #endif
             var apiUrl = "/DesktopModules/Admin/Dnn.PersonaBar/Modules/Dnn.AzureADB2C";
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
