@@ -23,7 +23,7 @@
 
 <a name="requirements"></a>
 ## Requirements
-* **DNN Platform 9.3.0 or later**
+* **DNN Platform 9.3.0 or later**. Module version 1.4.3 supports DNN 9.3.0+.  Module version 1.4.4-1.5.1 requires DNN 9.4.3+.  Module version 1.6+ requires DNN 9.11+.
 * **The website must have installed a SSL certificate because Azure AD B2C requires https urls**. If you need a free one, check [Let's Encrypt](https://letsencrypt.org/)
 
 <a name="overview"></a>
