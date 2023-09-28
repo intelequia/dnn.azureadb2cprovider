@@ -43,6 +43,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using System.Web.Caching;
 #endregion
 
 namespace DotNetNuke.Authentication.Azure.B2C.Components
@@ -52,31 +53,31 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         #region constants, properties, etc.
 
         private static readonly ILog Logger = LoggerSource.Instance.GetLogger(typeof(B2CController));
-        private static Dictionary<int, B2CControllerConfiguration> _config = null;
+        private static Dictionary<string, B2CControllerConfiguration> _config = null;
         private static readonly Encoding TextEncoder = Encoding.UTF8;
         public const string AuthScheme = "Bearer";
         public string SchemeType => "JWT";
 
-        internal static Dictionary<int, B2CControllerConfiguration> Config
+        internal static Dictionary<string, B2CControllerConfiguration> Config
         {
             get
             {
                 if (_config == null)
                 {
-                    _config = new Dictionary<int, B2CControllerConfiguration>();
+                    _config = new Dictionary<string, B2CControllerConfiguration>();
                 }
                 return _config;
             }
         }
 
-        internal static B2CControllerConfiguration GetConfig(int portalId, AzureConfig azureB2cConfig)
+        internal static B2CControllerConfiguration GetConfigRopc(int portalId, AzureConfig azureB2cConfig)
         {
             const string DefaultRopcPolicy = "B2C_1_ROPC";
 
-            var currentConfig = Config.ContainsKey(portalId) ? Config[portalId] : null;
-            if (currentConfig != null && !currentConfig.IsValid(azureB2cConfig, DefaultRopcPolicy))
+            var currentConfig = Config.ContainsKey($"{portalId}-ROPC") ? Config[$"{portalId}-ROPC"] : null;
+            if (currentConfig != null && !currentConfig.IsValidRopcPolicy(azureB2cConfig, DefaultRopcPolicy))
             {
-                Config.Remove(portalId);
+                Config.Remove($"{portalId}-ROPC");
                 currentConfig = null;
             }
 
@@ -91,10 +92,38 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 var tokenConfigurationUrl = $"https://{tenantName}/{azureB2cConfig.TenantId}/.well-known/openid-configuration?p={ropcPolicyName}";
                 var _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(tokenConfigurationUrl, new OpenIdConnectConfigurationRetriever());
                 var _config = _configManager.GetConfigurationAsync().Result;
-                Config.Add(portalId, new B2CControllerConfiguration(ropcPolicyName, _config));
+                Config.Add($"{portalId}-ROPC", new B2CControllerConfiguration(ropcPolicyName, _config));
             }
 
-            return Config[portalId]; 
+            return Config[$"{portalId}-ROPC"]; 
+        }
+
+        internal static B2CControllerConfiguration GetConfigSignIn(int portalId, AzureConfig azureB2cConfig)
+        {
+            const string DefaultSignInPolicy = "B2C_1_LOGIN";
+
+            var currentConfig = Config.ContainsKey($"{portalId}-LOGIN") ? Config[$"{portalId}-LOGIN"] : null;
+            if (currentConfig != null && !currentConfig.IsValidSignInPolicy(azureB2cConfig, DefaultSignInPolicy))
+            {
+                Config.Remove($"{portalId}-LOGIN");
+                currentConfig = null;
+            }
+
+            if (currentConfig == null)
+            {
+                var signInPolicyName = !string.IsNullOrEmpty(azureB2cConfig.SignUpPolicy) ? azureB2cConfig.SignUpPolicy : DefaultSignInPolicy;
+                var tenantName = azureB2cConfig.TenantName;
+                if (!tenantName.Contains("."))
+                {
+                    tenantName += ".b2clogin.com";
+                }
+                var tokenConfigurationUrl = $"https://{tenantName}/{azureB2cConfig.TenantId}/.well-known/openid-configuration?p={signInPolicyName}";
+                var _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(tokenConfigurationUrl, new OpenIdConnectConfigurationRetriever());
+                var _config = _configManager.GetConfigurationAsync().Result;
+                Config.Add($"{portalId}-LOGIN", new B2CControllerConfiguration(signInPolicyName, _config));
+            }
+
+            return Config[$"{portalId}-LOGIN"];
         }
 
         #endregion
@@ -130,7 +159,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         /// </summary>
         /// <param name="authHdr">The request auhorization header.</param>
         /// <returns>The B2C passed in the request; otherwise, it returns null.</returns>
-        private string ValidateAuthHeader(AuthenticationHeaderValue authHdr)
+        internal string ValidateAuthHeader(AuthenticationHeaderValue authHdr)
         {
             if (authHdr == null)
             {
@@ -154,8 +183,54 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             return authorization;
         }
 
-        private string ValidateAuthorizationValue(string authorization)
+        /// <summary>
+        /// Checks for Authorization header and validates it is B2C scheme. If successful, it returns the token string.
+        /// </summary>
+        /// <param name="authHdr">The request auhorization header.</param>
+        /// <returns>The B2C passed in the request; otherwise, it returns null.</returns>
+        internal string ValidateAuthHeader(string authHdr)
         {
+            if (string.IsNullOrEmpty(authHdr) || authHdr.Split(' ').Length != 2)
+            {
+                //if (Logger.IsDebugEnabled) Logger.Debug("Authorization header not present in the request"); // too verbose; shows in all web requests
+                return null;
+            }
+
+            
+            string scheme = authHdr.Split(' ')[0];
+            string parameter = authHdr.Split(' ')[1];
+
+            if (!string.Equals(scheme, AuthScheme, StringComparison.CurrentCultureIgnoreCase))
+            {
+                if (Logger.IsDebugEnabled) Logger.Debug("Authorization header scheme in the request is not equal to " + SchemeType);
+                return null;
+            }
+
+            var authorization = parameter;
+            if (string.IsNullOrEmpty(authorization))
+            {
+                if (Logger.IsDebugEnabled) Logger.Debug("Missing authorization header value in the request");
+                return null;
+            }
+
+            return authorization;
+        }
+
+        /// <summary>
+        /// Validates the authorization header for the token (for signin or for ropc policies) and returns the username.
+        /// </summary>
+        internal string ValidateAuthorizationValue(string authorization, bool validateForSignInPolicy = false)
+        {
+            var cache = DotNetNuke.Services.Cache.CachingProvider.Instance();
+            // Calculate a hash of a string
+            var hash = authorization.GetHashCode().ToString();
+            var cacheKey = "TokenValidation-" + (validateForSignInPolicy ? "S" : "R") + hash;
+            if (cache.GetItem(cacheKey) != null)
+            {
+                return cache.GetItem(cacheKey).ToString();
+            }
+
+
             if (authorization.Contains("oauth_token="))
             {
                 authorization = authorization.Split('&').FirstOrDefault(x => x.Contains("oauth_token=")).Substring("oauth_token=".Length);
@@ -178,17 +253,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (!IsValidSchemeType(header))
                 return null;
 
-            var jwt = GetAndValidateJwt(authorization, true);
+            var jwt = GetAndValidateJwt(authorization, true, validateForSignInPolicy);
             if (jwt == null)
                 return null;
 
-            var userInfo = TryGetUser(jwt);
+            var userInfo = TryGetUser(jwt, false, validateForSignInPolicy);
             var userName = userInfo?.Username;
+
+            cache.Insert(cacheKey, userName, null, jwt.ValidTo, TimeSpan.Zero);
 
             return userName;
         }
 
-        internal UserInfo TryGetUser(JwtSecurityToken jwt, bool isImpersonation = false)
+        internal UserInfo TryGetUser(JwtSecurityToken jwt, bool isImpersonation, bool validateForSignInPolicy)
         {
             try
             {
@@ -205,7 +282,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     if (Logger.IsDebugEnabled) Logger.Debug("Unable to retrieve portal settings");
                     return null;
                 }
-                if (!azureB2cConfig.Enabled || (!azureB2cConfig.JwtAuthEnabled && !isImpersonation))
+                if (!azureB2cConfig.Enabled || (!validateForSignInPolicy && !azureB2cConfig.JwtAuthEnabled && !isImpersonation))
                 {
                     if (Logger.IsDebugEnabled) Logger.Debug($"Azure B2C JWT auth is not enabled for portal {portalSettings.PortalId}");
                     return null;
@@ -319,7 +396,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             return TextEncoder.GetString(Convert.FromBase64String(b64Str));
         }
 
-        private static JwtSecurityToken GetAndValidateJwt(string rawToken, bool checkExpiry)
+        private static JwtSecurityToken GetAndValidateJwt(string rawToken, bool checkExpiry, bool validateForSignInPolicy)
         {
             JwtSecurityToken jwt;
             try
@@ -349,13 +426,16 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 if (Logger.IsDebugEnabled) Logger.Debug("Unable to retrieve portal settings");
                 return null;
             }
-            if (!azureB2cConfig.Enabled || !azureB2cConfig.JwtAuthEnabled)
+            
+            if (!azureB2cConfig.Enabled || (!validateForSignInPolicy && !azureB2cConfig.JwtAuthEnabled))
             {
                 if (Logger.IsDebugEnabled) Logger.Debug($"Azure B2C JWT auth is not enabled for portal {portalSettings.PortalId}");
                 return null;
             }
-
-            var _config = GetConfig(portalSettings.PortalId, azureB2cConfig);
+            
+            var _config = validateForSignInPolicy 
+                ? GetConfigSignIn(portalSettings.PortalId, azureB2cConfig)
+                : GetConfigRopc(portalSettings.PortalId, azureB2cConfig);
             var validAudiences = azureB2cConfig.JwtAudiences.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
             if (validAudiences.Length == 0)
             {

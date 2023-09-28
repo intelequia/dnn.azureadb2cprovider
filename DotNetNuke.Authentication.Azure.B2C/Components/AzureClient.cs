@@ -23,6 +23,7 @@
 
 #region Usings
 
+using Azure.Core;
 using DotNetNuke.Authentication.Azure.B2C.Common;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Authentication.Azure.B2C.Components.Models;
@@ -41,6 +42,7 @@ using DotNetNuke.Services.Authentication;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.FileSystem;
 using DotNetNuke.Services.Log.EventLog;
+using Microsoft.Graph.Ediscovery;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -54,8 +56,10 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Web;
+using System.Web.Caching;
 using System.Web.Script.Serialization;
 using static DotNetNuke.Services.Authentication.AuthenticationLoginBase;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 #endregion
 
@@ -358,6 +362,37 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             return oState.Service == Service;
         }
 
+        private void LoadToken(string token)
+        {
+            // Verify token
+            var b2cController = new B2CController();
+            var authorization = b2cController.ValidateAuthHeader(token);
+            string username = string.IsNullOrEmpty(authorization) ? null : b2cController.ValidateAuthorizationValue(authorization, true);
+            if (string.IsNullOrEmpty(username))
+            {
+                Logger.Warn("Invalid token cookie");
+                RemoveToken();
+                SetAuthTokenInternal(string.Empty);
+            }
+            else
+            {
+                // Set the token
+                this.AuthToken = token;
+            }
+        }
+
+        protected new void LoadTokenCookie(string suffix)
+        {
+            HttpCookie authTokenCookie = HttpContext.Current.Request.Cookies[this.AuthTokenName + suffix];
+            if (authTokenCookie != null)
+            {
+                if (authTokenCookie.HasKeys)
+                {
+                    LoadToken(authTokenCookie.Values[OAuthTokenKey]);
+                }
+            }
+        }
+
         protected override TimeSpan GetExpiry(string responseText)
         {
             var jsonSerializer = new JavaScriptSerializer();
@@ -375,7 +410,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             var jsonSerializer = new JavaScriptSerializer();
             var tokenDictionary = jsonSerializer.DeserializeObject(responseText) as Dictionary<string, object>;
             var token = Convert.ToString(tokenDictionary["access_token"]);
-            JwtIdToken = new JwtSecurityToken(Convert.ToString(tokenDictionary["access_token"]));                        
+            JwtIdToken = new JwtSecurityToken(token);
+            LoadToken(token);
             return token;
         }
 
@@ -539,7 +575,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 objPortalSecurity.SignOut();
 
                 var _b2cController = (B2CController)B2CController.Instance;
-                var user = _b2cController.TryGetUser(JwtIdToken, true);
+                var user = _b2cController.TryGetUser(JwtIdToken, true, false);
                 var username = user?.Username;
                 if (!string.IsNullOrEmpty(username))
                 {
