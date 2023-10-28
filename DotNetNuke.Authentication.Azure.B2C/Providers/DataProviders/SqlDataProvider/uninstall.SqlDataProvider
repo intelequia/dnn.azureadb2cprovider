@@ -23,7 +23,7 @@
    , 'AzureB2C_APIResource'
    , 'AzureB2C_Scopes'
    , 'AzureB2C_UsernamePrefixEnabled'
-   , 'AzureB2C_GroupNamePrefixEnabled',
+   , 'AzureB2C_GroupNamePrefixEnabled'
    , 'AzureB2C_B2CApplicationId'
    , 'AzureB2C_UserGlobalSettings'
  )
@@ -54,28 +54,30 @@ DELETE {databaseOwner}[{objectQualifier}HostSettings]
    , 'AzureB2C_APIResource'
    , 'AzureB2C_Scopes'
    , 'AzureB2C_UsernamePrefixEnabled'
-   , 'AzureB2C_GroupNamePrefixEnabled',
+   , 'AzureB2C_GroupNamePrefixEnabled'
    , 'AzureB2C_B2CApplicationId'
    , 'AzureB2C_UserGlobalSettings'
  )
 GO
 
 DELETE FROM {databaseOwner}[{objectQualifier}Schedule] 
-WHERE TypeFullName = 'DotNetNuke.Authentication.Azure.B2C.ScheduledTasks.SyncSchedule, DotNetNuke.Authentication.Azure.B2C')
+WHERE TypeFullName = 'DotNetNuke.Authentication.Azure.B2C.ScheduledTasks.SyncSchedule, DotNetNuke.Authentication.Azure.B2C'
 GO
 
-IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureAD_UserMappings]', N'U') IS NULL
+IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureB2C_UserMappings]', N'U') IS NOT NULL
 BEGIN
-	DROP TABLE {databaseOwner}[{objectQualifier}AzureAD_UserMappings]
+	DROP TABLE {databaseOwner}[{objectQualifier}AzureB2C_UserMappings]
 END
+GO
 
-IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureAD_ProfileMappings]', N'U') IS NULL
+IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings]', N'U') IS NOT NULL
 BEGIN
-	DROP TABLE {databaseOwner}[{objectQualifier}AzureAD_ProfileMappings]
+	DROP TABLE {databaseOwner}[{objectQualifier}AzureB2C_ProfileMappings]
 END
+GO
 
-IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureAD_RoleMappings]', N'U') IS NULL
+IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureB2C_RoleMappings]', N'U') IS NOT NULL
 BEGIN
-	DROP TABLE {databaseOwner}[{objectQualifier}AzureAD_RoleMappings]
+	DROP TABLE {databaseOwner}[{objectQualifier}AzureB2C_RoleMappings]
 END
-
+GO
