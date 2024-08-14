@@ -20,6 +20,7 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Web.Security;
 
 namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
 {
@@ -345,9 +346,14 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
             user.Email = eMail;
             user.Profile.FirstName = firstName;
             user.Profile.LastName = lastName;
+            user.Membership.UpdatePassword = false;
 
             AuthenticationController.AddUserAuthentication(user.UserID, AzureConfig.ServiceName, userName);
             UserController.UpdateUser(portalId, user);
+
+            // Updates the password to a new one to avoid password expiration on Azure AD B2C users
+            MembershipUser aspnetUser = Membership.GetUser(user.Username);
+            aspnetUser.ResetPassword();
             return user;
         }
 
