@@ -131,3 +131,10 @@
 	<li>Added DisplayName as one of the default user mappings</li>
 	<li>Added code to handle a situation where a display name is not provided, by generating it from the first and last names</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.07.01</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Fixed an issue causing Azure AD B2C users being asked for password reset when activating DNN password expiration feature</li>
+	<li>Last login date on Membership table is now updated after successful login</li>
+	<li>Fixed Release Legacy build</li>
+</ul>
