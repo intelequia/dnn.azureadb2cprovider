@@ -881,7 +881,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         /// <param name="url"></param>
         private static string RemoveLocaleFromUrl(string url)
         {
-            if (!ConfigurationManager.AppSettings["AzureADB2C.RemoveLocaleFromUrl"].Equals("true", StringComparison.InvariantCultureIgnoreCase))
+            string removeLocaleFromUrl = ConfigurationManager.AppSettings["AzureADB2C.RemoveLocaleFromUrl"];
+            if (string.IsNullOrEmpty(removeLocaleFromUrl) 
+                || !removeLocaleFromUrl.Equals("true", StringComparison.InvariantCultureIgnoreCase))
             {
                 return url;
             }
