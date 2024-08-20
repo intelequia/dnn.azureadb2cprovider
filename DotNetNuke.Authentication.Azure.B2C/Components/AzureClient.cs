@@ -336,6 +336,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 CallbackUri = new Uri(Settings.RedirectUri);
             }
+            CallbackUri = new Uri(RemoveLocaleFromUrl(CallbackUri.ToString()));
 
             APIKey = Settings.APIKey;
             APISecret = Settings.APISecret;
@@ -631,8 +632,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     new QueryParameter("scope", Scope),
                     new QueryParameter("client_id", APIKey),
                     new QueryParameter("redirect_uri", string.IsNullOrEmpty(Settings.RedirectUri) 
-                        ? HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/UserProfile")
-                        : HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
+                        ? HttpContext.Current.Server.UrlEncode(RemoveLocaleFromUrl($"{CallbackUri.Scheme}://{CallbackUri.Host}/UserProfile"))
+                        : HttpContext.Current.Server.UrlEncode(RemoveLocaleFromUrl(CallbackUri.ToString()))),
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() { 
                         PortalId = PortalSettings.Current.PortalId, 
                         Culture = PortalSettings.Current.CultureCode,
@@ -654,10 +655,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 {
                     new QueryParameter("scope", Scope),
                     new QueryParameter("client_id", APIKey),
-                    //new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/Impersonate")),
                     new QueryParameter("redirect_uri", string.IsNullOrEmpty(Settings.RedirectUri)
-                        ? HttpContext.Current.Server.UrlEncode($"{CallbackUri.Scheme}://{CallbackUri.Host}/Impersonate")
-                        : HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
+                        ? HttpContext.Current.Server.UrlEncode(RemoveLocaleFromUrl($"{CallbackUri.Scheme}://{CallbackUri.Host}/Impersonate"))
+                        : HttpContext.Current.Server.UrlEncode(RemoveLocaleFromUrl(CallbackUri.ToString()))),
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() {
                         PortalId = PortalSettings.Current.PortalId,
                         Culture = PortalSettings.Current.CultureCode,
@@ -825,7 +825,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 {
                     new QueryParameter("scope", Scope),
                     new QueryParameter("client_id", APIKey),
-                    new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(CallbackUri.ToString())),
+                    new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(RemoveLocaleFromUrl(CallbackUri.ToString()))),
                     new QueryParameter("state", HttpContext.Current.Server.UrlEncode(new State() {
                         PortalId = Settings.PortalID,
                         Culture = PortalSettings.Current.CultureCode,
@@ -873,6 +873,32 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             SaveTokenCookie(authResult != AuthorisationResult.Authorized);
             return authResult;
         }
+
+        /// <summary>
+        /// Removes the culture code coming in the first segment of the URL. This is useful on 
+        /// websites with multiple languages to avoid creating too many redirect urls on the Azure AD B2C configuration.
+        /// </summary>
+        /// <param name="url"></param>
+        private static string RemoveLocaleFromUrl(string url)
+        {
+            if (!ConfigurationManager.AppSettings["AzureADB2C.RemoveLocaleFromUrl"].Equals("true", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return url;
+            }
+            var uri = new Uri(url);
+            var segments = uri.Segments;
+            if (segments.Length > 1)
+            {
+                var culture = segments[1].TrimEnd('/');
+                if (culture.Length == 5) // i.e. "en-US"
+                {
+                    if (culture.ToLowerInvariant() == PortalSettings.Current.CultureCode.ToLowerInvariant()) {
+                        return $"{uri.Scheme}://{uri.Host}/{uri.AbsolutePath.Substring(segments[1].Length + 1)}";
+                    }
+                }
+            }
+            return url;
+        }        
 
         private void SaveTokenCookie(bool expireCookie = false)
         {
@@ -1087,7 +1113,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 new QueryParameter("client_id", APIKey),
                 new QueryParameter("scope", Scope),
                 new QueryParameter("code", VerificationCode),
-                new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(CallbackUri.ToString()))
+                new QueryParameter("redirect_uri", HttpContext.Current.Server.UrlEncode(RemoveLocaleFromUrl(CallbackUri.ToString())))
             };
             Logger.Debug($"Exchanging code for token");
             var responseText = ExecuteWebRequest(TokenMethod, new Uri($"{TokenEndpoint.AbsoluteUri}?p={PolicyName}"), parameters.ToNormalizedString(), string.Empty);
