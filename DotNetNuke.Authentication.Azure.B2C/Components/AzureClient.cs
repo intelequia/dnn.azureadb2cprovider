@@ -46,6 +46,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.IdentityModel.Metadata;
 using System.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
@@ -939,15 +940,39 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             return result;
         }
 
+        // Create a function that extracts the role group name from the role description. 
+        // This is used to create the role group name when creating a new role.
+        // The role group name is with the format [DNNRoleGroup={roleGroupName}].
+        internal static string GetRoleGroupName(string roleDescription)
+        {
+            var roleGroupName = string.Empty;
+            if (!string.IsNullOrEmpty(roleDescription) && roleDescription.Contains("[DNNRoleGroup="))
+            {
+                var startIndex = roleDescription.IndexOf("[DNNRoleGroup=") + "[DNNRoleGroup=".Length;
+                var endIndex = roleDescription.IndexOf("]", startIndex);
+                if (endIndex > startIndex)
+                {
+                    roleGroupName = roleDescription.Substring(startIndex, endIndex - startIndex);
+                }
+            }
+            return roleGroupName;
+        }
+
         private int AddRole(string roleName, string roleDescription, bool isFromB2c)
         {
+            if (string.IsNullOrEmpty(roleName))
+            {
+                throw new ArgumentNullException(nameof(roleName));
+            }
+            int roleGroupID = GetOrCreateRoleGroup(ref roleDescription);
+
             var roleId = RoleController.Instance.AddRole(new RoleInfo
             {
                 RoleName = roleName,
                 Description = roleDescription,
                 PortalID = PortalSettings.Current.PortalId,
                 Status = RoleStatus.Approved,
-                RoleGroupID = -1,
+                RoleGroupID = roleGroupID,
                 AutoAssignment = false,
                 IsPublic = false
             });
@@ -960,6 +985,40 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             }
 
             return roleId;
+        }
+
+        /// <summary>
+        /// Get or create the role group for the role. The role group is used to group roles together.
+        /// </summary>
+        /// <param name="roleDescription"></param>
+        /// <returns></returns>
+        internal static int GetOrCreateRoleGroup(ref string roleDescription)
+        {
+            string roleGroupName = GetRoleGroupName(roleDescription);
+            int roleGroupID = -1;
+            if (!string.IsNullOrEmpty(roleGroupName))
+            {
+                roleDescription = roleDescription.Replace($"[DNNRoleGroup={roleGroupName}]", "");
+
+                // Check if the role group already exists
+                RoleGroupInfo roleGroup = RoleController.GetRoleGroupByName(PortalSettings.Current.PortalId, roleGroupName);
+                if (roleGroup == null)
+                {
+                    // Create the role group
+                    roleGroup = new RoleGroupInfo
+                    {
+                        PortalID = PortalSettings.Current.PortalId,
+                        RoleGroupName = roleGroupName,
+                    };
+                    roleGroupID = RoleController.AddRoleGroup(roleGroup);
+                }
+                else
+                {
+                    roleGroupID = roleGroup.RoleGroupID;
+                }
+            }
+
+            return roleGroupID;
         }
 
         private void UpdateUserRoles(string aadUserId, UserInfo userInfo)
@@ -1043,6 +1102,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                     }
                     else
                     {
+                        UpdateRoleGroup(group, dnnRole);
+
                         // If user doesn't belong to that DNN role, let's add it
                         if (!userInfo.Roles.Contains(roleToAssign))
                         {
@@ -1060,6 +1121,46 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             catch (Exception e)
             {
                 Logger.Warn($"Error while synchronizing the user roles from user {aadUserId}", e);
+            }
+        }
+
+
+        internal static void UpdateRoleGroup(Microsoft.Graph.Group group, RoleInfo dnnRole)
+        {
+            UpdateRoleGroup(PortalSettings.Current.PortalId, group, dnnRole);
+        }
+        /// <summary>
+        /// Update the role group of the DNN role if it is not already set.
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="dnnRole"></param>
+        internal static void UpdateRoleGroup(int portalId, Microsoft.Graph.Group group, RoleInfo dnnRole)
+        {
+            string roleGroupName = GetRoleGroupName(group.Description);
+            int roleGroupID = -1;
+            if (!string.IsNullOrEmpty(roleGroupName))
+            {
+                // Check if the role group already exists
+                RoleGroupInfo roleGroup = RoleController.GetRoleGroupByName(portalId, roleGroupName);
+                if (roleGroup == null)
+                {
+                    // Create the role group
+                    roleGroup = new RoleGroupInfo
+                    {
+                        PortalID = portalId,
+                        RoleGroupName = roleGroupName,
+                    };
+                    roleGroupID = RoleController.AddRoleGroup(roleGroup);
+                }
+                else
+                {
+                    roleGroupID = roleGroup.RoleGroupID;
+                }
+            }
+            if (dnnRole.RoleGroupID != roleGroupID)
+            {
+                dnnRole.RoleGroupID = roleGroupID;
+                RoleController.Instance.UpdateRole(dnnRole);
             }
         }
 

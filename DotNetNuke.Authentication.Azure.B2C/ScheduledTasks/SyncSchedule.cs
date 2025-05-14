@@ -121,13 +121,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
 
         private int AddRole(int portalId, string roleName, string roleDescription, bool isFromB2c)
         {
+            if (string.IsNullOrEmpty(roleName))
+            {
+                throw new ArgumentNullException(nameof(roleName));
+            }
+            int roleGroupID = AzureClient.GetOrCreateRoleGroup(ref roleDescription);
+
             var roleId = RoleController.Instance.AddRole(new RoleInfo
             {
                 RoleName = roleName,
                 Description = roleDescription,
                 PortalID = portalId,
                 Status = RoleStatus.Approved,
-                RoleGroupID = -1,
+                RoleGroupID = roleGroupID,
                 AutoAssignment = false,
                 IsPublic = false
             });
@@ -206,6 +212,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                                     syncErrors++;
                                     syncErrorsDesc += $"\n{ex.Message}";
                                 }
+                            }
+                            else
+                            {
+                                AzureClient.UpdateRoleGroup(portalId, aadGroup, dnnRole);
                             }
                         }
 
