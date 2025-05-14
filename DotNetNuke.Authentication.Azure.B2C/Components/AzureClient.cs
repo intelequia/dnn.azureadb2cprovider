@@ -40,6 +40,7 @@ using DotNetNuke.Security.Roles;
 using DotNetNuke.Services.Authentication;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.FileSystem;
+using DotNetNuke.Services.Localization;
 using DotNetNuke.Services.Log.EventLog;
 using System;
 using System.Collections.Generic;
@@ -892,7 +893,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             if (segments.Length > 1)
             {
                 var culture = segments[1].TrimEnd('/');
-                if (culture.Length == 5) // i.e. "en-US"
+                if (culture.Length >= 5 && culture.Length <= 9) // i.e. "en-US" || "sr-latn-rs"
+                                                                //     if (LocaleController.IsValidCultureName(culture)
+                                                                //     && LocaleController.Instance.GetLocale(PortalSettings.Current.PortalId, culture) != null) // i.e. "en-US"
                 {
                     if (culture.ToLowerInvariant() == PortalSettings.Current.CultureCode.ToLowerInvariant()) {
                         return $"{uri.Scheme}://{uri.Host}/{uri.AbsolutePath.Substring(segments[1].Length + 1)}";
@@ -900,7 +903,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 }
             }
             return url;
-        }        
+        }
 
         private void SaveTokenCookie(bool expireCookie = false)
         {
