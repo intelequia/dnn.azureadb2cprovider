@@ -1,4 +1,5 @@
-﻿using DotNetNuke.Authentication.Azure.B2C.Common;
+﻿using Azure.Core;
+using DotNetNuke.Authentication.Azure.B2C.Common;
 using DotNetNuke.Authentication.Azure.B2C.Components;
 using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Authentication.Azure.B2C.Components.Models;
@@ -20,7 +21,11 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net;
+using System.Threading.Tasks;
 using System.Web.Security;
+using DotNetNuke.Web.InternalServices;
 
 namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
 {
@@ -80,6 +85,11 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                         if (settings.UserSyncEnabled)
                         {
                             var message = SyncUsers(portal.PortalID, settings);
+                            ScheduleHistoryItem.AddLogNote(message);
+                        }
+                        if (settings.ExpiredRolesSyncEnabled)
+                        {
+                            var message = SyncExpiredRoles(portal.PortalID, settings);
                             ScheduleHistoryItem.AddLogNote(message);
                         }
                     }
@@ -499,5 +509,65 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
                 default: return "";
             }
         }
+
+        internal string SyncExpiredRoles(int portalId, AzureConfig settings)
+        {
+            try
+            {
+                string results = "";
+
+                List<ExpiredUserRoleInfo> expiredRoles = RolesRepository.Instance.GetExpiredUserRoles(portalId);
+
+                var graphClient = new GraphClient(settings.AADApplicationId, settings.AADApplicationKey, settings.TenantId);
+                PortalSettings portalSettings = new PortalSettings(portalId);                
+
+                foreach (ExpiredUserRoleInfo userRole in expiredRoles)
+                {
+                    Microsoft.Graph.User user = graphClient.GetUserByEmail(userRole.Email);
+                    Group group = graphClient.GetGroupByName(userRole.RoleName);
+
+                    if (user != null && group != null)
+                    {
+                        try
+                        {
+                            graphClient.DeleteMember(group.Id, user.Id);
+                            results += $"Removed user {userRole.Email} from group {userRole.RoleName}.\n";
+
+                            //// Remove user role in DNN
+                            //UserInfo dnnUser = UserController.GetUserById(portalId, userRole.UserID);
+                            //if (dnnUser == null)
+                            //{
+                            //    results += $"User {userRole.Email} not found in DNN.\n";
+                            //    continue;
+                            //}
+                            //RoleInfo role = RoleController.Instance.GetRoleById(portalId, userRole.RoleID);
+                            //if (role == null)
+                            //{
+                            //    results += $"Role {userRole.RoleName} not found in DNN.\n";
+                            //    continue;
+                            //}
+                            //// Remove user role in DNN
+                            //RoleController.DeleteUserRole(dnnUser, role, portalSettings, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            results += $"Failed to remove user {userRole.Email} from group {userRole.RoleName}: {ex.Message}\n";
+                        }
+                    }
+                    else
+                    {
+                        results += $"User or group not found for email {userRole.Email} and role {userRole.RoleName}.\n";
+                    }
+                }
+
+                return results;
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error syncing expired roles", e);
+                return "Error syncing expired roles: " + e;
+            }
+        }
+
     }
 }

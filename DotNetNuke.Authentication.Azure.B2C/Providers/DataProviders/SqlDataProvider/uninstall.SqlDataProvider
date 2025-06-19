@@ -81,3 +81,9 @@ BEGIN
 	DROP TABLE {databaseOwner}[{objectQualifier}AzureB2C_RoleMappings]
 END
 GO
+
+IF OBJECT_ID(N'{databaseOwner}[{objectQualifier}AzureB2C_GetExpiredUserRoles]', N'P') IS NOT NULL
+BEGIN
+	DROP PROCEDURE {databaseOwner}[{objectQualifier}AzureB2C_GetExpiredUserRoles]
+END
+GO
