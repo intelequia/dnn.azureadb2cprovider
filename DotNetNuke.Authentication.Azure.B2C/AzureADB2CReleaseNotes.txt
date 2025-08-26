@@ -138,3 +138,8 @@
 	<li>Last login date on Membership table is now updated after successful login</li>
 	<li>Fixed Release Legacy build</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.07.02</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Added new experimental property to remove B2C roles from expired DNN Roles (enabled in web.config when "AzureB2C_ExpiredRolesSyncEnabled" is "true")</li>
+</ul>

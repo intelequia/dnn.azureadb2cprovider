@@ -21,11 +21,13 @@
 
 #endregion
 
+using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.UI.WebControls;
+using System;
 using System.Configuration;
 using System.Linq;
 
@@ -36,7 +38,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public const string ServiceName = "AzureB2C";
 
         private const string _cacheKey = "Authentication";
-        
+
         private AzureConfig() : base("", 0)
         { }
         protected internal AzureConfig(string service, int portalId) : base(service, portalId)
@@ -72,6 +74,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             ImpersonatePolicy = GetScopedSetting(Service + "_ImpersonatePolicy", portalId, "");
             AutoAuthorize = bool.Parse(GetScopedSetting(Service + "_AutoAuthorize", portalId, "true"));
             AutoMatchExistingUsers = bool.Parse(GetScopedSetting(Service + "_AutoMatchExistingUsers", portalId, "false"));
+            ExpiredRolesSyncEnabled = bool.Parse(ConfigurationManager.AppSettings["AzureB2C_ExpiredRolesSyncEnabled"] ?? "false");
         }
 
         public static string GetSetting(string service, string key, int portalId, string defaultValue)
@@ -142,6 +145,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public bool UserSyncEnabled { get; set; }
         [SortOrder(24)]
         public bool AutoMatchExistingUsers { get; set; }
+        [SortOrder(25)]
+        public bool ExpiredRolesSyncEnabled { get; set; }
 
         private static string GetCacheKey(string service, int portalId)
         {
@@ -176,7 +181,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_ProfilePolicy", config.ProfilePolicy);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_PasswordResetPolicy", config.PasswordResetPolicy);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AADApplicationId", config.AADApplicationId);
-            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AADApplicationKey",config.AADApplicationKey);
+            UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_AADApplicationKey", config.AADApplicationKey);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_JwtAudiences", config.JwtAudiences);
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_RoleSyncEnabled", config.RoleSyncEnabled.ToString());
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_UserSyncEnabled", config.UserSyncEnabled.ToString());
@@ -209,7 +214,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
         internal static string GetScopedSetting(bool useGlobalSettings, int portalId, string key, string defaultValue)
         {
-            return useGlobalSettings 
+            return useGlobalSettings
                 ? HostController.Instance.GetString(key, defaultValue)
                 : PortalController.GetPortalSetting(key, portalId, defaultValue); // BUG: DNN 9.3.2 not storing IsSecure column on DB (see UpdatePortalSetting stored procedure) https://github.com/dnnsoftware/Dnn.Platform/issues/2874
         }
@@ -223,7 +228,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             {
                 var graphClient = new Graph.GraphClient(config.AADApplicationId, config.AADApplicationKey, config.TenantId);
                 var extensionApp = graphClient.GetB2CExtensionApplication();
-                b2cApplicationId = extensionApp?.AppId;                
+                b2cApplicationId = extensionApp?.AppId;
                 if (string.IsNullOrEmpty(b2cApplicationId))
                 {
                     throw new ConfigurationErrorsException("Can't find B2C Application on current tenant. Ensure the application 'b2c-extensions-app' exists.");
@@ -256,11 +261,20 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                             graphClient.UpdateUser(user);
                         }
                     }
-                }    */            
+                }    */
             }
             UpdateScopedSetting(config.UseGlobalSettings, config.PortalID, config.Service + "_B2CApplicationId", b2cApplicationId);
             return b2cApplicationId;
 
+        }
+
+        public GraphClient GetGraphClient()
+        {
+            if (string.IsNullOrEmpty(AADApplicationId) || string.IsNullOrEmpty(AADApplicationKey) || string.IsNullOrEmpty(TenantId))
+            {
+                throw new ConfigurationErrorsException("Azure B2C configuration is not complete. Please check the settings.");
+            }
+            return new GraphClient(AADApplicationId, AADApplicationKey, TenantId);
         }
     }
 }

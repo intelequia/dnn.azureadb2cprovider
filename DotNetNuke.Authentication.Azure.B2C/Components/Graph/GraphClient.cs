@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web.Caching;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
 {
@@ -117,6 +118,40 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
                 .Request()
                 .Select($"{UserMembersToRetrieve},{GetCustomUserExtensions()}")
                 .GetSync();
+        }
+
+        public User GetUserByEmail(string email)
+        {
+            var graphClient = GetGraphClient();
+            IGraphServiceUsersCollectionPage result = graphClient.Users
+                .Request()
+                .Filter($"mail eq '{email}' or userPrincipalName eq '{email}'")
+                .Select($"{UserMembersToRetrieve},{GetCustomUserExtensions()}")
+                .GetSync();
+            return result?.FirstOrDefault();
+        }
+
+        public Group GetGroupByName(string groupName)
+        {
+            if (groupName.Contains("'"))
+            {
+                groupName = groupName.Replace("'", "''");
+            }
+            var graphClient = GetGraphClient();
+            IGraphServiceGroupsCollectionPage result = graphClient.Groups
+                .Request()
+                .Filter($"displayName eq '{groupName}'")
+                .GetSync();
+
+            return result.FirstOrDefault();
+        }
+
+        public void DeleteMember(string groupId, string userId)
+        {
+            GraphServiceClient graphClient = GetGraphClient();
+            graphClient.Groups[groupId].Members[userId].Reference
+                .Request()
+                .DeleteSync();
         }
 
         public IGraphServiceUsersCollectionPage GetAllUsers(string search = "")

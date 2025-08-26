@@ -237,15 +237,18 @@
     <Compile Include="Components\Graph\Models\NewUser.cs" />
     <Compile Include="Components\IB2CController.cs" />
     <Compile Include="Components\MenuController.cs" />
+    <Compile Include="Components\Models\ExpiredUserRoleInfo.cs" />
     <Compile Include="Components\Models\ProfileMapping.cs" />
     <Compile Include="Components\Models\RoleMapping.cs" />
     <Compile Include="Components\Models\UserMapping.cs" />
     <Compile Include="Components\State.cs" />
     <Compile Include="Data\IRoleMappingsRepository.cs" />
     <Compile Include="Data\IProfileMappingsRepository.cs" />
+    <Compile Include="Data\IRolesRepository.cs" />
     <Compile Include="Data\IUserMappingsRepository.cs" />
     <Compile Include="Data\RoleMappingsRepository.cs" />
     <Compile Include="Data\ProfileMappingsRepository.cs" />
+    <Compile Include="Data\RolesRepository.cs" />
     <Compile Include="Data\UserMappingsRepository.cs" />
     <Compile Include="ScheduledTasks\SyncSchedule.cs" />
     <Compile Include="Services\AuthorizationController.cs" />
@@ -306,10 +309,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Azure-AD-B2C-DNN-Synchronization-Guide.md" />
     <None Include="AzureADB2CProvider.dnn" />
     <Content Include="packages.config" />
     <None Include="Providers\DataProviders\SqlDataProvider\01.02.00.SqlDataProvider" />
     <None Include="Providers\DataProviders\SqlDataProvider\01.00.00.SqlDataProvider" />
+    <None Include="Providers\DataProviders\SqlDataProvider\01.07.02.SqlDataProvider" />
     <None Include="Providers\DataProviders\SqlDataProvider\uninstall.SqlDataProvider" />
   </ItemGroup>
   <ItemGroup>
@@ -398,7 +403,7 @@
     <Error Condition="!Exists('..\DotNetNuke.Authentication.Azure.B2C\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\DotNetNuke.Authentication.Azure\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>IF "$(ConfigurationName)"=="Debug" copy $(TargetDir)$(TargetName).* c:\websites\onlineportal.dnndev.me\bin /Y</PostBuildEvent>
+    <PostBuildEvent>REM IF "$(ConfigurationName)"=="Debug" copy $(TargetDir)$(TargetName).* c:\websites\dnn9132.dnndev.me\bin /Y</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\.build\ModulePackage.Targets" />
   <Import Project="..\DotNetNuke.Authentication.Azure.B2C\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('..\DotNetNuke.Authentication.Azure.B2C\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
