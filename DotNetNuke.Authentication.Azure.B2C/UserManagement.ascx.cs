@@ -167,7 +167,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalId);
                 ClientAPI.RegisterClientVariable(Page, "customAttributesPrefix", $"extension_{settings.B2cApplicationId.Replace("-", "")}_", true);
-
+                
             }
             catch (Exception exc)
             {
