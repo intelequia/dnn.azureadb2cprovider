@@ -178,6 +178,13 @@
     width: 100%;
 }
 
+.b2c-panel .dnnFormItem .dnnFormInput {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: #333;
+}
+
 @media (max-width: 800px) { 
     th.userName,
     td.userName {

@@ -105,6 +105,96 @@ dnn.extend(dnn.adb2c.UserManagement,
                     });
             }
             
+            // Method to get plain object representation (for cloning)
+            this.toPlainObject = function () {
+                var obj = {
+                    Id: that.id(),
+                    DisplayName: that.displayName(),
+                    GivenName: that.givenName(),
+                    Surname: that.surname(),
+                    Mail: that.mail(),
+                    Identities: that.identities(),
+                    UserPrincipalName: that.userPrincipalName(),
+                    AccountEnabled: that.accountEnabled(),
+                    MailNickname: that.mailNickname(),
+                    OtherMails: that.otherMails(),
+                    ProxyAddresses: that.proxyAddresses(),
+                    ShowInAddressList: that.showInAddressList(),
+                    UserType: that.userType(),
+                    AssignedLicenses: that.assignedLicenses(),
+                    AssignedPlans: that.assignedPlans(),
+                    ObjectType: that.objectType(),
+                    DeletionTimestamp: that.deletionTimestamp(),
+                    AgeGroup: that.ageGroup(),
+                    City: that.city(),
+                    CompanyName: that.companyName(),
+                    ConsentProvidedForMinor: that.consentProvidedForMinor(),
+                    Country: that.country(),
+                    CreatedDateTime: that.createdDateTime(),
+                    CreationType: that.creationType(),
+                    Department: that.department(),
+                    DirSyncEnabled: that.dirSyncEnabled(),
+                    EmployeeId: that.employeeId(),
+                    FacsimileTelephoneNumber: that.facsimileTelephoneNumber(),
+                    ImmutableId: that.immutableId(),
+                    IsCompromised: that.isCompromised(),
+                    JobTitle: that.jobTitle(),
+                    LastDirSyncTime: that.lastDirSyncTime(),
+                    LegalAgeGroupClassification: that.legalAgeGroupClassification(),
+                    Mobile: that.mobile(),
+                    OnPremisesDistinguishedName: that.onPremisesDistinguishedName(),
+                    OnPremisesSecurityIdentifier: that.onPremisesSecurityIdentifier(),
+                    PasswordPolicies: that.passwordPolicies(),
+                    PasswordProfile: that.passwordProfile(),
+                    PhysicalDeliveryOfficeName: that.physicalDeliveryOfficeName(),
+                    PostalCode: that.postalCode(),
+                    PreferredLanguage: that.preferredLanguage(),
+                    ProvisionedPlans: that.provisionedPlans(),
+                    ProvisionedErrors: that.provisionedErrors(),
+                    RefreshTokensValidFromDateTime: that.refreshTokensValidFromDateTime(),
+                    SignInNames: that.signInNames(),
+                    SipProxyAddress: that.sipProxyAddress(),
+                    TelephoneNumber: that.telephoneNumber(),
+                    ThumbnailPhoto: that.thumbnailPhoto(),
+                    UsageLocation: that.usageLocation(),
+                    UserIdentities: that.userIdentities(),
+                    UserState: that.userState(),
+                    UserStateChangedOn: that.userStateChangedOn()
+                };
+                
+                // Add custom attributes
+                if (userManagement.customAttributes && userManagement.customAttributes !== "") {
+                    obj.AdditionalData = {};
+                    $.each(userManagement.customAttributes.split(","), 
+                        function (index, customAttribute) {
+                            var p = userManagement.customAttributesPrefix + customAttribute.replace(" ", "");
+                            obj.AdditionalData[p] = that[customAttribute.replace(" ", "")]();
+                        });
+                }
+                
+                return obj;
+            };
+
+            // Method to copy values from another user object
+            this.copyFrom = function (source) {
+                that.displayName(source.displayName());
+                that.givenName(source.givenName());
+                that.surname(source.surname());
+                that.mail(source.mail());
+                that.username(source.username());
+                that.preferredLanguage(source.preferredLanguage());
+                
+                // Copy custom attributes
+                if (userManagement.customAttributes && userManagement.customAttributes !== "") {
+                    $.each(userManagement.customAttributes.split(","), 
+                        function (index, customAttribute) {
+                            var attrName = customAttribute.replace(" ", "");
+                            if (that[attrName] && source[attrName]) {
+                                that[attrName](source[attrName]());
+                            }
+                        });
+                }
+            };
 
             this.groups = ko.observableArray();
             this.groupsSimple = function () {
@@ -265,6 +355,15 @@ dnn.extend(dnn.adb2c.UserManagement,
                     groups: g
                     },
                     function (data) {
+                        // Copy the edited values back to the original user in the list
+                        if (that.userManagement.originalUser) {
+                            that.userManagement.originalUser.copyFrom(that);
+                            // Also update groups on the original
+                            that.userManagement.originalUser.groups.removeAll();
+                            $.each(that.groups(), function (index, group) {
+                                that.userManagement.originalUser.groups.push(group);
+                            });
+                        }
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
                         toastr.success("User '" + that.displayName() + "' successfully updated");
@@ -331,12 +430,15 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.selectedGroup = ko.observable('');
             this.newUser = ko.observable();
             this.selectedUser = ko.observable();
+            this.originalUser = null; // Store reference to the original user from the list
             this.searchText = ko.observable('');
             this.searchTimeout = null;
             this.loading = ko.observable(true);
             this.changingPassword = ko.observable(false);
             this.customAttributes = dnn.getVar("customAttributes");
             this.customAttributesPrefix = dnn.getVar("customAttributesPrefix");
+            this.enableUpdateUsernames = dnn.getVar("enableUpdateUsernames") === "true";
+            this.enableUpdateEmails = dnn.getVar("enableUpdateEmails") === "true";
 
             function setHeaders(xhr) {
                 sf.setModuleHeaders(xhr);
@@ -476,6 +578,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                 $(".b2c-overlay").css("display", "none");
                 that.newUser(null);
                 that.selectedUser(null);
+                that.originalUser = null; // Clear the reference
             };
             this.addUser = function (evt) {
                 that.selectedUser(null);
@@ -487,16 +590,25 @@ dnn.extend(dnn.adb2c.UserManagement,
                 that.changingPassword(false);
                 ajax("GetUserGroups?objectId=" + evt.id(), null,
                     function (data) {
-                        evt.groups.removeAll();
+                        // Store reference to the original user
+                        that.originalUser = evt;
+                        
+                        // Create a clone of the user for editing
+                        var userClone = new dnn.adb2c.UserManagement.UserModel(that, evt.toPlainObject());
+                        
+                        // Set up groups on the clone
+                        userClone.groups.removeAll();
                         $.each(data,
                             function (index, group) {
-                                evt.groups.push(new dnn.adb2c.UserManagement.GroupModel(that, group));
+                                userClone.groups.push(new dnn.adb2c.UserManagement.GroupModel(that, group));
                             });
                         that.selectedGroup('');
-                        that.selectedUser(evt);
-                        evt.passwordType("auto");
-                        evt.password("");
-                        evt.sendEmail(true);
+                        
+                        // Set the clone as the selected user
+                        that.selectedUser(userClone);
+                        userClone.passwordType("auto");
+                        userClone.password("");
+                        userClone.sendEmail(true);
                         that.showTab();
                         that.loading(false);
                     },
