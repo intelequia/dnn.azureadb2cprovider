@@ -429,4 +429,7 @@ Thank you, we appreciate your support.
   <data name="UserPasswordUpdatedMessage.Text" xml:space="preserve">
     <value>User password has been updated</value>
   </data>
+  <data name="LoadMore.Text" xml:space="preserve">
+    <value>Load more...</value>
+  </data>
 </root>

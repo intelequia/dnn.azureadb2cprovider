@@ -329,7 +329,7 @@ Gracias, apreciamos tu soporte.
                                                 &lt;/td&gt;
                                             &lt;/tr&gt;
                                         &lt;/tbody&gt;
-                                    &lt;/table&gt;
+                                    &lt;table&gt;
                                     &lt;!-- End of: Footer --&gt;
                                 &lt;/td&gt;
                             &lt;/tr&gt;
@@ -428,5 +428,8 @@ Gracias, apreciamos tu soporte.
   </data>
   <data name="UserPasswordUpdatedMessage.Text" xml:space="preserve">
     <value>Contraseña cambiada con éxito</value>
+  </data>
+  <data name="LoadMore.Text" xml:space="preserve">
+    <value>Cargar más...</value>
   </data>
 </root>

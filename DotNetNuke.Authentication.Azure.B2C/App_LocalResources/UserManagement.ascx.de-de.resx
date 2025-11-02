@@ -426,4 +426,7 @@ Thank you, we appreciate your support.
   <data name="UserPasswordUpdatedMessage.Text" xml:space="preserve">
     <value>Das Benutzerkennwort wurde aktualisiert</value>
   </data>
+  <data name="LoadMore.Text" xml:space="preserve">
+    <value>Mehr laden...</value>
+  </data>
 </root>

@@ -439,6 +439,9 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.customAttributesPrefix = dnn.getVar("customAttributesPrefix");
             this.enableUpdateUsernames = dnn.getVar("enableUpdateUsernames") === "true";
             this.enableUpdateEmails = dnn.getVar("enableUpdateEmails") === "true";
+            this.hasMore = ko.observable(false);
+            this.loadingMore = ko.observable(false);
+            this.currentSkipToken = ko.observable(null);
 
             function setHeaders(xhr) {
                 sf.setModuleHeaders(xhr);
@@ -478,7 +481,8 @@ dnn.extend(dnn.adb2c.UserManagement,
                     closeOnConfirm: true
                 }, function () {
                     that.loading(true);
-                        that.ajax("Export?search=" + that.searchText(), null,
+                    var searchParam = that.searchText() || "";
+                    that.ajax("Export?search=" + searchParam, null,
                         function (data) {
                             if (data.downloadUrl) {
                                 window.location.replace(data.downloadUrl);
@@ -518,6 +522,8 @@ dnn.extend(dnn.adb2c.UserManagement,
 
             this.refresh = function () {
                 that.loading(true);
+                that.currentSkipToken(null);
+                that.hasMore(false);
                 ajax("GetAllGroups", null,
                     function (data) {
                         that.groups.removeAll();
@@ -526,15 +532,18 @@ dnn.extend(dnn.adb2c.UserManagement,
                                 that.groups.push(new dnn.adb2c.UserManagement.GroupModel(that, group));
                                 that.groups.valueHasMutated();  
                             });
-                        ajax("GetAllUsers?search=" + that.searchText(), null,
+                        var searchParam = that.searchText() || "";
+                        ajax("GetAllUsers?search=" + searchParam, null,
                             function (data) {
                                 that.users.removeAll();
                                 that.users.valueHasMutated();
-                                $.each(data,
+                                $.each(data.users,
                                     function (index, user) {
                                         that.users.push(new dnn.adb2c.UserManagement.UserModel(that, user));
                                         that.users.valueHasMutated();
                                     });
+                                that.hasMore(data.hasMore);
+                                that.currentSkipToken(data.skipToken);
                                 that.loading(false);
                             },
                             function (e) {
@@ -553,14 +562,19 @@ dnn.extend(dnn.adb2c.UserManagement,
                     clearTimeout(that.searchTimeout);
                 that.searchTimeout = setTimeout(function () {
                     that.searchTimeout = null;
-                    ajax("GetAllUsers?search=" + that.searchText(), null,
+                    that.currentSkipToken(null);
+                    that.hasMore(false);
+                    var searchParam = that.searchText() || "";
+                    ajax("GetAllUsers?search=" + searchParam, null,
                         function (data) {
                             that.users.removeAll();
-                            $.each(data,
+                            $.each(data.users,
                                 function (index, user) {
                                     that.users.push(new dnn.adb2c.UserManagement.UserModel(that, user));
                                     that.users.valueHasMutated()
                                 });
+                            that.hasMore(data.hasMore);
+                            that.currentSkipToken(data.skipToken);
                             that.loading(false);
                         },
                         function (e) {
@@ -569,6 +583,31 @@ dnn.extend(dnn.adb2c.UserManagement,
                     );
                 }, 500);
             };
+
+            this.loadMore = function () {
+                that.loadingMore(true);
+                var searchParam = that.searchText() || "";
+                var url = "GetAllUsers?search=" + searchParam;
+                if (that.currentSkipToken()) {
+                    url += "&skipToken=" + encodeURIComponent(that.currentSkipToken());
+                }
+                ajax(url, null,
+                    function (data) {
+                        $.each(data.users,
+                            function (index, user) {
+                                that.users.push(new dnn.adb2c.UserManagement.UserModel(that, user));
+                            });
+                        that.users.valueHasMutated();
+                        that.hasMore(data.hasMore);
+                        that.currentSkipToken(data.skipToken);
+                        that.loadingMore(false);
+                    },
+                    function (e) {
+                        that.loadingMore(false);
+                    }
+                );
+            };
+
             this.showTab = function() {
                 $(".b2c-overlay").css("display", "block");
                 $(".b2c-rightTab").addClass("b2c-rightTab-show");

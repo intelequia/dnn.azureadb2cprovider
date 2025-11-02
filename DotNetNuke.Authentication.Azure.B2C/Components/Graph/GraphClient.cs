@@ -154,12 +154,19 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
                 .DeleteSync();
         }
 
-        public IGraphServiceUsersCollectionPage GetAllUsers(string search = "")
+        public IGraphServiceUsersCollectionPage GetAllUsers(string search = "", string skipToken = null)
         {
             var graphClient = GetGraphClient();
             var request = graphClient.Users.Request()
                 .Select($"{UserMembersToRetrieve},{GetCustomUserExtensions()}")
-                .Filter(search);
+                .Filter(search)
+                .Top(100);
+            
+            if (!string.IsNullOrEmpty(skipToken))
+            {
+                request.QueryOptions.Add(new QueryOption("$skiptoken", skipToken));
+            }
+            
             if (string.IsNullOrEmpty(search))
             {
                 request.OrderBy("displayName");

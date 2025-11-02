@@ -70,6 +70,10 @@
                 <th colspan="3">
                     <div data-bind="visible: !loading()"><span class="userCount" data-bind="text: users().length">0</span> <% = LocalizeString("Users") %></div>
                     <div data-bind="visible: loading()"><% = LocalizeString("Loading") %></div>
+                    <div data-bind="visible: hasMore() && !loading() && !loadingMore()" style="text-align: center; margin-top: 10px;">
+                        <a href="#" data-bind="click: loadMore" style="text-decoration: none; font-weight: bold;"><% = LocalizeString("LoadMore") %></a>
+                    </div>
+                    <div data-bind="visible: loadingMore()" style="text-align: center; margin-top: 10px;"><% = LocalizeString("Loading") %></div>
                 </th>
             </tr>
         </tfoot>

@@ -77,7 +77,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
 
         [HttpGet]
         [DnnModuleAuthorize(AccessLevel = SecurityAccessLevel.View)]
-        public HttpResponseMessage GetAllUsers(string search)
+        public HttpResponseMessage GetAllUsers(string search, string skipToken = null)
         {
             try
             {
@@ -116,13 +116,77 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     filter += $"{portalIdUserMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)} eq {PortalSettings.PortalId}";
                 }
 
-                var users = graphClient.GetAllUsers(filter);
-                return Request.CreateResponse(HttpStatusCode.OK, users.ToList());
+                var usersPage = graphClient.GetAllUsers(filter, skipToken);
+                var hasMore = usersPage.NextPageRequest != null;
+                
+                string nextSkipToken = null;
+                if (hasMore && usersPage.NextPageRequest != null)
+                {
+                    // Try to extract from QueryOptions first
+                    var skipTokenOption = usersPage.NextPageRequest.QueryOptions?
+                        .FirstOrDefault(q => q.Name == "$skiptoken" || q.Name == "skiptoken");
+                    
+                    if (skipTokenOption != null)
+                    {
+                        nextSkipToken = skipTokenOption.Value;
+                        _logger.Debug($"GetAllUsers: Extracted skipToken from QueryOptions = {nextSkipToken}");
+                    }
+                    else
+                    {
+                        // Fallback to extracting from URL
+                        nextSkipToken = ExtractSkipToken(usersPage.NextPageRequest.RequestUrl);
+                    }
+                }
+                
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    users = usersPage.ToList(),
+                    hasMore = hasMore,
+                    skipToken = nextSkipToken
+                });
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        private string ExtractSkipToken(string requestUrl)
+        {
+            if (string.IsNullOrEmpty(requestUrl))
+            {
+                _logger.Debug("ExtractSkipToken: requestUrl is null or empty");
+                return null;
+            }
+
+            try
+            {
+                _logger.Debug($"ExtractSkipToken: requestUrl = {requestUrl}");
+                
+                // The URL might be relative or absolute, handle both cases
+                Uri uri;
+                if (requestUrl.StartsWith("http"))
+                {
+                    uri = new Uri(requestUrl);
+                }
+                else
+                {
+                    // If it's a relative URL, use a dummy base
+                    uri = new Uri(new Uri("https://dummy.com"), requestUrl);
+                }
+                
+                var query = HttpUtility.ParseQueryString(uri.Query);
+                var skipToken = query["$skiptoken"];
+                
+                _logger.Debug($"ExtractSkipToken: extracted skipToken = {skipToken ?? "null"}");
+                
+                return skipToken;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"ExtractSkipToken: Error extracting skipToken from URL: {requestUrl}", ex);
+                return null;
             }
         }
 
@@ -725,7 +789,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var opId = Guid.NewGuid().ToString();
                 var filename = Path.Combine(Path.GetTempPath(), $"{opId}.tmp");
                 System.IO.File.AppendAllText(filename, $"userPrincipalName,displayName,surname,givenName,issuer,mail,objectId,userType,jobTitle,department,accountEnabled,usageLocation,streetAddress,state,country,physicalDeliveryOfficeName,city,postalCode,telephoneNumber,mobile,ageGroup,legalAgeGroupClassification{(!string.IsNullOrEmpty(customAttributes) ? "," + customAttributes : "")}\n", System.Text.Encoding.UTF8);
-                var users = graphClient.GetAllUsers(filter);
+                var users = graphClient.GetAllUsers(filter, null);
                 while (users != null && users.Count > 0)
                 {
                     foreach (var user in users)
