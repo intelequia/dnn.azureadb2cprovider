@@ -1033,13 +1033,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 var syncOnlyMappedRoles = (CustomRoleMappings != null && CustomRoleMappings.Count > 0);
                 var groupPrefix = PrefixServiceToGroupName ? $"{Service}-" : "";
 
-                var aadGroups = GraphClient.GetUserGroups(aadUserId);
-                var groups = new List<Microsoft.Graph.Group>();
-                while (aadGroups != null && aadGroups.Count > 0)
-                {
-                    groups.AddRange(aadGroups.CurrentPage.OfType<Microsoft.Graph.Group>().ToList());
-                    aadGroups = aadGroups.NextPageRequest?.GetSync();
-                }
+                var groups = GraphClient.GetUserGroups(aadUserId); 
 
                 var filter = ConfigurationManager.AppSettings["AzureADB2C.GetUserGroups.Filter"];
                 if (!string.IsNullOrEmpty(filter))

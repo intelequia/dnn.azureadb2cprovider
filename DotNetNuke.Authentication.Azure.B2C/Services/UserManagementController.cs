@@ -57,7 +57,16 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var query = "";
 
                 var groups = graphClient.GetAllGroups(query);
-                return Request.CreateResponse(HttpStatusCode.OK, groups.ToList());
+                var allGroups = new List<Group>();
+                
+                // Iterate through all pages to get all groups
+                while (groups != null && groups.Count > 0)
+                {
+                    allGroups.AddRange(groups.ToList());
+                    groups = groups.NextPageRequest?.GetSync();
+                }
+                
+                return Request.CreateResponse(HttpStatusCode.OK, allGroups);
             }
             catch (Exception ex)
             {
@@ -141,7 +150,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 var groups = graphClient.GetUserGroups(objectId);
-                return Request.CreateResponse(HttpStatusCode.OK, groups.ToList());
+                return Request.CreateResponse(HttpStatusCode.OK, groups);
             }
             catch (Exception ex)
             {
