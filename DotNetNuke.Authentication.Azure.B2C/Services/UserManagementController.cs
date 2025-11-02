@@ -93,7 +93,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     {
                         filter += " and ";
                     }
-                    filter += $"startswith(displayName, '{search}')";
+                    // Escape single quotes in search term
+                    var escapedSearch = search.Replace("'", "''");
+                    // Build comprehensive search filter across multiple fields
+                    filter += $"(startswith(displayName, '{escapedSearch}') or startswith(givenName, '{escapedSearch}') or startswith(surname, '{escapedSearch}') or startswith(mail, '{escapedSearch}'))";
                 }                
                 if (portalIdUserMapping != null && !string.IsNullOrEmpty(portalIdUserMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
                 {
@@ -688,7 +691,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     {
                         filter += " and ";
                     }
-                    filter += $"startswith(displayName, '{search}')";
+                    // Escape single quotes in search term
+                    var escapedSearch = search.Replace("'", "''");
+                    filter += $"(startswith(displayName, '{escapedSearch}') or startswith(givenName, '{escapedSearch}') or startswith(surname, '{escapedSearch}') or startswith(mail, '{escapedSearch}'))";
                 }
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))

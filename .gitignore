@@ -214,3 +214,4 @@ FakesAssemblies/
 /samples/SPA-WebAPI-Client/packages
 /DotNetNuke.Authentication.Azure.B2C/AzureADB2C.Web/package-lock.json
 /samples/CustomPolicies/SignInWithForcePasswordReset/LocalAccounts/.vscode
+/DotNetNuke.Authentication.Azure.B2C.Extensibility/.vs
