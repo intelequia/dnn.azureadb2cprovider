@@ -254,30 +254,40 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             return request.GetSync();
         }
 
-        public IUserMemberOfCollectionWithReferencesPage GetUserGroups(string userId)
+        public List<Group> GetUserGroups(string userId)
         {
             var graphClient = GetGraphClient();
-            return graphClient
+            var userGroups = graphClient
                 .Users[userId]
                 .MemberOf
                 .Request()
                 .GetSync();
+            
+            var allGroups = new List<Group>();
+            
+            // Iterate through all pages to get all groups
+            while (userGroups != null && userGroups.Count > 0)
+            {
+                allGroups.AddRange(userGroups.OfType<Group>().ToList());
+                userGroups = userGroups.NextPageRequest?.GetSync();
+            }
+            
+            return allGroups;
         }
-
-        //public IGroupTransitiveMembersCollectionWithReferencesPage GetGroupMembers(string groupId)
-        //{
-        //    var graphClient = GetGraphClient();
-
-        //    return graphClient.Groups[groupId].TransitiveMembers.Request()
-        //        .Select($"{UserMembersToRetrieve},,{GetCustomUserExtensions()}")
-        //        .OrderBy("displayName")
-        //        .GetSync();
-        //}
 
         public void UpdateGroupMembers(User user, List<Group> groups)
         {
             var graphClient = GetGraphClient();
-            var usersGroups = graphClient.Users[user.Id].MemberOf.Request().GetSync();
+            var userGroupsPage = graphClient.Users[user.Id].MemberOf.Request().GetSync();
+            
+            // Collect all user groups across all pages
+            var usersGroups = new List<DirectoryObject>();
+            while (userGroupsPage != null && userGroupsPage.Count > 0)
+            {
+                usersGroups.AddRange(userGroupsPage.ToList());
+                userGroupsPage = userGroupsPage.NextPageRequest?.GetSync();
+            }
+            
             foreach (var group in usersGroups)
             {
                 if (!groups.Any(g => g.Id == group.Id))

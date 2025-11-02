@@ -57,7 +57,16 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 var query = "";
 
                 var groups = graphClient.GetAllGroups(query);
-                return Request.CreateResponse(HttpStatusCode.OK, groups.ToList());
+                var allGroups = new List<Group>();
+                
+                // Iterate through all pages to get all groups
+                while (groups != null && groups.Count > 0)
+                {
+                    allGroups.AddRange(groups.ToList());
+                    groups = groups.NextPageRequest?.GetSync();
+                }
+                
+                return Request.CreateResponse(HttpStatusCode.OK, allGroups);
             }
             catch (Exception ex)
             {
@@ -93,7 +102,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     {
                         filter += " and ";
                     }
-                    filter += $"startswith(displayName, '{search}')";
+                    // Escape single quotes in search term
+                    var escapedSearch = search.Replace("'", "''");
+                    // Build comprehensive search filter across multiple fields
+                    filter += $"(startswith(displayName, '{escapedSearch}') or startswith(givenName, '{escapedSearch}') or startswith(surname, '{escapedSearch}') or startswith(mail, '{escapedSearch}'))";
                 }                
                 if (portalIdUserMapping != null && !string.IsNullOrEmpty(portalIdUserMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
                 {
@@ -138,7 +150,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
 
                 var groups = graphClient.GetUserGroups(objectId);
-                return Request.CreateResponse(HttpStatusCode.OK, groups.ToList());
+                return Request.CreateResponse(HttpStatusCode.OK, groups);
             }
             catch (Exception ex)
             {
@@ -336,19 +348,27 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
                 else
                 {
+                    var enableUpdateUsernames = bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableUpdateUsernames", "True"));
+                    var enableUpdateEmails = bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableUpdateEmails", "True"));
+                    
                     var tenantName = settings.TenantName;
                     if (!tenantName.Contains("."))
                     {
                         tenantName += ".onmicrosoft.com";
                     }
-                    if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
+                    
+                    // Only update username identity if setting is enabled
+                    if (enableUpdateUsernames 
+                        && bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
                         && !string.IsNullOrEmpty(parameters.user.Mail)
                         && !parameters.user.Mail.Contains("@"))
                     {
                         AddIdentity(user, tenantName, "userName", parameters.user.Mail);
                     }
 
-                    if (!string.IsNullOrEmpty(parameters.user.Mail)
+                    // Only update email identity if setting is enabled
+                    if (enableUpdateEmails 
+                        && !string.IsNullOrEmpty(parameters.user.Mail)
                         && parameters.user.Mail.Contains("@"))
                     {
                         AddIdentity(user, tenantName, "emailAddress", parameters.user.Mail);
@@ -688,7 +708,9 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     {
                         filter += " and ";
                     }
-                    filter += $"startswith(displayName, '{search}')";
+                    // Escape single quotes in search term
+                    var escapedSearch = search.Replace("'", "''");
+                    filter += $"(startswith(displayName, '{escapedSearch}') or startswith(givenName, '{escapedSearch}') or startswith(surname, '{escapedSearch}') or startswith(mail, '{escapedSearch}'))";
                 }
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))

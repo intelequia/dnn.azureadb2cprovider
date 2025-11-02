@@ -176,7 +176,12 @@
                         { %>
                     <div class="dnnFormItem">
                         <label for="txtUsername"><% = LocalizeString("lblUserName") %> <% = (!EnableAddUsersByEmail ? "*" : "")%></label>
+                        <% if (EnableUpdateUsernames)
+                            { %>
                         <input type="text" id="txtUsername" class="full-width" data-bind="value: username" />
+                        <% } else { %>
+                        <div class="dnnFormInput" style="padding: 4px 0;"><span data-bind="text: username"  class="lblusername"></span></div>
+                        <% } %>
                     </div>
                     <% } %>
                     <div class="dnnFormItem">
@@ -195,7 +200,12 @@
                         { %> 
                     <div class="dnnFormItem">
                         <label for="txtEmail"><% = LocalizeString("lblEmail") %> <% = (!EnableAddUsersByUsername ? "*" : "") %></label>
+                        <% if (EnableUpdateEmails) 
+                            { %>
                         <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
+                        <% } else { %>
+                        <div class="dnnFormInput" style="padding: 4px 0;"><span data-bind="text: mail" class="lblmail"></span></div>
+                        <% } %>
                     </div>
                     <% } %>
                     <% foreach (string customField in CustomFields)

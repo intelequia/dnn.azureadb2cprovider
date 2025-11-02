@@ -338,7 +338,6 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.customAttributes = dnn.getVar("customAttributes");
             this.customAttributesPrefix = dnn.getVar("customAttributesPrefix");
 
-
             function setHeaders(xhr) {
                 sf.setModuleHeaders(xhr);
             }

@@ -60,6 +60,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
                     chkEnableAddUsersByEmail.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableAddUsersByEmail", "True"));
                     chkEnableAddUsersByUsername.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableAddUsersByUsername", "False"));
                     chkEnableUpdate.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableUpdate", "True"));
+                    chkEnableUpdateUsernames.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableUpdateUsernames", "True"));
+                    chkEnableUpdateEmails.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableUpdateEmails", "True"));
                     chkEnableDelete.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableDelete", "True"));
                     chkEnableImpersonate.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableImpersonate", "True"));
                     chkEnableExport.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableExport", "True"));
@@ -81,6 +83,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableAddUsersByEmail", chkEnableAddUsersByEmail.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableAddUsersByUsername", chkEnableAddUsersByUsername.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableUpdate", chkEnableUpdate.Checked.ToString());
+                ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableUpdateUsernames", chkEnableUpdateUsernames.Checked.ToString());
+                ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableUpdateEmails", chkEnableUpdateEmails.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableDelete", chkEnableDelete.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableImpersonate", chkEnableImpersonate.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableExport", chkEnableExport.Checked.ToString());
