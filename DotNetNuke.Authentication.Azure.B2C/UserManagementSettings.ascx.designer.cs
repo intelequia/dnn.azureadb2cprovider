@@ -87,6 +87,42 @@ namespace DotNetNuke.Authentication.Azure.B2C
         protected global::System.Web.UI.WebControls.CheckBox chkEnableUpdate;
 
         /// <summary>
+        /// lblEnableUpdateUsernames control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UserControl lblEnableUpdateUsernames;
+
+        /// <summary>
+        /// chkEnableUpdateUsernames control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkEnableUpdateUsernames;
+
+        /// <summary>
+        /// lblEnableUpdateEmails control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UserControl lblEnableUpdateEmails;
+
+        /// <summary>
+        /// chkEnableUpdateEmails control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkEnableUpdateEmails;
+
+        /// <summary>
         /// lblEnableDelete control.
         /// </summary>
         /// <remarks>

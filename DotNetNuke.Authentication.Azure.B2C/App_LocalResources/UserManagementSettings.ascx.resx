@@ -168,6 +168,18 @@
   <data name="lblEnableUpdate.Text" xml:space="preserve">
     <value>Allow to update users</value>
   </data>
+  <data name="lblEnableUpdateUsernames.Help" xml:space="preserve">
+    <value>Allow to update user identities with username sign-in type when updating users (enabled by default for backward compatibility)</value>
+  </data>
+  <data name="lblEnableUpdateUsernames.Text" xml:space="preserve">
+    <value>Allow to update usernames</value>
+  </data>
+  <data name="lblEnableUpdateEmails.Help" xml:space="preserve">
+    <value>Allow to update user identities with email sign-in type when updating users (enabled by default for backward compatibility)</value>
+  </data>
+  <data name="lblEnableUpdateEmails.Text" xml:space="preserve">
+    <value>Allow to update emails</value>
+  </data>
   <data name="lblGraphFilter.Help" xml:space="preserve">
     <value>Allows to specify a Microsoft Graph filter to the underlying queries</value>
   </data>

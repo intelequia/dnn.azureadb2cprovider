@@ -348,19 +348,27 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
                 else
                 {
+                    var enableUpdateUsernames = bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableUpdateUsernames", "True"));
+                    var enableUpdateEmails = bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableUpdateEmails", "True"));
+                    
                     var tenantName = settings.TenantName;
                     if (!tenantName.Contains("."))
                     {
                         tenantName += ".onmicrosoft.com";
                     }
-                    if (bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
+                    
+                    // Only update username identity if setting is enabled
+                    if (enableUpdateUsernames 
+                        && bool.Parse(Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "EnableAddUsersByUsername", "False"))
                         && !string.IsNullOrEmpty(parameters.user.Mail)
                         && !parameters.user.Mail.Contains("@"))
                     {
                         AddIdentity(user, tenantName, "userName", parameters.user.Mail);
                     }
 
-                    if (!string.IsNullOrEmpty(parameters.user.Mail)
+                    // Only update email identity if setting is enabled
+                    if (enableUpdateEmails 
+                        && !string.IsNullOrEmpty(parameters.user.Mail)
                         && parameters.user.Mail.Contains("@"))
                     {
                         AddIdentity(user, tenantName, "emailAddress", parameters.user.Mail);
