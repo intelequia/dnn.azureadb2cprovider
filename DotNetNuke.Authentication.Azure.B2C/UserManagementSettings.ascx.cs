@@ -67,6 +67,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                     chkEnableExport.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableExport", "True"));
                     txtCustomFields.Text = Utils.GetTabModuleSetting(TabModuleId, "CustomFields");
                     txtGraphFilter.Text = Utils.GetTabModuleSetting(TabModuleId, "GraphFilter");
+                    txtIssuer.Text = Utils.GetTabModuleSetting(TabModuleId, "Issuer");
                 }
             }
             catch (Exception e)
@@ -90,6 +91,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableExport", chkEnableExport.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "CustomFields", txtCustomFields.Text.Trim());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "GraphFilter", txtGraphFilter.Text.Trim());
+                ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "Issuer", txtIssuer.Text.Trim());
             }
             catch (Exception e)
             {

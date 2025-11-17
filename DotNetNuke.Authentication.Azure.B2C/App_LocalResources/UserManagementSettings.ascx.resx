@@ -189,4 +189,10 @@
   <data name="UserManagementSettingsHeader.Text" xml:space="preserve">
     <value>User Management Settings</value>
   </data>
+  <data name="lblIssuer.Text" xml:space="preserve">
+    <value>Issuer</value>
+  </data>
+  <data name="lblIssuer.Help" xml:space="preserve">
+    <value>When the B2C tenant is using a custom domain name in the general settings, the module still needs the tenant name in the format &lt;domain&gt;.onmicrosoft.com to setup the issuer parameter when creating new users. Specify it in the format "&lt;domainname&gt;" or "&lt;domainname&gt;.onmicrosoft.com"</value>
+  </data>
 </root>
