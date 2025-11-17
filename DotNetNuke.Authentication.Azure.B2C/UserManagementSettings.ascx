@@ -51,6 +51,10 @@
 				<dnn:label id="lblGraphFilter" controlname="txtGraphFilter" runat="server" />
 				<asp:TextBox ID="txtGraphFilter" runat="server" />
 			</div>
+			<div class="dnnFormItem">
+				<dnn:label id="lblIssuer" controlname="txtIssuer" runat="server" />
+				<asp:TextBox ID="txtIssuer" runat="server" />
+			</div>
         </fieldset>
     </div>
 </div>

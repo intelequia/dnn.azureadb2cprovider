@@ -255,7 +255,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 }
                 // Ensure  user is on this tenant
                 var identity = newUser.Identities.FirstOrDefault();
-                var tenantName = settings.TenantName;
+                var overrideIssuer = Utils.GetTabModuleSetting(ActiveModule.TabModuleID, "Issuer");
+                var tenantName = !string.IsNullOrEmpty(overrideIssuer) ? overrideIssuer : settings.TenantName;
                 if (!tenantName.Contains("."))
                 {
                     tenantName += ".onmicrosoft.com";
