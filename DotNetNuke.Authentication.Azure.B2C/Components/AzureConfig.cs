@@ -26,6 +26,7 @@ using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Services.Authentication.OAuth;
+using DotNetNuke.Services.Exceptions;
 using DotNetNuke.UI.WebControls;
 using System;
 using System.Configuration;
@@ -156,7 +157,17 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public new static AzureConfig GetConfig(string service, int portalId)
         {
             string key = GetCacheKey(service, portalId);
-            var config = (AzureConfig)DataCache.GetCache(key);
+            AzureConfig config = null;
+
+            try
+            {
+                config = (AzureConfig)DataCache.GetCache(key);
+
+            } catch(Exception ex)
+            {
+                Exceptions.LogException(ex);
+            }
+            
             if (config == null)
             {
                 config = new AzureConfig(service, portalId);
