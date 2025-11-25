@@ -143,3 +143,9 @@
 <ul style="margin: 5px 0 0 30px">
 	<li>Added new experimental property to remove B2C roles from expired DNN Roles (enabled in web.config when "AzureB2C_ExpiredRolesSyncEnabled" is "true")</li>
 </ul>
+
+<p style="margin-top: 20px"><b>Version 01.08.00</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Fix compatibility issue with DNN v10.x not loading the persona bar settings</li>
+</ul>
+
