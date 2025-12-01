@@ -65,6 +65,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                     chkEnableDelete.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableDelete", "True"));
                     chkEnableImpersonate.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableImpersonate", "True"));
                     chkEnableExport.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "EnableExport", "True"));
+                    chkSyncDnnUserAfterModification.Checked = bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "SyncDnnUserAfterModification", "False"));
                     txtCustomFields.Text = Utils.GetTabModuleSetting(TabModuleId, "CustomFields");
                     txtGraphFilter.Text = Utils.GetTabModuleSetting(TabModuleId, "GraphFilter");
                     txtIssuer.Text = Utils.GetTabModuleSetting(TabModuleId, "Issuer");
@@ -89,6 +90,7 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableDelete", chkEnableDelete.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableImpersonate", chkEnableImpersonate.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "EnableExport", chkEnableExport.Checked.ToString());
+                ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "SyncDnnUserAfterModification", chkSyncDnnUserAfterModification.Checked.ToString());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "CustomFields", txtCustomFields.Text.Trim());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "GraphFilter", txtGraphFilter.Text.Trim());
                 ModuleController.Instance.UpdateTabModuleSetting(TabModuleId, "Issuer", txtIssuer.Text.Trim());
