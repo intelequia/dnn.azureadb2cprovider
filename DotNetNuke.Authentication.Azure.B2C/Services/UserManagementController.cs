@@ -104,10 +104,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     {
                         filter += " and ";
                     }
-                    // Escape single quotes in search term
-                    var escapedSearch = search.Replace("'", "''");
-                    // Build comprehensive search filter across multiple fields
-                    filter += $"(startswith(displayName, '{escapedSearch}') or startswith(givenName, '{escapedSearch}') or startswith(surname, '{escapedSearch}') or startswith(mail, '{escapedSearch}'))";
+                    // Escape single quotes and special OData characters in search term
+                    var escapedSearch = EscapeODataFilterValue(search);
+                    // Build comprehensive search filter across multiple fields including otherMails collection
+                    filter += $"(startswith(displayName, '{escapedSearch}') or startswith(givenName, '{escapedSearch}') or startswith(surname, '{escapedSearch}') or startswith(mail, '{escapedSearch}') or otherMails/any(o:startswith(o, '{escapedSearch}')) )";
                 }                
                 if (portalIdUserMapping != null && !string.IsNullOrEmpty(portalIdUserMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
                 {
@@ -190,6 +190,23 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 _logger.Error($"ExtractSkipToken: Error extracting skipToken from URL: {requestUrl}", ex);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Escapes special characters in OData filter values.
+        /// Single quotes must be escaped as '' in OData filter strings.
+        /// </summary>
+        private string EscapeODataFilterValue(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            value = value.Replace("+", "%2B"); // Escape plus sign
+
+            // Escape single quotes by doubling them (OData standard)
+            return value.Replace("'", "''");
         }
 
         [HttpGet]
@@ -899,7 +916,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     }
                 }
 
-                _logger.Info($"Successfully synced DNN user {dnnUsername} with B2C user {b2cUserId}");
+                _logger.Info($"Successfully synced Dnn user {dnnUsername} with B2C user {b2cUserId}");
             }
             catch (Exception ex)
             {
@@ -1152,9 +1169,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     {
                         filter += " and ";
                     }
-                    // Escape single quotes in search term
-                    var escapedSearch = search.Replace("'", "''");
-                    filter += $"(startswith(displayName, '{escapedSearch}') or startswith(givenName, '{escapedSearch}') or startswith(surname, '{escapedSearch}') or startswith(mail, '{escapedSearch}'))";
+                    // Escape single quotes and special OData characters in search term
+                    var escapedSearch = EscapeODataFilterValue(search);
+                    // Build comprehensive search filter across multiple fields including otherMails collection
+                    filter += $"(startswith(displayName, '{escapedSearch}') or startswith(givenName, '{escapedSearch}') or startswith(surname, '{escapedSearch}') or startswith(mail, '{escapedSearch}') or otherMails/any(o:startswith(o, '{escapedSearch}')) )";
                 }
                 var userMapping = UserMappingsRepository.Instance.GetUserMapping("PortalId", settings.UseGlobalSettings ? -1 : PortalSettings.PortalId);
                 if (userMapping != null && !string.IsNullOrEmpty(userMapping.GetB2cCustomAttributeName(PortalSettings.PortalId)))
@@ -1242,6 +1260,5 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-
     }
 }

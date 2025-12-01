@@ -482,6 +482,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                 }, function () {
                     that.loading(true);
                     var searchParam = that.searchText() || "";
+                    searchParam = searchParam.replace("+", "%2B");
                     that.ajax("Export?search=" + searchParam, null,
                         function (data) {
                             if (data.downloadUrl) {
@@ -533,6 +534,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                                 that.groups.valueHasMutated();  
                             });
                         var searchParam = that.searchText() || "";
+                        searchParam = searchParam.replace("+", "%2B");
                         ajax("GetAllUsers?search=" + searchParam, null,
                             function (data) {
                                 that.users.removeAll();
@@ -565,6 +567,7 @@ dnn.extend(dnn.adb2c.UserManagement,
                     that.currentSkipToken(null);
                     that.hasMore(false);
                     var searchParam = that.searchText() || "";
+                    searchParam = searchParam.replace("+", "%2B");
                     ajax("GetAllUsers?search=" + searchParam, null,
                         function (data) {
                             that.users.removeAll();
@@ -587,6 +590,7 @@ dnn.extend(dnn.adb2c.UserManagement,
             this.loadMore = function () {
                 that.loadingMore(true);
                 var searchParam = that.searchText() || "";
+                searchParam = searchParam.replace("+", "%2B");
                 var url = "GetAllUsers?search=" + searchParam;
                 if (that.currentSkipToken()) {
                     url += "&skipToken=" + encodeURIComponent(that.currentSkipToken());
