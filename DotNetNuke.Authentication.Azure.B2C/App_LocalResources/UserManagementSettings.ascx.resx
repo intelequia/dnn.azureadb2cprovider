@@ -195,4 +195,10 @@
   <data name="lblIssuer.Help" xml:space="preserve">
     <value>When the B2C tenant is using a custom domain name in the general settings, the module still needs the tenant name in the format &lt;domain&gt;.onmicrosoft.com to setup the issuer parameter when creating new users. Specify it in the format "&lt;domainname&gt;" or "&lt;domainname&gt;.onmicrosoft.com"</value>
   </data>
+  <data name="lblSyncDnnUserAfterModification.Text" xml:space="preserve">
+    <value>Sync DNN user after add/update</value>
+  </data>
+  <data name="lblSyncDnnUserAfterModification.Help" xml:space="preserve">
+    <value>When enabled, the local DNN user will be fully synchronized after adding or updating a B2C user. This includes user properties, profile data, profile picture, and role membership - matching the behavior during the login process. Defaults to disabled for backwards compatibility.</value>
+  </data>
 </root>

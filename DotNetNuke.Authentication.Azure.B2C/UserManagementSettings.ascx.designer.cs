@@ -177,6 +177,24 @@ namespace DotNetNuke.Authentication.Azure.B2C
         protected global::System.Web.UI.WebControls.CheckBox chkEnableExport;
 
         /// <summary>
+        /// lblSyncDnnUserAfterModification control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UserControl lblSyncDnnUserAfterModification;
+
+        /// <summary>
+        /// chkSyncDnnUserAfterModification control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkSyncDnnUserAfterModification;
+
+        /// <summary>
         /// lblCustomFields control.
         /// </summary>
         /// <remarks>

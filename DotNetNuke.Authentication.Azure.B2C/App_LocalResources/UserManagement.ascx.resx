@@ -432,4 +432,13 @@ Thank you, we appreciate your support.
   <data name="LoadMore.Text" xml:space="preserve">
     <value>Load more...</value>
   </data>
+  <data name="AddingUser.Text" xml:space="preserve">
+    <value>Adding user...</value>
+  </data>
+  <data name="UpdatingUser.Text" xml:space="preserve">
+    <value>Updating user...</value>
+  </data>
+  <data name="ChangingPassword.Text" xml:space="preserve">
+    <value>Changing password...</value>
+  </data>
 </root>

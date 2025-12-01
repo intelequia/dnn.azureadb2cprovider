@@ -198,3 +198,19 @@
     }
 }
 
+/* Disabled button styles */
+.dnnPrimaryAction.disabled,
+.dnnSecondaryAction.disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+/* Disabled input styles */
+input[disabled],
+select[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+}
+

@@ -122,6 +122,14 @@ namespace DotNetNuke.Authentication.Azure.B2C
             }
         }
 
+        public bool SyncDnnUserAfterModification
+        {
+            get
+            {
+                return bool.Parse(Utils.GetTabModuleSetting(TabModuleId, "SyncDnnUserAfterModification", "False"));
+            }
+        }
+
         public string[] CustomFields
         {
             get
@@ -164,6 +172,8 @@ namespace DotNetNuke.Authentication.Azure.B2C
                 ClientAPI.RegisterClientVariable(Page, "YesDownload", LocalizeString("YesDownload"), true);
                 ClientAPI.RegisterClientVariable(Page, "Cancel", LocalizeString("Cancel"), true);
                 ClientAPI.RegisterClientVariable(Page, "customAttributes", Utils.GetTabModuleSetting(TabModuleId, "CustomFields").Replace(" ", ""), true);
+                ClientAPI.RegisterClientVariable(Page, "enableUpdateUsernames", EnableUpdateUsernames.ToString().ToLowerInvariant(), true);
+                ClientAPI.RegisterClientVariable(Page, "enableUpdateEmails", EnableUpdateEmails.ToString().ToLowerInvariant(), true);
 
                 var settings = new AzureConfig(AzureConfig.ServiceName, PortalId);
                 ClientAPI.RegisterClientVariable(Page, "customAttributesPrefix", $"extension_{settings.B2cApplicationId.Replace("-", "")}_", true);

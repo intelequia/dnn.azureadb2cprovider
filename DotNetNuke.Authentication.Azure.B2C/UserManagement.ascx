@@ -88,66 +88,71 @@
             <h3 class="dnnFormSectionHead"><% = LocalizeString("AddUser") %></h3>
             <div class="dnnForm">
                 <p><% = LocalizeString("AddUserDescription") %></p>
+                <!-- ko if: isSaving() -->
+                <div class="dnnFormMessage dnnFormInfo" style="margin-bottom: 10px;"><% = LocalizeString("AddingUser") %></div>
+                <!-- /ko -->
                 <fieldset class="dnnClear">
                     <% if (EnableAddUsersByUsername)
                         { %>
                     <div class="dnnFormItem">
                         <label for="txtUsername"><% = LocalizeString("lblUserName") %> <% = (!EnableAddUsersByEmail ? "*" : "")%></label>
-                        <input type="text" id="txtUsername" class="full-width" data-bind="value: username" />
+                        <input type="text" id="txtUsername" class="full-width" data-bind="value: username, disable: isSaving" />
                     </div>
                     <% } %>
                     <div class="dnnFormItem">
                         <label for="txtFirstName"><% = LocalizeString("lblFirstName") %> *</label>
-                        <input type="text" id="txtFirstName" class="full-width" data-bind="value: givenName" />
+                        <input type="text" id="txtFirstName" class="full-width" data-bind="value: givenName, disable: isSaving" />
                     </div>
                     <div class="dnnFormItem">
                         <label for="txtLastName"><% = LocalizeString("lblLastName") %> *</label>
-                        <input type="text" id="txtLastName" class="full-width" data-bind="value: surname" />
+                        <input type="text" id="txtLastName" class="full-width" data-bind="value: surname, disable: isSaving" />
                     </div>
                     <div class="dnnFormItem">
                         <label for="txtDisplayName"><% = LocalizeString("lblDisplayName") %> *</label>
-                        <input type="text" id="txtDisplayName" class="full-width" data-bind="value: displayName, event: { focus: setDisplayName }" />
+                        <input type="text" id="txtDisplayName" class="full-width" data-bind="value: displayName, event: { focus: setDisplayName }, disable: isSaving" />
                     </div>
                     <% if (EnableAddUsersByEmail)
                         { %> 
                     <div class="dnnFormItem">
                         <label for="txtEmail"><% = LocalizeString("lblEmail") %> <% = (!EnableAddUsersByUsername ? "*" : "") %></label>
-                        <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
+                        <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail, disable: isSaving" />
                     </div>
                     <% } %>
                     <div class="dnnFormItem">
                         <label><% =LocalizeString("PasswordSettings") %></label>
                     </div>
                     <div class="dnnFormItem">
-                        <input type="radio" name="PasswordType" value="auto" data-bind="checked: passwordType" />
+                        <input type="radio" name="PasswordType" value="auto" data-bind="checked: passwordType, disable: isSaving" />
                         <span class="inline"><% = LocalizeString("AutoGeneratePassword") %></span>
                     </div>
                     <div class="dnnFormItem">
-                        <input type="radio" name="PasswordType" value="user" data-bind="checked: passwordType" />
+                        <input type="radio" name="PasswordType" value="user" data-bind="checked: passwordType, disable: isSaving" />
                         <span class="inline"><% = LocalizeString("UserGeneratedPassword") %></span>
                     </div>
                     <!-- ko if: passwordType() === "user" -->
                     <div class="dnnFormItem">
                         <label for="txtPassword"><% = LocalizeString("lblPassword") %> *</label>
-                        <input type="password" id="txtPassword" class="full-width" autocomplete="new-password" data-bind="value: password" />
+                        <input type="password" id="txtPassword" class="full-width" autocomplete="new-password" data-bind="value: password, disable: isSaving" />
                     </div>
                     <!-- /ko -->
                     <div class="dnnFormItem">
-                        <input type="checkbox" id="chkSendEmail" data-bind="checked: sendEmail" />
+                        <input type="checkbox" id="chkSendEmail" data-bind="checked: sendEmail, disable: isSaving" />
                         <span class="inline" for="chkSendEmail"><% = LocalizeString("lblSendEmail") %></span>
                     </div>
                     <hr />  
                     <div class="dnnFormItem">
                         <label for="cboGroups"><% = LocalizeString("lblGroups") %></label>
-                        <select data-bind="options: $parent.groups, optionsText: 'displayName', value: $parent.selectedGroup, optionsCaption: '<% = LocalizeString("ChooseGroup") %>'"></select>
-                        <a id="btnAddGroup" class="dnnPrimaryAction" data-bind="click: addGroup"><% = LocalizeString("AddGroup") %></a>
+                        <select data-bind="options: $parent.groups, optionsText: 'displayName', value: $parent.selectedGroup, optionsCaption: '<% = LocalizeString("ChooseGroup") %>', disable: isSaving"></select>
+                        <a id="btnAddGroup" class="dnnPrimaryAction" data-bind="click: addGroup, css: { disabled: isSaving() }"><% = LocalizeString("AddGroup") %></a>
                     </div>
                     <div class="dnnFormItem">
                         <div class="b2c-groups-header"><% = LocalizeString("CurrentGroups") %></div>
                         <div data-bind="foreach: groups">
                             <div class="b2c-groups-row">
                                 <span data-bind="text: displayName"></span>
+                                <!-- ko if: !$parent.isSaving() -->
                                 <a class="kblist-glyph segoemdl2 float-right fa fa-trash" style="font-size: 1.2em; margin-left: 2.3em" data-bind="attr: { 'data-oid': id }, click: $parent.removeGroup"></a>   
+                                <!-- /ko -->
                             </div> 
                         </div>
                         <!-- ko if: groups().length == 0 -->
@@ -156,8 +161,8 @@
                     </div>
 
                 </fieldset>
-                <a id="btnAddUser" class="dnnPrimaryAction" data-bind="click: addUser"><% = LocalizeString("AddUser") %></a>
-                <a id="btnCancel" class="dnnSecondaryAction" data-bind="click: $parent.hideTab"><% = LocalizeString("Cancel") %></a>
+                <a id="btnAddUser" class="dnnPrimaryAction" data-bind="click: addUser, css: { disabled: isSaving() }"><% = LocalizeString("AddUser") %></a>
+                <a id="btnCancel" class="dnnSecondaryAction" data-bind="click: $parent.hideTab, css: { disabled: isSaving() }"><% = LocalizeString("Cancel") %></a>
             </div>
         </div>
         <!-- /ko -->
@@ -175,6 +180,9 @@
                         <a id="btnChangePassword" href="#" data-bind="click: $parent.changePassword"><% = LocalizeString("ChangePassword") %></a>                        
                     </div>
                 <% } %>
+                <!-- ko if: isSaving() -->
+                <div class="dnnFormMessage dnnFormInfo" style="margin-bottom: 10px;"><% = LocalizeString("UpdatingUser") %></div>
+                <!-- /ko -->
                 <fieldset class="dnnClear">
                     <% if (EnableAddUsersByUsername)
                         { %>
@@ -182,7 +190,7 @@
                         <label for="txtUsername"><% = LocalizeString("lblUserName") %> <% = (!EnableAddUsersByEmail ? "*" : "")%></label>
                         <% if (EnableUpdateUsernames)
                             { %>
-                        <input type="text" id="txtUsername" class="full-width" data-bind="value: username" />
+                        <input type="text" id="txtUsername" class="full-width" data-bind="value: username, disable: isSaving" />
                         <% } else { %>
                         <div class="dnnFormInput" style="padding: 4px 0;"><span data-bind="text: username"  class="lblusername"></span></div>
                         <% } %>
@@ -190,15 +198,15 @@
                     <% } %>
                     <div class="dnnFormItem">
                         <label for="txtFirstName"><% = LocalizeString("lblFirstName") %> *</label>
-                        <input type="text" id="txtFirstName" class="full-width" data-bind="value: givenName" />
+                        <input type="text" id="txtFirstName" class="full-width" data-bind="value: givenName, disable: isSaving" />
                     </div>
                     <div class="dnnFormItem">
                         <label for="txtLastName"><% = LocalizeString("lblLastName") %> *</label>
-                        <input type="text" id="txtLastName" class="full-width" data-bind="value: surname" />
+                        <input type="text" id="txtLastName" class="full-width" data-bind="value: surname, disable: isSaving" />
                     </div>
                     <div class="dnnFormItem">
                         <label for="txtDisplayName"><% = LocalizeString("lblDisplayName") %> *</label>
-                        <input type="text" id="txtDisplayName" class="full-width" data-bind="value: displayName, event: { focus: setDisplayName }" />
+                        <input type="text" id="txtDisplayName" class="full-width" data-bind="value: displayName, event: { focus: setDisplayName }, disable: isSaving" />
                     </div>
                     <% if (EnableAddUsersByEmail)
                         { %> 
@@ -206,7 +214,7 @@
                         <label for="txtEmail"><% = LocalizeString("lblEmail") %> <% = (!EnableAddUsersByUsername ? "*" : "") %></label>
                         <% if (EnableUpdateEmails) 
                             { %>
-                        <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail" />
+                        <input type="text" id="txtEmail" class="full-width" autocomplete="new-password" data-bind="value: mail, disable: isSaving" />
                         <% } else { %>
                         <div class="dnnFormInput" style="padding: 4px 0;"><span data-bind="text: mail" class="lblmail"></span></div>
                         <% } %>
@@ -216,15 +224,15 @@
                         { %>
                     <div class="dnnFormItem">
                         <label><% = customField %></label>
-                        <input type="text" id="txt<% = customField.Replace(" ", "") %>" class="full-width" data-bind="value: <% = customField.Replace(" ", "") %>" />
+                        <input type="text" id="txt<% = customField.Replace(" ", "") %>" class="full-width" data-bind="value: <% = customField.Replace(" ", "") %>, disable: isSaving" />
                     </div>
                     <% }   %>
                     <% if (EnableUpdate)
                         { %>
                     <div class="dnnFormItem">
                         <label for="cboGroups"><% = LocalizeString("lblGroups") %></label>
-                        <select data-bind="options: $parent.groups, optionsText: 'displayName', value: $parent.selectedGroup, optionsCaption: '<% = LocalizeString("ChooseGroup") %>'"></select>
-                        <a id="btnAddGroup" class="dnnPrimaryAction" data-bind="click: addGroup"><% = LocalizeString("AddGroup") %></a>
+                        <select data-bind="options: $parent.groups, optionsText: 'displayName', value: $parent.selectedGroup, optionsCaption: '<% = LocalizeString("ChooseGroup") %>', disable: isSaving"></select>
+                        <a id="btnAddGroup" class="dnnPrimaryAction" data-bind="click: addGroup, css: { disabled: isSaving() }"><% = LocalizeString("AddGroup") %></a>
                     </div>
                     <% } %>
                     <div class="dnnFormItem">
@@ -242,9 +250,9 @@
                 </fieldset>
                 <% if (EnableUpdate)
                     { %>
-                <a id="btnAddUser" class="dnnPrimaryAction" data-bind="click: update"><% = LocalizeString("UpdateUser") %></a>
+                <a id="btnAddUser" class="dnnPrimaryAction" data-bind="click: update, css: { disabled: isSaving() }"><% = LocalizeString("UpdateUser") %></a>
                 <% } %>
-                <a id="btnCancel" class="dnnSecondaryAction" data-bind="click: $parent.hideTab"><% = LocalizeString("Cancel") %></a>
+                <a id="btnCancel" class="dnnSecondaryAction" data-bind="click: $parent.hideTab, css: { disabled: isSaving() }"><% = LocalizeString("Cancel") %></a>
             </div>
         </div>
          <!-- /ko -->
@@ -254,32 +262,35 @@
             <h3 class="dnnFormSectionHead"><% = LocalizeString("ChangePassword") %></h3>
             <div class="dnnForm">
             <p><% = LocalizeString("ChangePasswordSubtitle") %> <strong><span class="inline" data-bind="text: displayName"></span></strong> (<span class="inline" data-bind="text: mail"></span>)</p>
+                <!-- ko if: isSaving() -->
+                <div class="dnnFormMessage dnnFormInfo" style="margin-bottom: 10px;"><% = LocalizeString("ChangingPassword") %></div>
+                <!-- /ko -->
                 <fieldset class="dnnClear">
                     <div class="dnnFormItem">
                         <label><% =LocalizeString("PasswordSettings") %></label>
                     </div>
                     <div class="dnnFormItem">
-                        <input type="radio" name="PasswordType" value="auto" data-bind="checked: passwordType" />
+                        <input type="radio" name="PasswordType" value="auto" data-bind="checked: passwordType, disable: isSaving" />
                         <span class="inline"><% = LocalizeString("AutoGeneratePassword") %></span>
                     </div>
                     <div class="dnnFormItem">
-                        <input type="radio" name="PasswordType" value="user" data-bind="checked: passwordType" />
+                        <input type="radio" name="PasswordType" value="user" data-bind="checked: passwordType, disable: isSaving" />
                         <span class="inline"><% = LocalizeString("UserGeneratedPassword") %></span>
                     </div>
                     <!-- ko if: passwordType() === "user" -->
                     <div class="dnnFormItem">
                         <label for="txtPassword"><% = LocalizeString("lblPassword") %> *</label>
-                        <input type="password" id="txtPassword" class="full-width" autocomplete="new-password" data-bind="value: password" />
+                        <input type="password" id="txtPassword" class="full-width" autocomplete="new-password" data-bind="value: password, disable: isSaving" />
                     </div>
                     <!-- /ko -->
                     <div class="dnnFormItem">
-                        <input type="checkbox" id="chkSendEmail" data-bind="checked: sendEmail" />
+                        <input type="checkbox" id="chkSendEmail" data-bind="checked: sendEmail, disable: isSaving" />
                         <span class="inline" for="chkSendEmail"><% = LocalizeString("lblSendEmail") %></span>
                     </div>
 
                 </fieldset>
-                <a id="btnUpdatePassword" class="dnnPrimaryAction" data-bind="click: changePassword"><% = LocalizeString("ChangePassword") %></a>
-                <a id="btnCancelUpdatePassword" class="dnnSecondaryAction" data-bind="click: $parent.hideTab"><% = LocalizeString("Cancel") %></a>
+                <a id="btnUpdatePassword" class="dnnPrimaryAction" data-bind="click: changePassword, css: { disabled: isSaving() }"><% = LocalizeString("ChangePassword") %></a>
+                <a id="btnCancelUpdatePassword" class="dnnSecondaryAction" data-bind="click: $parent.hideTab, css: { disabled: isSaving() }"><% = LocalizeString("Cancel") %></a>
             </div>
         </div>
         <!-- /ko -->
