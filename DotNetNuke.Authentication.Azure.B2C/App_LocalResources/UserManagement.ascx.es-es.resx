@@ -201,7 +201,7 @@
                                                                     &lt;a href="[Portal:URL]" target="_blank"&gt;&lt;img src="[Portal:LogoURL]" width="125" border="0" style="display: block;"&gt;&lt;/a&gt;
                                                                 &lt;/td&gt;
                                                             &lt;/tr&gt;
-                                                        &lt;/tbody&gt;
+                                                        &lt;tbody&gt;
                                                     &lt;/table&gt;
                                                 &lt;/td&gt;
                                             &lt;/tr&gt;
@@ -431,5 +431,14 @@ Gracias, apreciamos tu soporte.
   </data>
   <data name="LoadMore.Text" xml:space="preserve">
     <value>Cargar más...</value>
+  </data>
+  <data name="AddingUser.Text" xml:space="preserve">
+    <value>Añadiendo usuario...</value>
+  </data>
+  <data name="UpdatingUser.Text" xml:space="preserve">
+    <value>Actualizando usuario...</value>
+  </data>
+  <data name="ChangingPassword.Text" xml:space="preserve">
+    <value>Cambiando contraseña...</value>
   </data>
 </root>

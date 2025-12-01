@@ -30,6 +30,7 @@ dnn.extend(dnn.adb2c.UserManagement,
 
             this.userManagement = userManagement;
             this.isAddingByUsername = ko.observable(addByUsername || false);
+            this.isSaving = ko.observable(false); // Track saving state
             this.identities = ko.observable(model.Identities || null);
             this.identityIsUsername = ko.computed(function () {
                 return that.identities() && that.identities().length > 0 && that.identities()[0].SignInType === "userName";
@@ -256,6 +257,9 @@ dnn.extend(dnn.adb2c.UserManagement,
             };
 
             this.addUser = function () {
+                if (that.isSaving()) return; // Prevent double-click
+                that.isSaving(true);
+                
                 var g = that.groupsSimple();
 
                 that.userManagement.loading(true);
@@ -292,10 +296,12 @@ dnn.extend(dnn.adb2c.UserManagement,
                         that.userManagement.users.valueHasMutated();
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
+                        that.isSaving(false);
                         toastr.success("User '" + that.displayName() + "' successfully added");
                     },
                     function (e) {
                         that.userManagement.loading(false);
+                        that.isSaving(false);
                     }, null, "POST"
                 );
             };
@@ -318,6 +324,9 @@ dnn.extend(dnn.adb2c.UserManagement,
             };
 
             this.update = function () {
+                if (that.isSaving()) return; // Prevent double-click
+                that.isSaving(true);
+                
                 var g = that.groupsSimple();
 
                 that.userManagement.loading(true);
@@ -366,15 +375,20 @@ dnn.extend(dnn.adb2c.UserManagement,
                         }
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
+                        that.isSaving(false);
                         toastr.success("User '" + that.displayName() + "' successfully updated");
                     },
                     function (e) {
                         that.userManagement.loading(false);
+                        that.isSaving(false);
                     }, null, "POST"
                 );
             };
 
             this.changePassword = function () {
+                if (that.isSaving()) return; // Prevent double-click
+                that.isSaving(true);
+                
                 that.userManagement.loading(true);
                 that.userManagement.ajax("ChangePassword", {
                     user: {
@@ -388,9 +402,11 @@ dnn.extend(dnn.adb2c.UserManagement,
                         toastr.success(dnn.getVar("UserPasswordUpdatedMessage"));
                         that.userManagement.hideTab();
                         that.userManagement.loading(false);
+                        that.isSaving(false);
                     },
                     function (e) {
                         that.userManagement.loading(false);
+                        that.isSaving(false);
                     }, null, "POST"
                 );
             };
@@ -662,8 +678,31 @@ dnn.extend(dnn.adb2c.UserManagement,
             };
 
             this.changePassword = function () {
-                that.changingPassword(true);
+                if (that.isSaving()) return; // Prevent double-click
+                that.isSaving(true);
+                
+                that.userManagement.loading(true);
+                that.userManagement.ajax("ChangePassword", {
+                    user: {
+                        id: that.id()
+                    },
+                    passwordType: that.passwordType(),
+                    password: that.password(),
+                    sendEmail: that.sendEmail()
+                },
+                    function (data) {
+                        toastr.success(dnn.getVar("UserPasswordUpdatedMessage"));
+                        that.userManagement.hideTab();
+                        that.userManagement.loading(false);
+                        that.isSaving(false);
+                    },
+                    function (e) {
+                        that.userManagement.loading(false);
+                        that.isSaving(false);
+                    }, null, "POST"
+                );
             };
+
 
             window.onkeydown = function keyPress(e) {
                 if (e.key === "Escape" && $(".b2c-overlay").css("display") === "block") {
