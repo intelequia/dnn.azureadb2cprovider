@@ -889,7 +889,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                                                                     roleId,
                                                                     RoleStatus.Approved,
                                                                     false,
-                                                                    group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DotNetNuke.Common.Utilities.Null.NullDate,
+                                                                    DotNetNuke.Common.Utilities.Null.NullDate,
                                                                     DotNetNuke.Common.Utilities.Null.NullDate);
                             }
                             else
@@ -904,7 +904,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                                                                         dnnRole.RoleID,
                                                                         Security.Roles.RoleStatus.Approved,
                                                                         false,
-                                                                        group.CreatedDateTime.HasValue ? group.CreatedDateTime.Value.DateTime : DateTime.Today,
+                                                                        DotNetNuke.Common.Utilities.Null.NullDate,
                                                                         DotNetNuke.Common.Utilities.Null.NullDate);
                                 }
                             }
