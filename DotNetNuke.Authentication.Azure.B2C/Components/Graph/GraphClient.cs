@@ -125,7 +125,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
             var graphClient = GetGraphClient();
             IGraphServiceUsersCollectionPage result = graphClient.Users
                 .Request()
-                .Filter($"mail eq '{email}' or userPrincipalName eq '{email}'")
+                .Filter($"mail eq '{email}' or userPrincipalName eq '{email}' or otherMails/any(o:o eq '{email}')")
                 .Select($"{UserMembersToRetrieve},{GetCustomUserExtensions()}")
                 .GetSync();
             return result?.FirstOrDefault();
