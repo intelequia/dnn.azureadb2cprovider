@@ -25,8 +25,10 @@ using DotNetNuke.Authentication.Azure.B2C.Components.Graph;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Portals;
+using DotNetNuke.Instrumentation;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.Exceptions;
+using DotNetNuke.Services.Installer.Log;
 using DotNetNuke.UI.WebControls;
 using System;
 using System.Configuration;
@@ -39,6 +41,8 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
         public const string ServiceName = "AzureB2C";
 
         private const string _cacheKey = "Authentication";
+
+        private static readonly ILog Logger = LoggerSource.Instance.GetLogger(typeof(AzureConfig));
 
         private AzureConfig() : base("", 0)
         { }
@@ -165,7 +169,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
 
             } catch(Exception ex)
             {
-                Exceptions.LogException(ex);
+                if (Logger.IsDebugEnabled)
+                {
+                    Exceptions.LogException(ex);
+                }                    
             }
             
             if (config == null)
