@@ -122,13 +122,31 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
 
         public User GetUserByEmail(string email)
         {
+            string tenantName = ConfigurationManager.AppSettings["AzureADB2C.TenantName"];
+            return GetUserByEmail(email, tenantName);
+        }
+
+        public User GetUserByEmail(string email, string tenantName)
+        {
+            // Note that when filtering by email in the indentities collection, issuer and issuerAssignedId must be used together or will return an error indicating that complex queries are not supported.
+            email = email.Replace("+", "%2B"); // Escape plus sign)
             var graphClient = GetGraphClient();
             IGraphServiceUsersCollectionPage result = graphClient.Users
                 .Request()
-                .Filter($"mail eq '{email}' or userPrincipalName eq '{email}' or otherMails/any(o:o eq '{email}') or identities/any(o:o.IssuerAssignedId eq '{email}')")
+                .Filter($"mail eq '{email}' or userPrincipalName eq '{email}' or otherMails/any(o:o eq '{email}')")
                 .Select($"{UserMembersToRetrieve},{GetCustomUserExtensions()}")
                 .GetSync();
-            return result?.FirstOrDefault();
+            User user = result?.FirstOrDefault();
+            if (user == null && !string.IsNullOrEmpty(tenantName))
+            {
+                result = graphClient.Users
+                .Request()
+                .Filter($"identities/any(c:c/issuer eq '{tenantName}' and c/issuerAssignedId eq '{email}')")
+                .Select($"{UserMembersToRetrieve},{GetCustomUserExtensions()}")
+                .GetSync();
+                user = result?.FirstOrDefault();
+            }
+            return user;
         }
 
         public Group GetGroupByName(string groupName)
