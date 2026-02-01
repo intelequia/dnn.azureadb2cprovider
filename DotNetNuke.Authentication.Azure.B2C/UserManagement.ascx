@@ -309,8 +309,8 @@
 
  
 <script type="text/javascript">
-    if (typeof dnn.adb2c === 'undefined') dnn.adb2c = {};
-    $(function() {
+    $(function () {
+        if (typeof dnn.adb2c === 'undefined') dnn.adb2c = {};
         dnn.adb2c.usermgt = new dnn.adb2c.UserManagement.UserManagementModel();
         ko.applyBindings(dnn.adb2c.usermgt, $("#UserManagement-<% = ModuleId %>")[0]);
     });
