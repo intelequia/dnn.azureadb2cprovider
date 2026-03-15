@@ -4,12 +4,15 @@ using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Caching;
 
 namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
@@ -19,6 +22,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
         private static string[] Scopes = new[] { "https://graph.microsoft.com/.default" };
         private const string UserMembersToRetrieve = "id,displayName,surname,givenName,mail,mailNickname,otherMails,signInNames,userIdentities,identities,issuer,userPrincipalName,country,city,userType,accountEnabled,telephoneNumber,additionalData";
         private static readonly ILog Logger = LoggerSource.Instance.GetLogger(typeof(GraphClient));
+        private const string AzureB2CUserTokenCookieName = "AzureB2CUserToken";
 
         private readonly IConfidentialClientApplication _app;
 
@@ -118,6 +122,64 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components.Graph
                 .Request()
                 .Select($"{UserMembersToRetrieve},{GetCustomUserExtensions()}")
                 .GetSync();
+        }
+
+        /// <summary>
+        /// Gets the current user from Microsoft Graph by reading the AzureB2CUserToken cookie
+        /// from the current HTTP request context, extracting the JWT token, and querying Graph
+        /// using the user's object ID ("sub" claim).
+        /// </summary>
+        /// <returns>The Graph User for the currently authenticated user, or null if not found.</returns>
+        public User GetCurrentUser()
+        {
+            try
+            {
+                var httpContext = HttpContext.Current;
+                if (httpContext == null)
+                {
+                    Logger.Debug("GetCurrentUser: No HTTP context available");
+                    return null;
+                }
+
+                var cookie = httpContext.Request.Cookies[AzureB2CUserTokenCookieName];
+                if (cookie == null || string.IsNullOrEmpty(cookie.Value))
+                {
+                    Logger.Debug("GetCurrentUser: AzureB2CUserToken cookie not found or empty");
+                    return null;
+                }
+
+                NameValueCollection qparams = HttpUtility.ParseQueryString(cookie.Value);
+                var oauthToken = qparams["oauth_token"];
+                if (string.IsNullOrEmpty(oauthToken))
+                {
+                    Logger.Debug("GetCurrentUser: oauth_token not found in cookie");
+                    return null;
+                }
+
+                var jwt = new JwtSecurityToken(oauthToken);
+
+                // Try to get the user by the "sub" claim (B2C object ID) 
+                var subClaim = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                if (!string.IsNullOrEmpty(subClaim))
+                {
+                    try
+                    {
+                        return GetUser(subClaim);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Debug($"GetCurrentUser: Could not retrieve user by sub claim '{subClaim}': {ex.Message}");
+                    }
+                }
+
+                Logger.Debug("GetCurrentUser: No 'sub' claim found in token");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"GetCurrentUser: Error retrieving current user: {ex.Message}", ex);
+                return null;
+            }
         }
 
         public User GetUserByEmail(string email)
