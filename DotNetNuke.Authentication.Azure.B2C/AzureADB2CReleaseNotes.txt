@@ -154,3 +154,11 @@
 	<li>Fix missing assemblies in previous build</li>
 </ul>
 
+<p style="margin-top: 20px"><b>Version 01.09.00</b></p>
+<ul style="margin: 5px 0 0 30px">
+	<li>Fix: Simplify AddUserRole startDate parameter logic by @davidjrh in https://github.com/intelequia/dnn.azureadb2cprovider/pull/75</li>
+	<li>Improve logging and user email lookup in Azure B2C by @davidjrh in https://github.com/intelequia/dnn.azureadb2cprovider/pull/76</li>
+	<li>Fix/get user by email by @davidjrh in https://github.com/intelequia/dnn.azureadb2cprovider/pull/77</li>
+	<li>Fix mapping action/add icons rendering after SvgIcons API change by @davidjrh with @Copilot in https://github.com/intelequia/dnn.azureadb2cprovider/pull/79</li>
+</ul>
+
