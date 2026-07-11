@@ -190,8 +190,7 @@ class ProfileMappings extends Component {
                     <div className="AddItemRow">
                         <div className="sectionTitle">{resx.get("lblProfilePropertiesMapping")}</div>
                         <div className={opened ? "AddItemBox-active" : "AddItemBox"} onClick={this.toggle.bind(this, opened ? "" : "add")}>
-                            <div className="add-icon" dangerouslySetInnerHTML={{ __html: SvgIcons.AddIcon }}>
-                            </div> {resx.get("cmdAddProfileMapping")}
+                            <div className="add-icon"><SvgIcons.AddIcon /></div> {resx.get("cmdAddProfileMapping")}
                         </div>
                     </div>
                     <div className="profile-items-grid">
