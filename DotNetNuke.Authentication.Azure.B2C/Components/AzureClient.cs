@@ -987,12 +987,17 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
             return roleId;
         }
 
+        internal static int GetOrCreateRoleGroup(ref string roleDescription)
+        {
+            return GetOrCreateRoleGroup(PortalSettings.Current.PortalId, ref roleDescription);
+        }
+
         /// <summary>
         /// Get or create the role group for the role. The role group is used to group roles together.
         /// </summary>
         /// <param name="roleDescription"></param>
         /// <returns></returns>
-        internal static int GetOrCreateRoleGroup(ref string roleDescription)
+        internal static int GetOrCreateRoleGroup(int portalId, ref string roleDescription)
         {
             string roleGroupName = GetRoleGroupName(roleDescription);
             int roleGroupID = -1;
@@ -1001,13 +1006,13 @@ namespace DotNetNuke.Authentication.Azure.B2C.Components
                 roleDescription = roleDescription.Replace($"[DNNRoleGroup={roleGroupName}]", "");
 
                 // Check if the role group already exists
-                RoleGroupInfo roleGroup = RoleController.GetRoleGroupByName(PortalSettings.Current.PortalId, roleGroupName);
+                RoleGroupInfo roleGroup = RoleController.GetRoleGroupByName(portalId, roleGroupName);
                 if (roleGroup == null)
                 {
                     // Create the role group
                     roleGroup = new RoleGroupInfo
                     {
-                        PortalID = PortalSettings.Current.PortalId,
+                        PortalID = portalId,
                         RoleGroupName = roleGroupName,
                     };
                     roleGroupID = RoleController.AddRoleGroup(roleGroup);
