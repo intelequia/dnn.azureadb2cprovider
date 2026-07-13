@@ -135,7 +135,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.ScheduledTasks
             {
                 throw new ArgumentNullException(nameof(roleName));
             }
-            int roleGroupID = AzureClient.GetOrCreateRoleGroup(ref roleDescription);
+            int roleGroupID = AzureClient.GetOrCreateRoleGroup(portalId, ref roleDescription);
 
             var roleId = RoleController.Instance.AddRole(new RoleInfo
             {
