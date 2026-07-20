@@ -325,7 +325,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     try
                     {
                         _logger.Info($"Syncing DNN user after adding B2C user {user.Id}");
-                        SyncDnnUser(user.Id, PortalSettings.PortalId);
+                        SyncDnnUser(user.Id, PortalSettings.PortalId, parameters.groups);
                     }
                     catch (Exception syncEx)
                     {
@@ -499,7 +499,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                     try
                     {
                         _logger.Info($"Syncing DNN user after updating B2C user {user.Id}");
-                        SyncDnnUser(user.Id, PortalSettings.PortalId);
+                        SyncDnnUser(user.Id, PortalSettings.PortalId, parameters.groups);
                     }
                     catch (Exception syncEx)
                     {
@@ -639,7 +639,10 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
         /// </summary>
         /// <param name="b2cUserId">The B2C user object ID</param>
         /// <param name="portalId">The portal ID</param>
-        private void SyncDnnUser(string b2cUserId, int portalId)
+        /// <param name="expectedGroups">The expected Azure AD B2C group membership just applied by the caller.
+        /// When provided, the role sync waits until the group membership read from Azure AD B2C matches this
+        /// set, working around the eventual consistency (read-after-write) delay in Microsoft Graph.</param>
+        private void SyncDnnUser(string b2cUserId, int portalId, List<Group> expectedGroups = null)
         {
             try
             {
@@ -830,7 +833,7 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
                         var syncOnlyMappedRoles = (customRoleMappings != null && customRoleMappings.Count > 0);
                         var groupPrefix = settings.GroupNamePrefixEnabled ? $"{AzureConfig.ServiceName}-" : "";
 
-                        var groups = graphClient.GetUserGroups(b2cUserId);
+                        var groups = GetUserGroupsWithConsistency(graphClient, b2cUserId, expectedGroups);
 
                         var filter = ConfigurationManager.AppSettings["AzureADB2C.GetUserGroups.Filter"];
                         if (!string.IsNullOrEmpty(filter))
@@ -922,6 +925,56 @@ namespace DotNetNuke.Authentication.Azure.B2C.Services
             {
                 _logger.Error($"SyncDnnUser: Error syncing DNN user for B2C user {b2cUserId}: {ex.Message}", ex);
             }
+        }
+
+        /// <summary>
+        /// Reads the user's group membership from Azure AD B2C, retrying with a backoff until the membership
+        /// matches the <paramref name="expectedGroups"/> set. This works around the eventual consistency
+        /// (read-after-write) delay in Microsoft Graph after group membership changes, ensuring the DNN roles
+        /// are synced against the exact same state that was just applied in Azure AD B2C.
+        /// </summary>
+        /// <param name="graphClient">The Graph client.</param>
+        /// <param name="b2cUserId">The B2C user object ID.</param>
+        /// <param name="expectedGroups">The expected group membership. When null, a single read is performed.</param>
+        /// <returns>The user's group membership read from Azure AD B2C.</returns>
+        private List<Group> GetUserGroupsWithConsistency(GraphClient graphClient, string b2cUserId, List<Group> expectedGroups)
+        {
+            List<Group> groups = graphClient.GetUserGroups(b2cUserId);
+            if (expectedGroups == null)
+            {
+                return groups;
+            }
+
+            HashSet<string> expectedIds = new HashSet<string>(expectedGroups.Where(g => g?.Id != null).Select(g => g.Id));
+
+            int maxAttempts = int.TryParse(ConfigurationManager.AppSettings["AzureADB2C.SyncDnnUser.GroupConsistencyMaxAttempts"], out int maxAttemptsConfig) && maxAttemptsConfig > 0
+                ? maxAttemptsConfig
+                : 5;
+            int delayMs = int.TryParse(ConfigurationManager.AppSettings["AzureADB2C.SyncDnnUser.GroupConsistencyDelayMs"], out int delayMsConfig) && delayMsConfig > 0
+                ? delayMsConfig
+                : 1500;
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                HashSet<string> actualIds = new HashSet<string>(groups.Where(g => g?.Id != null).Select(g => g.Id));
+                if (actualIds.SetEquals(expectedIds))
+                {
+                    _logger.Debug($"SyncDnnUser: group membership for B2C user {b2cUserId} is consistent after {attempt} attempt(s)");
+                    return groups;
+                }
+
+                if (attempt == maxAttempts)
+                {
+                    _logger.Warn($"SyncDnnUser: group membership for B2C user {b2cUserId} did not become consistent after {maxAttempts} attempt(s). Proceeding with the last read state.");
+                    break;
+                }
+
+                _logger.Debug($"SyncDnnUser: group membership for B2C user {b2cUserId} not yet propagated (attempt {attempt}/{maxAttempts}), retrying in {delayMs}ms");
+                System.Threading.Thread.Sleep(delayMs);
+                groups = graphClient.GetUserGroups(b2cUserId);
+            }
+
+            return groups;
         }
 
         private List<string> GetDnnB2cRoles(int portalId)
